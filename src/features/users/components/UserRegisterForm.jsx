@@ -140,7 +140,7 @@ export default function UserRegisterForm (){
 
 return(
         <div className="grid items-center justify-center">
-            <h1 className="mx-auto my-12 text-title font-heading font-bold ">
+            <h1 className="mx-auto my-12 text-title font-heading font-bold text-white">
                 Registro de usuarios</h1>
             {/* Formulario*/}
             <form 
