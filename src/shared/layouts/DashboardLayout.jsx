@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
-import authBg from "@/assets/images/bg-3.jpg";
+import authBg from "@/assets/images/bf-2.png";
+import { UserRegisterForm } from "@/features/users";
 
 export default function DashboardLayout() {
     return (
@@ -13,6 +14,7 @@ export default function DashboardLayout() {
         }}
     >
             <main className = "mx-auto">
+                <UserRegisterForm />
                 <Outlet />
             </main>
         </div>
