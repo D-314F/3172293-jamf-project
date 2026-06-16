@@ -1,269 +1,222 @@
 // UserRegisterForm componente para registrar un usuario
-
 import { useState, useEffect } from "react";
 import { Input, Select, Checkbox, Button } from "@/shared";
-import { getDocumentTypes } from "@/services/selectService";
+import { getDocumentTypes, getUserTypes } from "@/services/selectService"; // ← LÍNEA 4: Agrega getUserTypes
 import { useNavigate } from "react-router-dom";
 import { userSchema } from "../schemas/userSchema";
 
-
-
-
 export default function UserRegisterForm (){
-        //
+    const navigate = useNavigate();
+    const [errors, setErrors] = useState({});
 
-        //Navegacion
-        const navigate = useNavigate();
+    const [FormData, setFormData] = useState({
+        userDocumentTypes: "",
+        userDocumentNumber: "",
+        userName: "",
+        userType: "",
+        userBusinessEmail: "",
+        userEmail: "",
+        userPhone: "",
+        userAddress: "",
+        userStartDate: "",
+        userEndDate: "",
+        isActive: true,
+    });
 
-        //Estado del error
-         const [errors, setErrors] = useState({})
+    const [documentTypes, setDocumentTypes] = useState([]);
+    const [userTypes, setUserTypes] = useState([]); // ← LÍNEA 26: Nuevo state
 
-        // Estado del formulario 
-        const [FormData, setFormData] =  useState({
-            userName: "",
-            userEmail: "",
-            userPhone: "",
-            userDocumentTypes: "",
-            userDocumentNumber: "",
-            userPassword: "",
-            // userImage: [],
+    useEffect(() => {
+        getDocumentTypes().then(setDocumentTypes);
+        getUserTypes().then(setUserTypes); // ← LÍNEA 30: Carga los tipos de usuario
+    }, []);
 
-            //Flags booleanos
-            isStaff: false,
-            isActive: true,
-            isSuperUser: false,
-        });
-
-        //Estado para los tipos de documento
-        const [documentTypes, setDocumentTypes] = useState([]);
-    
-        // Uso del estado useEffect 
-        useEffect(() => {
-            getDocumentTypes().then(setDocumentTypes);
-        },[])
-
-        //========================================
-        //          Handle Generico
-        //========================================
-        /**
-         * Función que se ejecuta cada vez que cambia el valor de un input del formulario
-         */
-        const handleChange = (e) => {
-            // Se obtiene el nombre del campo y su valor
-            const { name, value, type, checked } = e.target;
-
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
         setFormData((prev) => ({
-            // Se copian todos los valores anteriores del estado
-            ...prev,
-
-            // Se actualiza unicamente lo que cambio
-            [name]: type === "checkbox" ? checked : value,
+ ...prev,
+            [name]: type === "checkbox"? checked : value,
         }));
     };
+    const handleSubmit = (e) => {
+    e.preventDefault();
 
- 
+    const result = userSchema.safeParse(FormData);
 
-    //===================== HANDLE SUBMIT =============================
-    const handleSubmit = async(e) => {
-        //Evita que el formulario recargue la pagina
-        e.preventDefault();
+    if (!result.success) {
+        console.log("Errores de Zod:", result.error.issues);
+        const fieldErrors = {};
+        result.error.issues.forEach((issue) => {
+            fieldErrors[issue.path[0]] = issue.message;
+        });
+        setErrors(fieldErrors);
+        return;
+    } 
 
-        //Validamos los datos del formulario contra el esquema Zod
-        //saFeParse NO lanza exceptcion, retorna un objeto controlado
-        const result = userSchema.safeParse(FormData);
+    setErrors({}); // Limpia errores si todo está bien
 
-        //Verificar en consola si el esquema está funcionado correctamente 
-        // console.log(result);
+    try {
+        alert("Usuario creado correctamente");
+        // await createUser(result.data);
+        // navigate("/dashboard/users");
+    } catch (error) {
+        console.error("Error al crear el usuario", error);
+        setErrors({ submit: "Error al crear el usuario" });
+    }
+}
+    
 
-        //Si la validacion falla
-        if(!result.success){
-            //Objeto donde almacenaremos los errores por campo
-            const fieldErrors = {};
-
-            // Recorremos cada error generado por Zod
-            result.error.issues.forEach((issue) => {
-                //issue.path[0] corresponde al nombre del campo
-                // issue.message contiene el mensaje de error definido en el schema
-                fieldErrors[issue.path[0]] = issue.message;
-            });
-
-            // Actualizamos el estado de errores para mostrarlos en el UI 
-            setErrors(fieldErrors);
-
-            // Cortamos la ejecución: NO se envia nada al backend
-
-            return;
-        }
-        // Si la validacion pasa, limpiamos errores previos
-        setErrors({});
-
-        //Activamos eestado de envio (util para desahibilitar el boton)
-        // setIsSubmitting(true);
-
-        try {
-            //llamamos al servivio frontend que soncume la API 
-            //result.data contiene los datos ya validamos por Zod
-            // const responde = await createUser(result.data); linea comentada es un servicio 
-
-            //Log informativo para desarrolllo
-            // console("Usuario Creado:", responde); igual
-
-            //Feedback basico al usuario 
-            alert("Usuario creado correctamente");
-
-            //Navegamos a la vista anterior
-            // navigate (-1) equivale a "volver atras"
-            navigate(-1);
-        } catch (error){
-            //Caoturamos errores de red o errores lanzados por el service
-            console.error("Error:" , error.message);
-
-            //Mstramos el mensaje de error al usuario 
-            alert(error.message);
-        } finally {
-            //Pase lo que pase, desactivamos el esrado de envio 
-            // setIsSubmitting(false);
-        }
-    };
-
-    //========================================
-    //          Handle NameChange
-    //========================================
-
-    // const handleNameChange = (e) => {
-    //     const value = e.target.value.trim();
-
-    //     if (value === "") {
-    //         console.log("El nombre no puede estar vacio");
-    //     }
-    // };
-
-return(
-        <div className="grid items-center justify-center">
-            <h1 className="mx-auto my-12 text-title font-heading font-bold text-white">
-                Registro de usuarios</h1>
-            {/* Formulario*/}
-            <form 
-                action=""
-                onSubmit={handleSubmit}
-            >
-
-                  <Input
-                    label="Nombre"
-                    name="userName"
-                    type="text"
-                    value={FormData.userName}
-                    placeholder="Escribe tu nombre"
-                    htmlFor="user-name"
-                    onChange={handleChange}
-                    error={errors.userName}
-            />
-            <Input
-                    label="Correo"
-                    name="userEmail"
-                    type="email"
-                    value={FormData.userEmail}
-                    placeholder="Escribe tu correo electronico"
-                    htmlFor="user-email"
-                    onChange={handleChange}
-                    error={errors.userEmail}
-            />
-            <Input
-                    label="Telefono"
-                    name="userPhone"
-                    type="tel"
-                    value={FormData.userPhone}
-                    placeholder="Escribe tu numero de telefono"
-                    htmlFor="user-phone"
-                    onChange={handleChange}
-                    error={errors.userPhone}
-            />
-
-            <Select
-                    label="Tipo de documento"
-                    name="userDocumentTypes"
-                    value={FormData.userDocumentTypes}
-                    htmlFor="userDocumentTypes"
-                    options={documentTypes}
-                    onChange={handleChange}
-                    error={errors.userDocumentTypes}
-            />
-             <Input
-                    label="Documento"
-                    name="userDocumentNumber"
-                    type="text"
-                    value={FormData.userDocumentNumber}
-                    placeholder="Escribe tu numero de documento"
-                    htmlFor="user-document-number"
-                    onChange={handleChange}
-                    error={errors.userDocumentNumber}
-            />
-             <Input
-                    label="Contraseña"
-                    name="userPassword"
-                    type="password"
-                    value={FormData.userPassword}
-                    placeholder="Escribe tu contraseña"
-                    htmlFor="user-password"
-                    onChange={handleChange}
-                    error={errors.userPassword}
-                    />
-
-                    {/*Checkbox*/}
-            <div className="grid gap-4 my-2">
-                <Checkbox
-                    id="isSuperUser"
-                    name="isSuperUser"
-                    label="Es super usuario"
-                    checked = {FormData.isSuperUser}
-                    onChange={handleChange}
-                />
-                <Checkbox
-                    id="isStaff"
-                    name="isStaff"
-                    label="Es staff"
-                    checked = {FormData.isStaff}
-                    onChange={handleChange}
-                />
-                <Checkbox
-                    id="isActive"
-                    name="isActive"
-                    label="Esta activo"
-                    checked = {FormData.isActive}
-                    onChange={handleChange}
-                />
-
+    return(
+        <div className="p-8">
+            <div className="w-fit mb-6">
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    type="button"
+                    onClick={() => navigate(-1)}
+                >
+                    ← Atrás
+                </Button>
             </div>
 
-            
-            
+            <h1 className="text-2xl font-bold mb-6 text-white">
+                Registrar usuarios
+            </h1>
 
+            <form onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-            {/* Actions */}
-                <div className="flex gap-6 items-center">
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        type="button"
-                        onClick={() => {console.log("Se oprimió el submit")}}
-                    >
-                     Cancelar
-                    </Button>
-                    <Button
-                        variant="primary"
-                        size="md"
-                        type="submit"
-                        onClick={() => {console.log("Se oprimió el submit")}}
-                    >
-                     Guardar
-                    </Button>
-                  
+                    {/* COLUMNA 1 */}
+                    <div className="flex flex-col gap-4">
+                        <Select
+                            label="Tipo de documento"
+                            name="userDocumentTypes"
+                            value={FormData.userDocumentTypes}
+                            options={documentTypes}
+                            onChange={handleChange}
+                            error={errors.userDocumentTypes}
+                        />
+                        <Input
+                            label="Número Documento"
+                            name="userDocumentNumber"
+                            type="text"
+                            value={FormData.userDocumentNumber}
+                            placeholder="Número Documento"
+                            onChange={handleChange}
+                            error={errors.userDocumentNumber}
+                        />
+                        <Input
+                            label="Nombre Completo"
+                            name="userName"
+                            type="text"
+                            value={FormData.userName}
+                            placeholder="Nombre Completo"
+                            onChange={handleChange}
+                            error={errors.userName}
+                        />
+                        <Select
+                            label="Tipo de usuario"
+                            name="userType"
+                            value={FormData.userType}
+                            options={userTypes} // ← LÍNEA 113: Cambia el array quemado por userTypes
+                            onChange={handleChange}
+                            error={errors.userType}
+                        />
+                        <div className="w-full">
+                            <Button variant="primary" type="button" size="md">
+                                Agregar grupo
+                            </Button>
+                        </div>
+                        <div className="w-full">
+                            <Button variant="primary" type="button" size="md">
+                                Visualizar Lista Usuario
+                            </Button>
+                        </div>
+                    </div>
+
+                    {/* COLUMNA 2 */}
+                    <div className="flex flex-col gap-4">
+                        <Input
+                            label="Correo empresarial"
+                            name="userBusinessEmail"
+                            type="email"
+                            value={FormData.userBusinessEmail}
+                            placeholder="Correo empresarial"
+                            onChange={handleChange}
+                            error={errors.userBusinessEmail}
+                        />
+                        <Input
+                            label="Correo electronico"
+                            name="userEmail"
+                            type="email"
+                            value={FormData.userEmail}
+                            placeholder="Correo electronico"
+                            onChange={handleChange}
+                            error={errors.userEmail}
+                        />
+                        <Input
+                            label="Numero telefonico"
+                            name="userPhone"
+                            type="tel"
+                            value={FormData.userPhone}
+                            placeholder="Numero telefonico"
+                            onChange={handleChange}
+                            error={errors.userPhone}
+                        />
+                        <Input
+                            label="Dirección residencial"
+                            name="userAddress"
+                            type="text"
+                            value={FormData.userAddress}
+                            placeholder="Dirección residencial"
+                            onChange={handleChange}
+                            error={errors.userAddress}
+                        />
+                        <Input
+                            label="Fecha inicio laboral"
+                            name="userStartDate"
+                            type="text"
+                            value={FormData.userStartDate}
+                            placeholder="Fecha inicio laboral"
+                            onChange={handleChange}
+                            error={errors.userStartDate}
+                        />
+                        <Input
+                            label="Fecha fin laboral"
+                            name="userEndDate"
+                            type="text"
+                            value={FormData.userEndDate}
+                            placeholder="Fecha fin laboral"
+                            onChange={handleChange}
+                            error={errors.userEndDate}
+                        />
+                    </div>
+
+                    {/* COLUMNA 3 */}
+                    <div className="flex flex-col gap-4">
+                        <Checkbox
+                            id="isActive"
+                            name="isActive"
+                            label="Estado del usuario"
+                            checked={FormData.isActive}
+                            onChange={handleChange}
+                        />
+
+                        <div className="w-full">
+                            <Button variant="primary" type="button" size="md">
+                                Agregar Teléfono Secundario
+                            </Button>
+                        </div>
+
+                        <div className="w-full [&>button]:w-full mt-4">
+                            <Button variant="primary" type="submit" size="md">
+                                Crear usuario
+                            </Button>
+                        </div>
+                    </div>
+
                 </div>
-                
-            
-          </form>
+            </form>
         </div>
     );
 }
-
-

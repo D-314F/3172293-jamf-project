@@ -1,12 +1,11 @@
-:root{
+:root {
     /* ======================= LIGHT THEME =========================== */
-
+    
     /* ============BRAND=========== */
-
-    --semantic-brand: var(--color-primary-800);
-    --semantic-brand-hover: var(--color-primary-950); /*Generalmente es de n tono mas alto que el brand*/
-    --semantic-brand-soft: var(--color-primary-200);
-    --semantic-brand-soft-hover: var(--color-primary-350);
+    --semantic-brand: var(--color-primary-400);        /* #FFCA28 Dorado */
+    --semantic-brand-hover: var(--color-primary-500);  /* #FFC107 */
+    --semantic-brand-soft: var(--color-secondary-400); /* Tu secondary de tokens */
+    --semantic-brand-soft-hover: var(--color-secondary-500);
 
     /* ==========BACKGROUND======== */
 
@@ -61,5 +60,5 @@
     DEPENDEMOS ES DE ITENCIÓN
     /*========================================*/
     
+    /*=============== DARK THEME ================*/
 }
-/*=============== DARK THEME ================*/
