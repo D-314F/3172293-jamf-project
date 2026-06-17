@@ -78,8 +78,9 @@ export default function DishForm() {
             </div>
 
             {/* Tarjeta contenedora con degradado */}
-           <div className="bg-linear-to-r from-brand to-surface p-10 rounded-3xl border border-border shadow-2xl">                
-                <h1 className="text-title font-heading text-text-primary mb-8 text-2xl font-bold">
+           <div className="bg-black p-10 rounded-3xl border border-brand"> 
+
+                <h1 className="text-title font-heading text-white mb-8 text-2xl font-bold">
                     Agregar Platillo
                 </h1>
 
@@ -87,6 +88,7 @@ export default function DishForm() {
                     {/* Campos de texto apilados verticalmente */}
                     <div className="max-w-md flex flex-col gap-4">
                         <Input
+                            label="Nombre"
                             name="nombre"
                             type="text"
                             value={formData.nombre}
@@ -95,6 +97,7 @@ export default function DishForm() {
                             error={errors.nombre}
                         />
                         <Input
+                        label="Precio"
                             name="precio"
                             type="text"
                             value={formData.precio}
@@ -103,6 +106,7 @@ export default function DishForm() {
                             error={errors.precio}
                         />
                         <Select
+                            label="Categoría"
                             name="categoria"
                             value={formData.categoria}
                             options={categories}
@@ -111,6 +115,7 @@ export default function DishForm() {
                             error={errors.categoria}
                         />
                         <Input
+                            label="Descripción"
                             name="descripcion"
                             type="text"
                             value={formData.descripcion}
