@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import authBg from "@/assets/images/bf-2.png";
 // import authBg2 from "@/assets/images/bf-3.png"; <-- esta es la imagen del login
+import { Navbar } from "@/shared";
 
 import { UserRegisterForm } from "@/features/users";
 // import { LoginForm } from "@/features/users";
@@ -32,6 +33,7 @@ export default function DashboardLayout() {
         >
             <main className = "mx-auto">
 
+                <Navbar/>
                 <UserRegisterForm />
                 {/* <LoginForm /> */}
 
