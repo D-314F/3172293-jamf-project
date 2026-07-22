@@ -20,7 +20,7 @@ const variantStyles = {
     "bg-neutral-100 border-blue-500 hover:border-blue-700 focus-within:bg-white",
 
   // Outlined: campo con fondo transparente y borde visible siempre.
-  outlined: "bg-transparent border-green-500 hover:border-green-600",
+  outlined: "bg-transparent border-black hover:border-white",
 };
 
 const SearchField = forwardRef(

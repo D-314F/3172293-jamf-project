@@ -37,19 +37,19 @@
     --color-tertiary-950: #2C1815;
 
     /*Basic color*/
-    --white: #fff;
-    --black: #000;
-    --gray-950: #1010;
-    --gray-900: #262626;
-    --gray-800: #3B3B3B;
-    --gray-700: #515151;
-    --gray-600: #676767;
-    --gray-500: #7D7D7D;
-    --gray-400: #929292;
-    --gray-300: #A8A8A8;
-    --gray-200: #BEBEBE;
-    --gray-100: #D4D4D4;
-    --gray-50: #E9E9E9;
+    --color-white: #ffffff;
+    --color-black: #000000;
+    --color-gray-950: #121212; /* Hexadecimal corregido */
+    --color-gray-900: #262626;
+    --color-gray-800: #3b3b3b;
+    --color-gray-700: #515151;
+    --color-gray-600: #676767;
+    --color-gray-500: #7d7d7d;
+    --color-gray-400: #929292;
+    --color-gray-300: #a8a8a8;
+    --color-gray-200: #bebebe;
+    --color-gray-100: #d4d4d4;
+    --color-gray-50: #e9e9e9;
 
     /* Typography */
     --main-font: Helvetica, Arial, sans-serif;
