@@ -108,6 +108,38 @@ export default function Navbar(){
               Listar usuarios
             </Link>
           </DropdownItem>
+
+          <DropdownItem>
+            <Link to="/dashboard/dishCreate" className="block w-full">
+              Crear Platillos
+            </Link>
+          </DropdownItem>
+
+          <DropdownItem>
+            <Link to="/dashboard/dishList" className="block w-full">
+              Listar Platillos
+            </Link>
+          </DropdownItem>
+
+          <DropdownItem>
+            <Link to="/dashboard/ProviderCreate" className="block w-full">
+              Crear Proveedores
+            </Link>
+          </DropdownItem>
+
+          <DropdownItem>
+            <Link to="/dashboard/createInventory" className="block w-full">
+              Crear Inventario
+            </Link>
+          </DropdownItem>
+
+          <DropdownItem>
+            <Link to="/dashboard/OrderForm" className="block w-full">
+              Crear Ordenes
+            </Link>
+          </DropdownItem>
+
+
             
           <DropdownItem>
             Cerrar Sesión
