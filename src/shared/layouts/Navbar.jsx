@@ -29,13 +29,13 @@ export default function Navbar(){
   };
 
   return (
-    <nav className="w-full bg-transparent border-b-2">
+    <nav className="w-full bg-brand border-b-2text-black">
       <div className="mx-auto max-w-7xl px-4">
         <div className="flex h-16 items-center justify-between">
 
             {/* Logo de marca */}
           <div className=" hidden sm:block items-center">
-            <Link to={"/dashboard/home"} className="text-h1 font-heading">
+            <Link to={"/dashboard"} className="text-h1 font-heading">
               <img src={logo} alt="logo" className="h-12" />
             </Link>
           </div>
@@ -94,11 +94,13 @@ export default function Navbar(){
           {/* Contenido */}
         <DropdownContent>
           <DropdownItem>
-            Gestion de Usuarios
+            Gestion de Productos
           </DropdownItem>
           
           <DropdownItem>
-            Gestion de Productos
+            <Link to="/dashboard/userCreate" className="block w-full">
+              Crear Usuarios
+            </Link>
           </DropdownItem>
 
           <DropdownItem>

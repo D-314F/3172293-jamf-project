@@ -95,7 +95,7 @@ export default function DataTable({ data, columns }) {
           placeholder="Buscar..."
           value={globalFilter ?? ""}
           onChange={(e) => setGlobalFilter(e.target.value)}
-          className="border rounded px-3 py-2 w-64"
+          className="border border-white text-white rounded px-3 py-2 w-64"
         />
 
 
@@ -104,7 +104,7 @@ export default function DataTable({ data, columns }) {
         <select
           value={table.getState().pagination.pageSize}
           onChange={(e) => table.setPageSize(Number(e.target.value))}
-          className="border rounded px-2 py-2"
+          className="border bg-white rounded px-2 py-2"
         >
           {[5, 7, 10, 20, 50].map(size => (
             <option key={size} value={size}>
@@ -118,7 +118,7 @@ export default function DataTable({ data, columns }) {
 
 
       {/* ================== TABLA ================== */}
-      <div className="overflow-x-auto border rounded">
+      <div className="overflow-x-auto border border-white rounded">
         <table className="w-full">
 
 
@@ -174,7 +174,7 @@ export default function DataTable({ data, columns }) {
             {table.getRowModel().rows.map(row => (
 
 
-              <tr key={row.id} className="hover:bg-gray-50">
+              <tr key={row.id} className="hover:bg-amber-600 bg-gray-50">
 
 
                 {/* Celdas visibles de cada fila */}
@@ -216,7 +216,7 @@ export default function DataTable({ data, columns }) {
 
         {/* ================== INFORMACIÓN ================== */}
         {/* Cantidad de registros visibles */}
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-white">
           Mostrando {table.getRowModel().rows.length} de{" "}
           {table.getFilteredRowModel().rows.length} registros
         </span>
@@ -249,7 +249,7 @@ export default function DataTable({ data, columns }) {
 
 
           {/* Información de página actual */}
-          <span className="text-sm px-2">
+          <span className="text-sm text-white px-2">
             Página {table.getState().pagination.pageIndex + 1} de{" "}
             {table.getPageCount()}
           </span>
@@ -283,7 +283,7 @@ export default function DataTable({ data, columns }) {
 
       {/* ================== IR A PÁGINA ================== */}
       {/* Permite navegar directamente a una página específica */}
-      <div className="flex items-center gap-2 text-sm">
+      <div className="flex text-white items-center gap-2 text-sm">
 
 
         <span>Ir a página:</span>
