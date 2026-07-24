@@ -101,7 +101,7 @@ export default function FileInput({
       {/* Trigger de input oculto + loader */}
       <div
         onClick={() => !isLoading && inputRef.current.click()}
-        className="w-24 h-24 border-2 border-dashed rounded flex items-center justify-center cursor-pointer"
+        className="w-24 h-24 border-2 border-dashed border-white rounded flex items-center justify-center cursor-pointer"
       >
         {isLoading ? (
           <InfinityLoader

@@ -2,6 +2,7 @@
 // CORRECCION: agregar campos boolenos
 
 import { z } from "zod";
+import { fileSchema } from "@/shared/schemas/fileSchema";
 
 
 export const userSchema = z.object({
@@ -55,4 +56,7 @@ export const userSchema = z.object({
     // isStaff: z.boolean(),
     isActive: z.boolean(),
     // isSuperUser:z.boolean(),
+
+    userImage: fileSchema.shape.files.optional()
+
 })
