@@ -1,6 +1,6 @@
 // UserRegisterForm componente para registrar un usuario
 import { useState, useEffect } from "react";
-import { Input, Select, Checkbox, Button } from "@/shared";
+import { Input, Select, Checkbox, Button, FileInput } from "@/shared";
 import { getDocumentTypes, getUserTypes } from "@/services/selectService"; // ← LÍNEA 4: Agrega getUserTypes
 import { useNavigate } from "react-router-dom";
 import { userSchema } from "../schemas/userSchema";
@@ -20,6 +20,8 @@ export default function UserRegisterForm (){
         userAddress: "",
         userStartDate: "",
         userEndDate: "",
+        userImage: [],
+        
         isActive: true,
     });
 
@@ -194,6 +196,18 @@ export default function UserRegisterForm (){
 
                     {/* COLUMNA 3 */}
                     <div className="flex flex-col gap-4">
+
+                    <FileInput 
+                        value={FormData.userImage}
+                        onChange={(files) => 
+                        setFormData((prev) => ({ ...prev, userImage: files }))
+                        }
+                        multiple={true}
+                    />
+                    {errors.userImgae && (
+                        <span className="text-red-500 text-sm">{errors.userImage}</span>
+                )}
+
                         <Checkbox
                             id="isActive"
                             name="isActive"

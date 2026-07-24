@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Input, Select, Checkbox, Button } from "@/shared";
+import { Input, Select, Checkbox, Button, FileInput} from "@/shared";
 import { providerSchema } from "../schemas/providerSchema";
 
 
@@ -177,9 +177,21 @@ export default function ProviderCreateForm() {
                         />
                     </div>
 
+
                     <div className="flex flex-col gap-6">
                         {/* columna derecha */}
-                        
+                        <FileInput
+                            className="border-white"
+                            value={formData.userImage}
+                            onChange={(files) =>
+                                setFormData((prev) => ({ ...prev, userImage: files }))
+                            }
+                            multiple={true}
+                        />
+                        {errors.userImgae && (
+                            <span className="text-red-500 text-sm">{errors.userImage}</span>
+                )}
+
                             
                         <Button type="button" variant="secondary">
                             Visualizar Lista Proveedores

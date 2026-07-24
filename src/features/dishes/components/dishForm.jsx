@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../../shared/components/Button";
 import Input from "../../../shared/components/Input";
 import Select from "../../../shared/components/Select";
+import FileInput from "../../../shared/components/FileInput";
 
 import { getDishCategories } from "../../../services/selectService"; 
 import { dishSchema } from "../../users/schemas/dishSchema"; 
@@ -18,6 +19,7 @@ export default function DishForm() {
         precio: "",
         categoria: "",
         descripcion: "",
+        userImage: [], // 👈 Se agrega el estado inicial para la imagen
     });
 
     useEffect(() => {
@@ -51,7 +53,7 @@ export default function DishForm() {
         try {
             console.log("¡Éxito! Platillo creado:", result.data);
             alert("¡Platillo agregado correctamente!");
-            setFormData({ nombre: "", precio: "", categoria: "", descripcion: "" });
+            setFormData({ nombre: "", precio: "", categoria: "", descripcion: "", userImage: [] });
         } catch (error) {
             console.error(error);
             setErrors({ submit: "Error interno al procesar el plato" });
@@ -59,13 +61,9 @@ export default function DishForm() {
     };
 
     return (
-        /* Ajuste Clave: Quitamos el mt-12 que solo afectaba a la tarjeta y usamos "pt-16". 
-          Esto empuja TODO el conjunto (Botón de atrás y tarjeta) hacia abajo en bloque, 
-          respetando la franja invisible del menú superior de tu LT.
-        */
-        <div className="max-w-3xl mx-auto px-8 pt-28 pb-12">
+        <div className="max-w-4xl mx-auto px-8 pt-28 pb-12">
             
-            {/* Botón Atrás - Ahora bajará junto con todo el bloque */}
+            {/* Botón Atrás */}
             <div className="flex justify-start mb-6">
                 <Button
                     variant="secondary"
@@ -77,16 +75,18 @@ export default function DishForm() {
                 </Button>
             </div>
 
-            {/* Tarjeta contenedora con degradado */}
-           <div className="bg-black p-10 rounded-3xl border border-brand"> 
+            {/* Tarjeta contenedora */}
+            <div className="bg-black p-10 rounded-3xl border border-brand"> 
 
                 <h1 className="text-title font-heading text-white mb-8 text-2xl font-bold">
                     Agregar Platillo
                 </h1>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Campos de texto apilados verticalmente */}
-                    <div className="max-w-md flex flex-col gap-4">
+                {/* Formulario reorganizado en 2 columnas */}
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    
+                    {/* Campos del formulario */}
+                    <div className="flex flex-col gap-4">
                         <Input
                             label="Nombre"
                             name="nombre"
@@ -97,7 +97,7 @@ export default function DishForm() {
                             error={errors.nombre}
                         />
                         <Input
-                        label="Precio"
+                            label="Precio"
                             name="precio"
                             type="text"
                             value={formData.precio}
@@ -125,13 +125,38 @@ export default function DishForm() {
                         />
                     </div>
 
-                    {/* Botón "Agregar" en la esquina inferior derecha */}
-                    <div className="flex justify-end mt-8">
-                        <div className="w-full md:w-48">
-                            <Button variant="primary" type="submit" size="md">
-                                Agregar
-                            </Button>
+                    {/*+ FileInput arriba y Botón abajo */}
+                    <div className="flex flex-col items-center justify-between h-full pt-2">
+                        
+                        {/* Carga de Imagen */}
+                        <div className="flex flex-col items-center gap-3 w-full">
+                            <span className="text-amber-50 text-sm font-medium self-start md:self-center">
+                                Imagen del platillo
+                            </span>
+
+                            <FileInput 
+                                className="border-white"
+                                value={formData.userImage}
+                                onChange={(files) => 
+                                    setFormData((prev) => ({ ...prev, userImage: files }))
+                                }
+                                multiple={true}
+                            />
+
+                            {errors.userImage && (
+                                <span className="text-red-500 text-sm">{errors.userImage}</span>
+                            )}
                         </div>
+
+                        {/* Botón "Agregar" en la esquina inferior derecha */}
+                        <div className="w-full flex justify-end mt-8">
+                            <div className="w-full md:w-48">
+                                <Button variant="primary" type="submit" size="md">
+                                    Agregar
+                                </Button>
+                            </div>
+                        </div>
+
                     </div>
                 </form>
             </div>
