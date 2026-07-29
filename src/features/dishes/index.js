@@ -1,4 +1,5 @@
-// src/features/dishes/index.js
 export { default as DishForm } from "./components/DishForm";
-// Si tienes la validación aquí, la exportas también:
-// export { dishSchema } from "./schemas/dishSchema";
+export { default as DishListPage } from "./pages/DishListPage";
+export { dishColumns } from "./table/dishColumns";   // ojo: no es default
+export { dishes } from "./data/dishes";
+export { default as ReportConfigModal } from "./reports/components/ReportConfigModal";

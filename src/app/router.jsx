@@ -2,10 +2,11 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AuthLayout, DashboardLayout } from '@/shared';
 import { UserListPage, UserRegisterForm } from "@/features/users";
-import { DishForm } from "@/features/dishes";
+import { DishForm, DishListPage } from "@/features/dishes";
 import { ProviderCreateForm } from "@/features/providers";
-import { InventoryForm } from "@/features/inventory";
+import { InventoryForm, InventoryListPage } from "@/features/inventory";
 import { OrderForm } from "@/features/orders";
+import { ProviderListPage } from "@/features/providers";
 
 
 
@@ -33,9 +34,15 @@ const router = createBrowserRouter([
         { path: "/dashboard/userCreate", element: <UserRegisterForm />},
 
         { path: "/dashboard/dishCreate", element: <DishForm /> },     
+        { path: "/dashboard/dishList", element: <DishListPage /> },     
+        
         { path: "/dashboard/providerCreate", element: <ProviderCreateForm /> },     
+        { path: "/dashboard/providerList", element: <ProviderListPage /> },
+
         { path: "/dashboard/createInventory", element: <InventoryForm /> },        
+        { path: "/dashboard/inventoryList", element: <InventoryListPage /> },        
         { path: "/dashboard/OrderForm", element: <OrderForm /> },
+
 
         ],
     },
