@@ -114,9 +114,21 @@ export default function Navbar() {
                   </Link>
                 </DropdownItem>
 
+              <DropdownItem>
+                <Link to="/dashboard/providerList" className="block w-full">
+                Listar Proveedores
+                </Link>
+              </DropdownItem>
+
+
                 <DropdownItem>
                   <Link to="/dashboard/createInventory" className="block w-full">
                     Crear Inventario
+                  </Link>
+                </DropdownItem>
+                <DropdownItem>
+                  <Link to="/dashboard/inventoryList" className="block w-full">
+                    Listar inventario
                   </Link>
                 </DropdownItem>
 

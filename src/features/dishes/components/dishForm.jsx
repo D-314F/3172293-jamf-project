@@ -7,7 +7,7 @@ import Select from "../../../shared/components/Select";
 import FileInput from "../../../shared/components/FileInput";
 
 import { getDishCategories } from "../../../services/selectService"; 
-import { dishSchema } from "../../users/schemas/dishSchema"; 
+import { dishSchema } from "../schemas/dishSchema"; 
 
 export default function DishForm() {
     const navigate = useNavigate();
