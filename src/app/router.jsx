@@ -7,13 +7,14 @@ import { ProviderCreateForm } from "@/features/providers";
 import { InventoryForm, InventoryListPage } from "@/features/inventory";
 import { OrderForm } from "@/features/orders";
 import { ProviderListPage } from "@/features/providers";
+import HomePage from "@/features/home/pages/HomePage"; 
 
 
 
 const router = createBrowserRouter([
 {
     path: '/',
-    element: <Navigate to="/dashboard" replace />,
+    element: <Navigate to="/dashboard/home" replace />,  
 },
 {
     path: "/auth",
@@ -29,6 +30,7 @@ const router = createBrowserRouter([
     element: <DashboardLayout />,
     children: [
         { index: true,},
+        { path: "home", element: <HomePage /> }, 
         // { path: "/dashboard/auth", element: <h1>Hello2</h1>},
         { path: "/dashboard/userList", element: <UserListPage />},
         { path: "/dashboard/userCreate", element: <UserRegisterForm />},
