@@ -8,7 +8,7 @@ import { InventoryForm, InventoryListPage } from "@/features/inventory";
 import { OrderForm } from "@/features/orders";
 import { ProviderListPage } from "@/features/providers";
 import HomePage from "@/features/home/pages/HomePage"; 
-
+import MenuPage from "@/features/menu/pages/MenuPage";
 
 
 const router = createBrowserRouter([
@@ -31,6 +31,7 @@ const router = createBrowserRouter([
     children: [
         { index: true,},
         { path: "home", element: <HomePage /> }, 
+        { path: "menu", element: <MenuPage /> },
         // { path: "/dashboard/auth", element: <h1>Hello2</h1>},
         { path: "/dashboard/userList", element: <UserListPage />},
         { path: "/dashboard/userCreate", element: <UserRegisterForm />},
