@@ -19,6 +19,7 @@ export {Dropdown,
         DropdownContent,
 } from "./components/Dropdown";
 export {default as FileInput} from "./components/FileInput";
+export {default as DetailItem} from "./components/DetailItem";
 
 
 // layouts components

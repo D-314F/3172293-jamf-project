@@ -7,6 +7,7 @@ import { users } from "../data/users";
 import { Link } from "react-router-dom";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
 
+
 export default function UserListPage() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
