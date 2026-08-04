@@ -1,7 +1,7 @@
 // src/app/router.jsx
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AuthLayout, DashboardLayout } from '@/shared';
-import { UserListPage, UserRegisterForm } from "@/features/users";
+import { UserListPage, UserRegisterForm, UserDetailPage } from "@/features/users";
 import { DishForm, DishListPage } from "@/features/dishes";
 import { ProviderCreateForm } from "@/features/providers";
 import { InventoryForm, InventoryListPage } from "@/features/inventory";
@@ -26,29 +26,28 @@ const router = createBrowserRouter([
     ],
 },
 {
-    path: "/dashboard",
-    element: <DashboardLayout />,
-    children: [
-        { index: true,},
-        { path: "home", element: <HomePage /> }, 
-        { path: "menu", element: <MenuPage /> },
-        // { path: "/dashboard/auth", element: <h1>Hello2</h1>},
-        { path: "/dashboard/userList", element: <UserListPage />},
-        { path: "/dashboard/userCreate", element: <UserRegisterForm />},
+  path: "/dashboard",
+  element: <DashboardLayout />,
+  children: [
+    { index: true },
+    { path: "home", element: <HomePage /> },
+    { path: "menu", element: <MenuPage /> },
 
-        { path: "/dashboard/dishCreate", element: <DishForm /> },     
-        { path: "/dashboard/dishList", element: <DishListPage /> },     
-        
-        { path: "/dashboard/providerCreate", element: <ProviderCreateForm /> },     
-        { path: "/dashboard/providerList", element: <ProviderListPage /> },
+    { path: "userList", element: <UserListPage /> },
+    { path: "userCreate", element: <UserRegisterForm /> },
+    { path: "userview/:id", element: <UserDetailPage /> },
 
-        { path: "/dashboard/createInventory", element: <InventoryForm /> },        
-        { path: "/dashboard/inventoryList", element: <InventoryListPage /> },        
-        { path: "/dashboard/OrderForm", element: <OrderForm /> },
+    { path: "dishCreate", element: <DishForm /> },
+    { path: "dishList", element: <DishListPage /> },
 
+    { path: "providerCreate", element: <ProviderCreateForm /> },
+    { path: "providerList", element: <ProviderListPage /> },
 
-        ],
-    },
+    { path: "createInventory", element: <InventoryForm /> },
+    { path: "inventoryList", element: <InventoryListPage /> },
+    { path: "OrderForm", element: <OrderForm /> },
+  ],
+},
 ]);
 
 export default router;

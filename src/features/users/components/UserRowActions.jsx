@@ -1,5 +1,5 @@
 // Iconos usados en los botones de acciones
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Eye } from "lucide-react";
 
 
 // Hook de React Router para navegar programáticamente entre rutas
@@ -34,10 +34,21 @@ export default function UserRowActions({ user }) {
     console.log("Eliminar usuario", user.id);
   };
 
+  const handleView = () => {
+    navigate(`/dashboard/userview/${user.id}`);
+  };
 
   return (
     // Contenedor de los botones de acciones
     <div className="flex gap-2">
+
+      <button
+        onClick={handleView}
+        className="p-1 rounded hover:bg-yellow-100 transition"
+        title="Ver usuario"
+      >
+        <Eye size={16} className="text-yellow-600 hover:text-yellow-700" />
+      </button>
 
 
       {/* Botón editar */}
