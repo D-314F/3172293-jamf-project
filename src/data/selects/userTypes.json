@@ -1,0 +1,14 @@
+[
+  {
+    "id": "admin",
+    "label": "Administrador"
+  },
+  {
+    "id": "empleado",
+    "label": "Empleado"
+  },
+  {
+    "id": "supervisor",
+    "label": "Supervisor"
+  }
+]
