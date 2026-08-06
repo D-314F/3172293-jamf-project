@@ -8,3 +8,4 @@ export { userSchema } from "./schemas/userSchema";
 
 export { default as UserListPage } from "./pages/UserListPage";
 export { default as UserDetailPage } from "./pages/userDetailPage";
+export { default as UserEditPage } from "./pages/UserEditPage"; 

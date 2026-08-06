@@ -8,6 +8,7 @@ import { InventoryForm, InventoryListPage } from "@/features/inventory";
 import { OrderForm } from "@/features/orders";
 import HomePage from "@/features/home/pages/HomePage";
 import MenuPage from "@/features/menu/pages/MenuPage";
+import { UserEditPage } from "@/features/users";
 
 const router = createBrowserRouter([
   {
@@ -31,6 +32,13 @@ const router = createBrowserRouter([
       { path: "home", element: <HomePage /> },
       { path: "menu", element: <MenuPage /> },
 
+<<<<<<< HEAD
+    { path: "userList", element: <UserListPage /> },
+    { path: "userCreate", element: <UserRegisterForm /> },
+    { path: "userview/:id", element: <UserDetailPage /> },
+    { path: "userEdit/:id", element: <UserEditPage /> },
+=======
+>>>>>>> 6b9eba9ea11a21d1d4450845ece4e1d9d9f3958c
 
       { path: "userList", element: <UserListPage /> },
       { path: "userCreate", element: <UserRegisterForm /> },

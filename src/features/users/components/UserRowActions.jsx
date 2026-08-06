@@ -11,7 +11,7 @@ export default function UserRowActions({ user }) {
 
   // Acción para editar el usuario
   const handleEdit = () => {
-    navigate(`/users/${user.id}/edit`);
+    navigate(`/dashboard/userEdit/${user.id}`);
   };
 
   // Acción para eliminar el usuario
