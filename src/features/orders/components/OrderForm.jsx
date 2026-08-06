@@ -23,9 +23,8 @@ const PLATILLOS = [
   { value: "7", label: "Carpacio de pulpo" },
 ];
 
-
 export default function OrderForm() {
-     const navigate = useNavigate();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     tableNumber: "",
     isActive: true,
@@ -40,15 +39,13 @@ export default function OrderForm() {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
-     ...prev,
-      [name]: type === "checkbox"? checked : value
+      ...prev,
+      [name]: type === "checkbox" ? checked : value
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Validación con Zod manual, igual que Providers
     const result = orderSchema.safeParse(formData);
 
     if (!result.success) {
@@ -67,22 +64,21 @@ export default function OrderForm() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4">
-
-    <div className="self-start mt-4"> 
+      <div className="self-start mt-4"> 
         <Button
-            variant="secondary"
-            size="sm"
-            type="button"
-            onClick={() => navigate(-1)}
+          variant="secondary"
+          size="sm"
+          type="button"
+          onClick={() => navigate(-1)}
         >
-        Atrás
-      </Button>
-    </div>
+          Atrás
+        </Button>
+      </div>
 
-      <div className="w-full max-w-2xl p-8 bg-black border border-brand rounded-4xl">
-        
-        
-        <h2 className="text-2xl font-bold text-white mb-6">Agregar orden</h2>
+      <div className="w-full max-w-2xl p-8 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl">
+        <h2 className="text-[var(--text-title)] font-[var(--font-heading)] text-[var(--color-text-inverse)] mb-6">
+          Agregar orden
+        </h2>
 
         <form onSubmit={handleSubmit} className="gap-6 flex flex-col">
           <Input
@@ -109,20 +105,18 @@ export default function OrderForm() {
             onChange={handleChange}
             options={MESEROS}
             error={errors.waiterId}
-          >
-          </Select>
+          />
 
-        <Select
-                label="Lista Platillos" 
-                name="dishId"
-                value={formData.dishId}
-                onChange={handleChange}
-                options={PLATILLOS}
-                error={errors.dishId}
-        >
-        </Select>
+          <Select
+            label="Lista Platillos" 
+            name="dishId"
+            value={formData.dishId}
+            onChange={handleChange}
+            options={PLATILLOS}
+            error={errors.dishId}
+          />
 
-        <Input
+          <Input
             label="Cantidades del Platillo"
             name="quantity"
             type="number"
@@ -138,11 +132,11 @@ export default function OrderForm() {
             onChange={handleChange}
             error={errors.observations}
             placeholder="Ej: Sin cebolla, término medio..."
-        />
+          />
 
-        <Button type="submit">
+          <Button variant="primary" type="submit">
             Crear Orden
-        </Button>
+          </Button>
         </form>
       </div>
     </div>
