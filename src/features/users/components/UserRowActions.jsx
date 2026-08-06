@@ -23,7 +23,7 @@ export default function UserRowActions({ user }) {
   // Acción para editar el usuario
   // Redirige a la página de edición usando el id del usuario
   const handleEdit = () => {
-    navigate(`/users/${user.id}/edit`);
+    navigate(`/dashboard/userEdit/${user.id}`);
   };
 
 

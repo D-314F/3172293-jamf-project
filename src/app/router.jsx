@@ -9,6 +9,7 @@ import { OrderForm } from "@/features/orders";
 import { ProviderListPage } from "@/features/providers";
 import HomePage from "@/features/home/pages/HomePage"; 
 import MenuPage from "@/features/menu/pages/MenuPage";
+import { UserEditPage } from "@/features/users";
 
 
 const router = createBrowserRouter([
@@ -36,6 +37,7 @@ const router = createBrowserRouter([
     { path: "userList", element: <UserListPage /> },
     { path: "userCreate", element: <UserRegisterForm /> },
     { path: "userview/:id", element: <UserDetailPage /> },
+    { path: "userEdit/:id", element: <UserEditPage /> },
 
     { path: "dishCreate", element: <DishForm /> },
     { path: "dishList", element: <DishListPage /> },
