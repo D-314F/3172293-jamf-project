@@ -26,11 +26,11 @@ export default function UserRegisterForm (){
     });
 
     const [documentTypes, setDocumentTypes] = useState([]);
-    const [userTypes, setUserTypes] = useState([]); // ← LÍNEA 26: Nuevo state
+    const [userTypes, setUserTypes] = useState([]); 
 
     useEffect(() => {
         getDocumentTypes().then(setDocumentTypes);
-        getUserTypes().then(setUserTypes); // ← LÍNEA 30: Carga los tipos de usuario
+        getUserTypes().then(setUserTypes); //  Carga los tipos de usuario
     }, []);
 
     const handleChange = (e) => {
@@ -120,7 +120,7 @@ export default function UserRegisterForm (){
                             label="Tipo de usuario"
                             name="userType"
                             value={FormData.userType}
-                            options={userTypes} // ← LÍNEA 113: Cambia el array quemado por userTypes
+                            options={userTypes} //Cambia el array quemado por userTypes
                             onChange={handleChange}
                             error={errors.userType}
                         />
