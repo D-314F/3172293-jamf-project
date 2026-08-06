@@ -18,14 +18,31 @@ export default function ProviderRowActions({ provider }) {
 
   return (
     <div className="flex gap-2">
-      <button onClick={handleView} className="p-1 rounded hover:bg-yellow-100 transition">
-        <Eye size={16} />
+      {/* Botón ver */}
+      <button
+        onClick={handleView}
+        className="p-1 rounded hover:bg-[var(--color-brand-soft)] transition-colors duration-200"
+        title="Ver proveedor"
+      >
+        <Eye size={16} color="var(--color-text-primary)" />
       </button>
-      <button onClick={handleEdit} className="p-1 rounded hover:bg-gray-100">
-        <Pencil size={16} />
+
+      {/* Botón editar */}
+      <button
+        onClick={handleEdit}
+        className="p-1 rounded hover:bg-[var(--color-surface-muted)] transition-colors duration-200"
+        title="Editar proveedor"
+      >
+        <Pencil size={16} color="var(--color-text-primary)" />
       </button>
-      <button onClick={handleDelete} className="p-1 rounded hover:bg-gray-100">
-        <Trash2 size={16} />
+
+      {/* Botón eliminar */}
+      <button
+        onClick={handleDelete}
+        className="p-1 rounded hover:bg-[var(--color-error-soft)] transition-colors duration-200"
+        title="Eliminar proveedor"
+      >
+        <Trash2 size={16} color="var(--color-error)" />
       </button>
     </div>
   );

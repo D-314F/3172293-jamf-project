@@ -21,7 +21,7 @@ export default function InventoryForm() {
     valorUnitario: "",
     cuentadante: "",
     valorTotal: "",
-    userImage: [], // 👈 Se inicializa el array para la imagen
+    userImage: [],
   });
 
   const [errors, setErrors] = useState({});
@@ -42,7 +42,6 @@ export default function InventoryForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -56,17 +55,14 @@ export default function InventoryForm() {
 
     if (!result.success) {
       const fieldErrors = {};
-
       result.error.issues.forEach((issue) => {
         fieldErrors[issue.path[0]] = issue.message;
       });
-
       setErrors(fieldErrors);
       return;
     }
 
     setErrors({});
-
     console.log("Inventario creado:", result.data);
     alert("Inventario registrado correctamente");
   };
@@ -86,8 +82,8 @@ export default function InventoryForm() {
       </div>
 
       {/* Tarjeta con padding simétrico */}
-      <div className="bg-black rounded-3xl border border-brand shadow-2xl p-8">
-        <h1 className="text-title font-heading mb-8 text-2xl font-bold text-amber-50">
+      <div className="bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)] shadow-2xl p-8">
+        <h1 className="text-[var(--text-title)] font-[var(--font-heading)] mb-8 text-[var(--color-text-inverse)]">
           Crear Inventario
         </h1>
 
@@ -185,12 +181,12 @@ export default function InventoryForm() {
 
             {/* 📍 Columna 3: FileInput centrado */}
             <div className="flex flex-col items-center justify-center gap-3 pt-6">
-              <span className="text-amber-50 text-sm font-medium self-start md:self-center">
+              <span className="text-[var(--color-text-inverse)] text-[var(--text-small)] font-[var(--font-label)] self-start md:self-center">
                 Imagen del producto
               </span>
 
               <FileInput
-                className="border-white"
+                className="border-[var(--color-border)]"
                 value={formData.userImage}
                 onChange={(files) =>
                   setFormData((prev) => ({ ...prev, userImage: files }))
@@ -199,12 +195,11 @@ export default function InventoryForm() {
               />
 
               {errors.userImage && (
-                <span className="text-red-500 text-sm">
+                <span className="text-[var(--color-error)] text-[var(--text-small)]">
                   {errors.userImage}
                 </span>
               )}
             </div>
-
           </div>
 
           {/* Botón Submit al final de la tarjeta */}
