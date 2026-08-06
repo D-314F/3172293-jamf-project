@@ -1,6 +1,6 @@
 import UserDetailForm from "../components/UserDetailForm";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/shared"; // importa tu componente Button si lo tienes
+import { Button } from "@/shared"; 
 
 export default function UserDetailPage() {
   const navigate = useNavigate();
@@ -21,19 +21,18 @@ export default function UserDetailPage() {
 
   return (
     <section className="p-8 space-y-6">
-      {/* 🔙 Botón de retroceso */}
+      {/* Botón de retroceso */}
       <div className="w-fit mb-6">
         <Button
           variant="secondary"
           size="sm"
           type="button"
-          onClick={() => navigate(-1)} // o navigate("/dashboard/userList")
+          onClick={() => navigate(-1)}
         >
           ← Atrás
         </Button>
       </div>
-
-      {/* 🧾 Detalle del usuario */}
+      {/* Detalle del usuario */}
       <UserDetailForm user={user} />
     </section>
   );

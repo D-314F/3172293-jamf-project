@@ -1,39 +1,25 @@
 // Iconos usados en los botones de acciones
 import { Pencil, Trash2, Eye } from "lucide-react";
 
-
 // Hook de React Router para navegar programáticamente entre rutas
 import { useNavigate } from "react-router-dom";
-
 
 // Componente que renderiza las acciones de cada fila de usuario
 // Recibe como prop el objeto user
 export default function UserRowActions({ user }) {
-
-
-  // const handleEdit = () => {
-  //   console.log("Editar usuario", user.id);
-  // };
-
-
-  // Hook que permite redirigir a otra ruta desde código
   const navigate = useNavigate();
 
-
   // Acción para editar el usuario
-  // Redirige a la página de edición usando el id del usuario
   const handleEdit = () => {
     navigate(`/dashboard/userEdit/${user.id}`);
   };
 
-
   // Acción para eliminar el usuario
-  // Actualmente solo imprime en consola el id
-  // En una aplicación real aquí se llamaría a la API
   const handleDelete = () => {
     console.log("Eliminar usuario", user.id);
   };
 
+  // Acción para ver el usuario
   const handleView = () => {
     navigate(`/dashboard/userview/${user.id}`);
   };
@@ -41,36 +27,32 @@ export default function UserRowActions({ user }) {
   return (
     // Contenedor de los botones de acciones
     <div className="flex gap-2">
-
+      {/* Botón ver */}
       <button
         onClick={handleView}
-        className="p-1 rounded hover:bg-yellow-100 transition"
+        className="p-1 rounded hover:bg-[var(--color-brand-soft)] transition-colors duration-200"
         title="Ver usuario"
       >
-        <Eye size={16} className="text-yellow-600 hover:text-yellow-700" />
+        <Eye size={16} color="var(--color-text-primary)" />
       </button>
-
 
       {/* Botón editar */}
       <button
-        onClick={handleEdit} // Ejecuta la navegación a la página de edición
-        className="p-1 rounded hover:bg-gray-100"
+        onClick={handleEdit}
+        className="p-1 rounded hover:bg-[var(--color-surface-muted)] transition-colors duration-200"
+        title="Editar usuario"
       >
-        <Pencil size={16} /> {/* Icono de editar */}
+        <Pencil size={16} color="var(--color-text-primary)" />
       </button>
-
 
       {/* Botón eliminar */}
       <button
-        onClick={handleDelete} // Ejecuta la acción de eliminación
-        className="p-1 rounded hover:bg-gray-100"
+        onClick={handleDelete}
+        className="p-1 rounded hover:bg-[var(--color-error)] transition-colors duration-200"
+        title="Eliminar usuario"
       >
-        <Trash2 size={16} /> {/* Icono de eliminar */}
+        <Trash2 size={16} color="var(--color-text-primary)" />
       </button>
-
-
     </div>
   );
 }
-
-

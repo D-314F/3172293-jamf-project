@@ -19,7 +19,7 @@ export default function DishForm() {
         precio: "",
         categoria: "",
         descripcion: "",
-        userImage: [], // 👈 Se agrega el estado inicial para la imagen
+        userImage: [],
     });
 
     useEffect(() => {
@@ -76,9 +76,9 @@ export default function DishForm() {
             </div>
 
             {/* Tarjeta contenedora */}
-            <div className="bg-black p-10 rounded-3xl border border-brand"> 
+            <div className="bg-[var(--color-background-inverse)] p-10 rounded-3xl border border-[var(--color-brand)]"> 
 
-                <h1 className="text-title font-heading text-white mb-8 text-2xl font-bold">
+                <h1 className="text-[var(--text-title)] font-[var(--font-heading)] text-[var(--color-text-inverse)] mb-8">
                     Agregar Platillo
                 </h1>
 
@@ -125,17 +125,17 @@ export default function DishForm() {
                         />
                     </div>
 
-                    {/*+ FileInput arriba y Botón abajo */}
+                    {/* FileInput arriba y Botón abajo */}
                     <div className="flex flex-col items-center justify-between h-full pt-2">
                         
                         {/* Carga de Imagen */}
                         <div className="flex flex-col items-center gap-3 w-full">
-                            <span className="text-amber-50 text-sm font-medium self-start md:self-center">
+                            <span className="text-[var(--color-text-inverse)] text-[var(--text-small)] font-[var(--font-label)] self-start md:self-center">
                                 Imagen del platillo
                             </span>
 
                             <FileInput 
-                                className="border-white"
+                                className="border-[var(--color-border)]"
                                 value={formData.userImage}
                                 onChange={(files) => 
                                     setFormData((prev) => ({ ...prev, userImage: files }))
@@ -144,7 +144,9 @@ export default function DishForm() {
                             />
 
                             {errors.userImage && (
-                                <span className="text-red-500 text-sm">{errors.userImage}</span>
+                                <span className="text-[var(--color-error)] text-[var(--text-small)]">
+                                    {errors.userImage}
+                                </span>
                             )}
                         </div>
 

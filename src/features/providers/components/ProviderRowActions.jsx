@@ -1,49 +1,49 @@
-// Iconos usados en los botones de acciones
-import { Pencil, Trash2 } from "lucide-react";
-
-// Hook de React Router para navegar programáticamente entre rutas
+import { Pencil, Trash2, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-// Componente que renderiza las acciones de cada fila de proveedor
-// Recibe como prop el objeto provider
 export default function ProviderRowActions({ provider }) {
-
-  // Hook que permite redirigir a otra ruta desde código
   const navigate = useNavigate();
 
-  // Acción para editar el proveedor
-  // Redirige a la página de edición usando el id del proveedor
-  const handleEdit = () => {
-    navigate(`/providers/${provider.id}/edit`);
+  const handleView = () => {
+    navigate(`/dashboard/providerView/${provider.id}`);
   };
 
-  // Acción para eliminar el proveedor
-  // Actualmente solo imprime en consola el id
-  // En una aplicación real aquí se llamaría a la API
+  const handleEdit = () => {
+    console.log("Editar proveedor", provider.id);
+  };
+
   const handleDelete = () => {
     console.log("Eliminar proveedor", provider.id);
   };
 
   return (
-    // Contenedor de los botones de acciones
     <div className="flex gap-2">
+      {/* Botón ver */}
+      <button
+        onClick={handleView}
+        className="p-1 rounded hover:bg-[var(--color-brand-soft)] transition-colors duration-200"
+        title="Ver proveedor"
+      >
+        <Eye size={16} color="var(--color-text-primary)" />
+      </button>
 
       {/* Botón editar */}
       <button
-        onClick={handleEdit} // Ejecuta la navegación a la página de edición
-        className="p-1 rounded hover:bg-gray-100"
+        onClick={handleEdit}
+        className="p-1 rounded hover:bg-[var(--color-surface-muted)] transition-colors duration-200"
+        title="Editar proveedor"
       >
-        <Pencil size={16} /> {/* Icono de editar */}
+        <Pencil size={16} color="var(--color-text-primary)" />
       </button>
 
       {/* Botón eliminar */}
       <button
-        onClick={handleDelete} // Ejecuta la acción de eliminación
-        className="p-1 rounded hover:bg-gray-100"
+        onClick={handleDelete}
+        className="p-1 rounded hover:bg-[var(--color-error-soft)] transition-colors duration-200"
+        title="Eliminar proveedor"
       >
-        <Trash2 size={16} /> {/* Icono de eliminar */}
+        <Trash2 size={16} color="var(--color-error)" />
       </button>
-
     </div>
   );
 }
