@@ -47,7 +47,7 @@ export default function UserRowActions({ user }) {
         className="p-1 rounded hover:bg-yellow-100 transition"
         title="Ver usuario"
       >
-        <Eye size={16} className="text-yellow-600 hover:text-yellow-700" />
+        <Eye size={16} />
       </button>
 
 

@@ -4,12 +4,12 @@ import userProfile from "@/assets/images/user-profile.png";
 export default function UserDetailForm({ user }) {
   return (
     <div className=" bg-black text-white rounded-3xl p-10 max-w-6xl mx-auto grid grid-cols-3 gap-8 items-center border border-yellow-700">
-      {/* 🧩 Título */}
+      {/*Título */}
       <div className="col-span-3 flex items-center gap-3 mb-4">
         <span className="text-3xl font-semibold"> Visualizar usuarios</span>
       </div>
 
-      {/* 🧾 Datos del usuario */}
+      {/* Datos del usuario */}
       <div className="col-span-2 grid grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-semibold mb-1">Tipo de documento</label>
@@ -102,7 +102,7 @@ export default function UserDetailForm({ user }) {
         </div>
       </div>
 
-      {/* 🖼️ Imagen y estado */}
+      {/* Imagen y estado */}
       <div className="flex flex-col items-center justify-center gap-4">
        <img
              src={userProfile}
