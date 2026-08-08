@@ -1,11 +1,11 @@
-// LoginForm.jsx
 import { useState } from "react";
 import { Input, Button } from "@/shared";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // 👈 Importamos useNavigate
 import { loginSchema } from "../schemas/loginSchema";
+import bf1 from "@/assets/images/bf-1.png";
 
 export default function LoginForm () {
-    // const navigate = useNavigate();
+    const navigate = useNavigate(); // 👈 Inicializamos el hook de navegación
     const [errors, setErrors] = useState({});
 
     const [formData, setFormData] = useState({
@@ -16,41 +16,49 @@ export default function LoginForm () {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
-          ...prev,
+            ...prev,
             [name]: value,
         }));
         if (errors[name]) {
             setErrors((prev) => ({
-              ...prev,
+                ...prev,
                 [name]: "",
             }));
         }
     };
 
     const handleSubmit = (e) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    const result = loginSchema.safeParse(formData);
+        const result = loginSchema.safeParse(formData);
 
-    if (!result.success) {
-        const fieldErrors = {};
+        if (!result.success) {
+            const fieldErrors = {};
 
-        result.error.issues.forEach((issue) => {
-            fieldErrors[issue.path[0]] = issue.message;
-        });
+            result.error.issues.forEach((issue) => {
+                fieldErrors[issue.path[0]] = issue.message;
+            });
 
-        setErrors(fieldErrors);
-        return;
-    }
+            setErrors(fieldErrors);
+            return;
+        }
 
-    setErrors({});
+        setErrors({});
 
-    alert("Sesión iniciada correctamente");
-};
+        // Mensaje de éxito y redirección inmediata al presionar OK en la alerta
+        alert("Sesión iniciada correctamente");
+        navigate("/dashboard/home"); // 👈 Te lleva directo a la HomePage
+    };
 
     return(
-        <div className="min-h-screen w-full flex items-center justify-center p-4">
-            <div className="w-full max-w-md p-8 bg-black border border-brand rounded-4xl">
+        <div 
+            className="min-h-screen w-full flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat relative"
+            style={{ backgroundImage: `url(${bf1})` }}
+        >
+            {/* Capa oscura para que resalte el formulario */}
+            <div className="absolute inset-0 bg-black/50 z-0"></div>
+
+            <div className="w-full max-w-md p-8 bg-black border border-brand rounded-4xl relative z-10 shadow-2xl">
                 <h1 className="text-2xl font-bold text-brand text-center mb-2">
                     Iniciar Sesión
                 </h1>
@@ -103,7 +111,7 @@ export default function LoginForm () {
 
                     <div className="text-center text-sm">
                         <span className="text-white">¿No tienes cuenta? </span>
-                        <Link to="/registro" className="text-brand">
+                        <Link to="/register" className="text-brand">
                             Regístrate Aquí
                         </Link>
                     </div>
