@@ -9,11 +9,20 @@ import { OrderForm } from "@/features/orders";
 import HomePage from "@/features/home/pages/HomePage";
 import MenuPage from "@/features/menu/pages/MenuPage";
 import { UserEditPage } from "@/features/users";
+import LoginForm from "@/features/users/components/LoginForm";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Navigate to="/dashboard/home" replace />,
+  },
+  {
+    path: "/login",
+    element: <LoginForm />,
+  },
+  {
+    path: "/register",
+    element: <UserRegisterForm />, // Reutilizamos formulario para el registro público
   },
   {
     path: "/auth",
@@ -45,7 +54,6 @@ const router = createBrowserRouter([
       { path: "providerCreate", element: <ProviderCreateForm /> },
       { path: "providerView/:id", element: <ProviderDetailPage /> },
 
-   
       { path: "dishCreate", element: <DishForm /> },
       { path: "dishList", element: <DishListPage /> },
 

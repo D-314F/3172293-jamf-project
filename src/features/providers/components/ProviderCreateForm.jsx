@@ -182,14 +182,6 @@ export default function ProviderCreateForm() {
             </div>
 
             <div className="flex flex-col gap-3 w-full pt-4">
-              <Button 
-                type="button" 
-                variant="secondary"
-                onClick={() => navigate("/dashboard/providers")}
-              >
-                Visualizar Lista Proveedores
-              </Button>
-
               <Button type="submit" variant="primary">
                 Crear proveedor
               </Button>
