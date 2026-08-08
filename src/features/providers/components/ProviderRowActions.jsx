@@ -9,11 +9,14 @@ export default function ProviderRowActions({ provider }) {
   };
 
   const handleEdit = () => {
-    console.log("Editar proveedor", provider.id);
+    navigate(`/dashboard/providerEdit/${provider.id}`);
   };
 
   const handleDelete = () => {
-    console.log("Eliminar proveedor", provider.id);
+    if (confirm(`¿Estás seguro de que deseas eliminar al proveedor 
+      ${provider.fullName || ""}?`)) {
+      alert("Proveedor eliminado con éxito");
+    }
   };
 
   return (
@@ -36,13 +39,14 @@ export default function ProviderRowActions({ provider }) {
         <Pencil size={16} color="var(--color-text-primary)" />
       </button>
 
-      {/* Botón eliminar */}
+      {/* Botón eliminar (Corrección de color) */}
       <button
         onClick={handleDelete}
         className="p-1 rounded hover:bg-[var(--color-error-soft)] transition-colors duration-200"
         title="Eliminar proveedor"
       >
-        <Trash2 size={16} color="var(--color-error)" />
+        {/* Cambia var(--color-error) por 'red' o '#ef4444' (rojo de Tailwind */}
+        <Trash2 size={16} color="#ef4444" />
       </button>
     </div>
   );

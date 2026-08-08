@@ -2,16 +2,17 @@ import providerLogo from "@/assets/images/provider-logo.png";
 
 export default function ProviderDetailForm({ provider }) {
   return (
-    <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-10 max-w-6xl mx-auto grid grid-cols-3 gap-8 items-center border border-[var(--color-brand-hover)]">
+    <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center border border-[var(--color-brand-hover)]">
+      
       {/* 🧩 Título */}
-      <div className="col-span-3 flex items-center gap-3 mb-4">
-        <span className="text-[var(--text-display)] font-[var(--font-heading)]">
-          Visualizar proveedores
+      <div className="col-span-1 md:col-span-3 flex items-center gap-3 mb-2">
+        <span className="text-xl sm:text-2xl font-bold font-[var(--font-heading)]">
+          Visualizar proveedor
         </span>
       </div>
 
       {/* 🧾 Datos del proveedor */}
-      <div className="col-span-2 grid grid-cols-2 gap-6">
+      <div className="col-span-1 md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full">
         <div>
           <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
             Nombre de la empresa
@@ -56,11 +57,11 @@ export default function ProviderDetailForm({ provider }) {
             type="text"
             value={provider.phone}
             readOnly
-            className="w-full bg-transparent border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-muted)]"
+            className="w-full bg-tables transparent border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-muted)]"
           />
         </div>
 
-        <div>
+        <div className="sm:col-span-2">
           <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
             Dirección
           </label>
@@ -98,11 +99,11 @@ export default function ProviderDetailForm({ provider }) {
       </div>
 
       {/* Imagen y estado */}
-      <div className="flex flex-col items-center justify-center gap-4">
+      <div className="col-span-1 flex flex-col items-center justify-center gap-4 mt-4 md:mt-0">
         <img
           src={providerLogo}
           alt={provider.companyName}
-          className="w-48 h-48 object-cover rounded-xl border-4 border-[var(--color-brand)]"
+          className="w-40 h-40 sm:w-48 sm:h-48 object-cover rounded-xl border-4 border-[var(--color-brand)] shadow-lg"
         />
 
         <div className="flex items-center gap-2">
@@ -116,6 +117,7 @@ export default function ProviderDetailForm({ provider }) {
           ></span>
         </div>
       </div>
+
     </div>
   );
 }
