@@ -4,7 +4,7 @@ import { AuthLayout, DashboardLayout } from "@/shared";
 import { UserListPage, UserRegisterForm, UserDetailPage } from "@/features/users";
 import { DishForm, DishListPage } from "@/features/dishes";
 import { ProviderCreateForm, ProviderListPage, ProviderDetailPage } from "@/features/providers";
-import { InventoryForm, InventoryListPage } from "@/features/inventory";
+import { InventoryForm, InventoryListPage, InventoryUltimosPasos } from "@/features/inventory";
 import { OrderForm } from "@/features/orders";
 import HomePage from "@/features/home/pages/HomePage";
 import MenuPage from "@/features/menu/pages/MenuPage";
@@ -51,6 +51,7 @@ const router = createBrowserRouter([
 
       
       { path: "createInventory", element: <InventoryForm /> },
+      { path: "createInventorySteps", element: <InventoryUltimosPasos /> },
       { path: "inventoryList", element: <InventoryListPage /> },
 
       

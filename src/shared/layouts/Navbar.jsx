@@ -25,16 +25,18 @@ export default function Navbar() {
 
   return (
     <nav className="w-full bg-brand border-b-2 text-black">
-      <div className="mx-auto max-w-7xl px-4">
-        <div className="flex h-16 items-center justify-between">
+      <div className="mx-auto max-w-7xl px-4 py-2">
+        
+        {/* FILA PRINCIPAL: Logos + Links Desktop + Buscador Desktop + Menú */}
+        <div className="flex items-center justify-between gap-2 h-14 md:h-16">
 
-          {/* 📍 Logos agrupados sin separador */}
-          <Link to="/dashboard" className="flex items-center gap-4">
-            <img src={logo2} alt="Logo Rico" className="h-10 object-contain" />
-            <img src={logo} alt="Logo SENA" className="h-10 object-contain" />
+          {/* 📍 Logos agrupados (Con tamaño reducido en móvil para que no estorben) */}
+          <Link to="/dashboard" className="flex items-center gap-2 sm:gap-4 shrink-0">
+            <img src={logo2} alt="Logo Rico" className="h-7 sm:h-10 object-contain" />
+            <img src={logo} alt="Logo SENA" className="h-7 sm:h-10 object-contain" />
           </Link>
 
-          {/* Links de navegación */}
+          {/* Links de navegación (Solo Desktop) */}
           <ul className="hidden md:flex items-center gap-6 font-medium">
             <li>
               <Link to="/dashboard/home" className="hover:text-primary transition">
@@ -58,22 +60,22 @@ export default function Navbar() {
             </li>
           </ul>
 
-          {/* SearchField */}
-          <div>
+          {/* Buscador Versión DESKTOP (Se oculta en móvil con hidden md:block) */}
+          <div className="hidden md:block w-72 lg:w-80">
             <SearchField
               value={search}
               onChange={setSearch}
               onSubmit={handleSearch}
               onClear={handleClear}
-              placeholder="Buscar productos..."
+              placeholder="Buscar..."
               size="md"
               variant="outlined"
-              className="w-76"
+              className="w-full"
             />
           </div>
 
-          {/* Dropdown Menu */}
-          <div>
+          {/* Dropdown Menu Hamburguesa */}
+          <div className="shrink-0 relative">
             <Dropdown className="z-15">
               <DropdownTrigger>
                 <IconButton>
@@ -87,12 +89,6 @@ export default function Navbar() {
                 <DropdownItem>
                   <Link to="/dashboard/userCreate" className="block w-full">
                     Crear Usuarios
-                  </Link>
-                </DropdownItem>
-
-                <DropdownItem>
-                  <Link to="/dashboard/userList" className="block w-full">
-                    Listar usuarios
                   </Link>
                 </DropdownItem>
 
@@ -114,18 +110,18 @@ export default function Navbar() {
                   </Link>
                 </DropdownItem>
 
-              <DropdownItem>
-                <Link to="/dashboard/providerList" className="block w-full">
-                Listar Proveedores
-                </Link>
-              </DropdownItem>
-
+                <DropdownItem>
+                  <Link to="/dashboard/providerList" className="block w-full">
+                    Listar Proveedores
+                  </Link>
+                </DropdownItem>
 
                 <DropdownItem>
                   <Link to="/dashboard/createInventory" className="block w-full">
                     Crear Inventario
                   </Link>
                 </DropdownItem>
+                
                 <DropdownItem>
                   <Link to="/dashboard/inventoryList" className="block w-full">
                     Listar inventario
@@ -144,6 +140,21 @@ export default function Navbar() {
           </div>
 
         </div>
+
+        {/* FILA SECUNDARIA: Buscador MÓVIL (Solo visible en pantallas chicas < 768px) */}
+        <div className="block md:hidden pt-1 pb-2 w-full">
+          <SearchField
+            value={search}
+            onChange={setSearch}
+            onSubmit={handleSearch}
+            onClear={handleClear}
+            placeholder="Buscar..."
+            size="md"
+            variant="outlined"
+            className="w-full"
+          />
+        </div>
+
       </div>
     </nav>
   );

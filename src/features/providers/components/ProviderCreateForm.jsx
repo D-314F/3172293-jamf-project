@@ -2,28 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input, Select, Checkbox, Button, FileInput } from "@/shared";
 import { providerSchema } from "../schemas/providerSchema";
+import { documentTypes, providerProducts } from "../data/providersValue"; // Importación limpia
 
 export default function ProviderCreateForm() {
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
-
-  const documentTypes = [
-    { value: "nit", label: "NIT" },
-    { value: "cedula_ciudadania", label: "Cédula de ciudadanía" },
-    { value: "cedula_extranjeria", label: "Cédula de extranjería" },
-    { value: "permiso_permanencia", label: "Permiso de permanencia" },
-    { value: "permiso_proteccion_temporal", label: "Permiso por protección temporal" },
-  ];
-
-  const providerProducts = [
-    { value: "carpacio_pulpo", label: "Carpacio de pulpo" },
-    { value: "tarta_atun_rojo", label: "Tarta de atún rojo" },
-    { value: "esferas_foie_gras", label: "Esferas de foie gras" },
-    { value: "cazuela_parisina", label: "Cazuela Parisina" },
-    { value: "bistec_turco", label: "Bistec turco" },
-    { value: "souffle_grand_marnier", label: "Souffle de la grand marmier" },
-    { value: "sinfonia_chocolate", label: "Sinfonía de chocolate" },
-  ];
 
   const [formData, setFormData] = useState({
     providerDocumentType: "",
@@ -35,6 +18,7 @@ export default function ProviderCreateForm() {
     providerEmail: "",
     providerAddress: "",
     providerStatus: true,
+    userImage: [],
   });
 
   const handleChange = (e) => {
@@ -64,8 +48,10 @@ export default function ProviderCreateForm() {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-8 pt-40 pb-10">
-      <div className="mb-6 justify-between items-center">
+    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10">
+      
+      {/* Header superior alineado con título visible */}
+      <div className="flex items-center justify-between gap-4 mb-6">
         <Button
           variant="secondary"
           size="sm"
@@ -74,19 +60,20 @@ export default function ProviderCreateForm() {
         >
           Atrás
         </Button>
-      </div>
-
-      <div className="rounded-3xl border border-[var(--color-brand)] bg-[var(--color-background-inverse)] p-10">
-        <h1 className="mb-8 text-[var(--text-title)] font-[var(--font-heading)] text-[var(--color-text-inverse)]">
+        <h1 className="text-xl sm:text-2xl font-bold text-[var(--color-text-inverse)] text-right">
           Registrar proveedores
         </h1>
+      </div>
 
+      {/* Contenedor principal */}
+      <div className="rounded-2xl md:rounded-3xl border border-[var(--color-brand)] bg-[var(--color-background-inverse)] p-5 sm:p-8 md:p-10 shadow-lg">
+        
         <form
           onSubmit={handleSubmit}
-          className="grid grid-cols-1 gap-12 md:grid-cols-3"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
         >
+          {/* Bloque 1 */}
           <div className="flex flex-col gap-4">
-            {/* columna izquierda */}
             <Select
               label="Tipo de documento"
               name="providerDocumentType"
@@ -133,8 +120,8 @@ export default function ProviderCreateForm() {
             />
           </div>
 
+          {/* Bloque 2 */}
           <div className="flex flex-col gap-4">
-            {/* columna centro */}
             <Input
               label="Número de contacto"
               name="providerPhone"
@@ -162,38 +149,51 @@ export default function ProviderCreateForm() {
               error={errors.providerAddress}
             />
 
-            <Checkbox
-              id="providerStatus"
-              name="providerStatus"
-              label="Estado del proveedor"
-              checked={formData.providerStatus}
-              onChange={handleChange}
-            />
+            <div className="pt-2">
+              <Checkbox
+                id="providerStatus"
+                name="providerStatus"
+                label="Estado del proveedor"
+                checked={formData.providerStatus}
+                onChange={handleChange}
+              />
+            </div>
           </div>
 
-          <div className="flex flex-col gap-6">
-            {/* columna derecha */}
-            <FileInput
-              className="border-[var(--color-border)]"
-              value={formData.userImage}
-              onChange={(files) =>
-                setFormData((prev) => ({ ...prev, userImage: files }))
-              }
-              multiple={true}
-            />
-            {errors.userImage && (
-              <span className="text-[var(--color-error)] text-[var(--text-small)]">
-                {errors.userImage}
+          {/* Bloque 3 */}
+          <div className="flex flex-col justify-between gap-6 md:col-span-2 lg:col-span-1">
+            <div className="flex flex-col items-start gap-3 w-full">
+              <span className="text-[var(--color-text-inverse)] text-sm font-medium">
+                Documentos / Adjuntos
               </span>
-            )}
+              <FileInput
+                className="border-[var(--color-brand)] w-full"
+                value={formData.userImage}
+                onChange={(files) =>
+                  setFormData((prev) => ({ ...prev, userImage: files }))
+                }
+                multiple={true}
+              />
+              {errors.userImage && (
+                <span className="text-red-400 text-xs">
+                  {errors.userImage}
+                </span>
+              )}
+            </div>
 
-            <Button type="button" variant="secondary">
-              Visualizar Lista Proveedores
-            </Button>
+            <div className="flex flex-col gap-3 w-full pt-4">
+              <Button 
+                type="button" 
+                variant="secondary"
+                onClick={() => navigate("/dashboard/providers")}
+              >
+                Visualizar Lista Proveedores
+              </Button>
 
-            <Button type="submit" variant="primary">
-              Crear proveedor
-            </Button>
+              <Button type="submit" variant="primary">
+                Crear proveedor
+              </Button>
+            </div>
           </div>
         </form>
       </div>
