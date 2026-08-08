@@ -16,8 +16,10 @@ export default function UserRowActions({ user }) {
 
   // Acción para eliminar el usuario
   const handleDelete = () => {
-    console.log("Eliminar usuario", user.id);
-  };
+  if (confirm(`¿Estás seguro de que deseas eliminar al usuario ${user.userName}?`)) {
+    alert("Usuario eliminado con éxito");
+  }
+};
 
   // Acción para ver el usuario
   const handleView = () => {
@@ -48,10 +50,10 @@ export default function UserRowActions({ user }) {
       {/* Botón eliminar */}
       <button
         onClick={handleDelete}
-        className="p-1 rounded hover:bg-[var(--color-error)] transition-colors duration-200"
+        className="p-1 rounded hover:bg-[var(--color-error-soft)] transition-colors duration-200"
         title="Eliminar usuario"
       >
-        <Trash2 size={16} color="var(--color-text-primary)" />
+        <Trash2 size={16} color="#ef4444" />
       </button>
     </div>
   );
