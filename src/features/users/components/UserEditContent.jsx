@@ -39,25 +39,36 @@ export default function UserEditContent({
     }
 
     setErrors({});
-    onSubmit ? onSubmit(formData) : console.log("Datos de usuario válidos:", formData);
+    onSubmit
+      ? onSubmit(formData)
+      : console.log("Datos de usuario válidos:", formData);
   };
 
   return (
     <div className="p-4 sm:p-8">
-
+      {/* Botón de volver */}
+      <div className="flex items-center gap-2 mb-6">
+        <Button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 bg-[var(--color-brand)] text-[var(--color-text-primary)] px-4 py-2 rounded-md hover:bg-[var(--color-brand-hover)] transition"
+        >
+          <ArrowLeft size={18} />
+          Volver
+        </Button>
+      </div>
 
       {/* Formulario */}
       <form onSubmit={handleSubmit}>
-        <div className="bg-[var(--color-background-inverse)] text-[var(--color-black)] rounded-3xl p-6 sm:p-10 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 border border-[var(--color-brand)]">
-          
+        <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 border border-[var(--color-brand)]">
           {/* Título */}
           <div className="lg:col-span-3 flex items-center gap-3">
-            <span className="text-[var(--text-display)] font-[var(--font-heading)] text-[var(--color-text-inverse)]">
+            <span className="text-[var(--text-display)] font-[var(--font-heading)]">
               Editar Usuario
             </span>
           </div>
 
-          {/* Panel Lateral: Foto, Estado y Acciones (Arriba en móvil, a la derecha en desktop) */}
+          {/* Panel lateral */}
           <div className="lg:col-span-1 lg:order-last flex flex-col items-center justify-start gap-6 bg-[var(--color-background-secondary)]/5 p-6 rounded-2xl border border-[var(--color-border)]/20">
             <img
               src={userProfile}
@@ -92,7 +103,7 @@ export default function UserEditContent({
             </div>
           </div>
 
-          {/* Campos de Entrada (1 Columna en móvil, 2 en Tablet/Desktop) */}
+          {/* Campos de entrada */}
           <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <Select
               label="Tipo de documento"
@@ -217,7 +228,6 @@ export default function UserEditContent({
               </Button>
             </div>
           </div>
-
         </div>
       </form>
     </div>
