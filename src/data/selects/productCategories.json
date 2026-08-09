@@ -1,0 +1,5 @@
+[
+  { "id": "raw", "label": "Materia prima" },
+  { "id": "services", "label": "Servicios" },
+  { "id": "finished", "label": "Producto terminado" }
+]
