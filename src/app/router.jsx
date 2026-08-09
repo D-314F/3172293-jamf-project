@@ -1,14 +1,13 @@
 // src/app/router.jsx
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AuthLayout, DashboardLayout } from "@/shared";
-import { UserListPage, UserRegisterForm, UserDetailPage } from "@/features/users";
+import { UserListPage, UserRegisterForm, UserDetailPage, UserEditPage } from "@/features/users";
 import { DishForm, DishListPage } from "@/features/dishes";
-import { ProviderCreateForm, ProviderListPage, ProviderDetailPage } from "@/features/providers";
+import { ProviderCreateForm, ProviderListPage, ProviderDetailPage, ProviderEditPage } from "@/features/providers";
 import { InventoryForm, InventoryListPage, InventoryUltimosPasos } from "@/features/inventory";
 import { OrderForm } from "@/features/orders";
 import HomePage from "@/features/home/pages/HomePage";
 import MenuPage from "@/features/menu/pages/MenuPage";
-import { UserEditPage } from "@/features/users";
 import LoginForm from "@/features/users/components/LoginForm";
 
 const router = createBrowserRouter([
@@ -41,28 +40,23 @@ const router = createBrowserRouter([
       { path: "home", element: <HomePage /> },
       { path: "menu", element: <MenuPage /> },
 
-    { path: "userList", element: <UserListPage /> },
-    { path: "userCreate", element: <UserRegisterForm /> },
-    { path: "userview/:id", element: <UserDetailPage /> },
-    { path: "userEdit/:id", element: <UserEditPage /> },
-
       { path: "userList", element: <UserListPage /> },
       { path: "userCreate", element: <UserRegisterForm /> },
       { path: "userview/:id", element: <UserDetailPage /> },
+      { path: "userEdit/:id", element: <UserEditPage /> },
 
       { path: "providerList", element: <ProviderListPage /> },
       { path: "providerCreate", element: <ProviderCreateForm /> },
       { path: "providerView/:id", element: <ProviderDetailPage /> },
+      { path: "providerEdit/:id", element: <ProviderEditPage /> },
 
       { path: "dishCreate", element: <DishForm /> },
       { path: "dishList", element: <DishListPage /> },
 
-      
       { path: "createInventory", element: <InventoryForm /> },
       { path: "createInventorySteps", element: <InventoryUltimosPasos /> },
       { path: "inventoryList", element: <InventoryListPage /> },
 
-      
       { path: "OrderForm", element: <OrderForm /> },
     ],
   },
