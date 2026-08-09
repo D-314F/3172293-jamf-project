@@ -4,12 +4,13 @@ import { Input, Select, Checkbox, Button, FileInput } from "@/shared";
 import { getDocumentTypes, getUserTypes } from "@/services/selectService";
 import { useNavigate } from "react-router-dom";
 import { userSchema } from "../schemas/userSchema";
+import bf1 from "@/assets/images/bf-2.png";
 
 export default function UserRegisterForm() {
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
 
-  const [FormData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     userDocumentTypes: "",
     userDocumentNumber: "",
     userName: "",
@@ -43,7 +44,7 @@ export default function UserRegisterForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const result = userSchema.safeParse(FormData);
+    const result = userSchema.safeParse(formData);
 
     if (!result.success) {
       console.log("Errores de Zod:", result.error.issues);
@@ -58,9 +59,12 @@ export default function UserRegisterForm() {
     setErrors({});
 
     try {
+      // Mensaje de éxito
       alert("Usuario creado correctamente");
-      // await createUser(result.data);
-      // navigate("/dashboard/users");
+      
+      // Redirección inmediata a la lista de usuarios al dar Aceptar
+      navigate("/dashboard/userList");
+      
     } catch (error) {
       console.error("Error al crear el usuario", error);
       setErrors({ submit: "Error al crear el usuario" });
@@ -68,175 +72,204 @@ export default function UserRegisterForm() {
   };
 
   return (
-    <div
-      className="p-8 text-[var(--color-text-primary)]"
-      style={{
-        backgroundImage: "url('/assets/images/bg-register.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
+    <div 
+      className="min-h-screen w-full flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat relative"
+      style={{ backgroundImage: `url(${bf1})` }}
     >
-      <div className="w-fit mb-6">
-        <Button
-          variant="secondary"
-          size="sm"
-          type="button"
-          onClick={() => navigate(-1)}
-        >
-          ← Atrás
-        </Button>
-      </div>
+      {/* Capa oscura para resaltar el formulario */}
+      <div className="absolute inset-0 bg-black/50 z-0"></div>
 
-      <h1 className="text-[var(--text-main)] font-[var(--font-heading)] mb-6 text-[var(--color-text-inverse)]">
-        Registrar usuarios
-      </h1>
-
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* COLUMNA 1 */}
-          <div className="flex flex-col gap-4">
-            <Select
-              label="Tipo de documento"
-              name="userDocumentTypes"
-              value={FormData.userDocumentTypes}
-              options={documentTypes}
-              onChange={handleChange}
-              error={errors.userDocumentTypes}
-            />
-            <Input
-              label="Número Documento"
-              name="userDocumentNumber"
-              type="text"
-              value={FormData.userDocumentNumber}
-              placeholder="Número Documento"
-              onChange={handleChange}
-              error={errors.userDocumentNumber}
-            />
-            <Input
-              label="Nombre Completo"
-              name="userName"
-              type="text"
-              value={FormData.userName}
-              placeholder="Nombre Completo"
-              onChange={handleChange}
-              error={errors.userName}
-            />
-            <Select
-              label="Tipo de usuario"
-              name="userType"
-              value={FormData.userType}
-              options={userTypes}
-              onChange={handleChange}
-              error={errors.userType}
-            />
-            <div className="w-full">
-              <Button variant="primary" type="button" size="md">
-                Agregar grupo
-              </Button>
-            </div>
-            <div className="w-full">
-              <Button variant="primary" type="button" size="md">
-                Visualizar Lista Usuario
-              </Button>
-            </div>
-          </div>
-
-          {/* COLUMNA 2 */}
-          <div className="flex flex-col gap-4">
-            <Input
-              label="Correo empresarial"
-              name="userBusinessEmail"
-              type="email"
-              value={FormData.userBusinessEmail}
-              placeholder="Correo empresarial"
-              onChange={handleChange}
-              error={errors.userBusinessEmail}
-            />
-            <Input
-              label="Correo electrónico"
-              name="userEmail"
-              type="email"
-              value={FormData.userEmail}
-              placeholder="Correo electrónico"
-              onChange={handleChange}
-              error={errors.userEmail}
-            />
-            <Input
-              label="Número telefónico"
-              name="userPhone"
-              type="tel"
-              value={FormData.userPhone}
-              placeholder="Número telefónico"
-              onChange={handleChange}
-              error={errors.userPhone}
-            />
-            <Input
-              label="Dirección residencial"
-              name="userAddress"
-              type="text"
-              value={FormData.userAddress}
-              placeholder="Dirección residencial"
-              onChange={handleChange}
-              error={errors.userAddress}
-            />
-            <Input
-              label="Fecha inicio laboral"
-              name="userStartDate"
-              type="text"
-              value={FormData.userStartDate}
-              placeholder="Fecha inicio laboral"
-              onChange={handleChange}
-              error={errors.userStartDate}
-            />
-            <Input
-              label="Fecha fin laboral"
-              name="userEndDate"
-              type="text"
-              value={FormData.userEndDate}
-              placeholder="Fecha fin laboral"
-              onChange={handleChange}
-              error={errors.userEndDate}
-            />
-          </div>
-
-          {/* COLUMNA 3 */}
-          <div className="flex flex-col gap-4">
-            <FileInput
-              value={FormData.userImage}
-              onChange={(files) =>
-                setFormData((prev) => ({ ...prev, userImage: files }))
-              }
-              multiple={true}
-            />
-            {errors.userImage && (
-              <span className="text-[var(--color-error)] text-[var(--text-small)]">
-                {errors.userImage}
-              </span>
-            )}
-
-            <Checkbox
-              id="isActive"
-              name="isActive"
-              label="Estado del usuario"
-              checked={FormData.isActive}
-              onChange={handleChange}
-            />
-
-            <div className="w-full">
-              <Button variant="primary" type="button" size="md">
-                Agregar Teléfono Secundario
-              </Button>
-            </div>
-
-            <div className="w-full [&>button]:w-full mt-4">
-              <Button variant="primary" type="submit" size="md">
-                Crear usuario
-              </Button>
-            </div>
-          </div>
+      <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 relative z-10">
+        
+        {/* Header superior alineado */}
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <Button
+            variant="secondary"
+            size="sm"
+            type="button"
+            onClick={() => navigate(-1)}
+          >
+            ← Atrás
+          </Button>
+          <h1 className="text-xl sm:text-2xl font-bold text-[var(--color-text-inverse)] text-right">
+            Registrar usuarios
+          </h1>
         </div>
-      </form>
+
+        {/* Contenedor principal con tarjeta oscura */}
+        <div className="rounded-2xl md:rounded-3xl border border-[var(--color-brand)] bg-[var(--color-background-inverse)] p-5 sm:p-8 md:p-10 shadow-2xl">
+          
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              
+              {/* COLUMNA 1 */}
+              <div className="flex flex-col gap-4">
+                <Select
+                  label="Tipo de documento"
+                  name="userDocumentTypes"
+                  value={formData.userDocumentTypes}
+                  options={documentTypes}
+                  onChange={handleChange}
+                  error={errors.userDocumentTypes}
+                />
+                <Input
+                  label="Número Documento"
+                  name="userDocumentNumber"
+                  type="text"
+                  value={formData.userDocumentNumber}
+                  placeholder="Número Documento"
+                  onChange={handleChange}
+                  error={errors.userDocumentNumber}
+                />
+                <Input
+                  label="Nombre Completo"
+                  name="userName"
+                  type="text"
+                  value={formData.userName}
+                  placeholder="Nombre Completo"
+                  onChange={handleChange}
+                  error={errors.userName}
+                />
+                <Select
+                  label="Tipo de usuario"
+                  name="userType"
+                  value={formData.userType}
+                  options={userTypes}
+                  onChange={handleChange}
+                  error={errors.userType}
+                />
+                
+                <div className="pt-2">
+                  <Button 
+                    type="button" 
+                    variant="secondary"
+                    size="md" 
+                    className="w-full"
+                  >
+                    Agregar grupo
+                  </Button>
+                </div>
+              </div>
+
+              {/* COLUMNA 2 */}
+              <div className="flex flex-col gap-4">
+                <Input
+                  label="Correo empresarial"
+                  name="userBusinessEmail"
+                  type="email"
+                  value={formData.userBusinessEmail}
+                  placeholder="Correo empresarial"
+                  onChange={handleChange}
+                  error={errors.userBusinessEmail}
+                />
+                <Input
+                  label="Correo electrónico"
+                  name="userEmail"
+                  type="email"
+                  value={formData.userEmail}
+                  placeholder="Correo electrónico"
+                  onChange={handleChange}
+                  error={errors.userEmail}
+                />
+                <Input
+                  label="Número telefónico"
+                  name="userPhone"
+                  type="tel"
+                  value={formData.userPhone}
+                  placeholder="Número telefónico"
+                  onChange={handleChange}
+                  error={errors.userPhone}
+                />
+                <Input
+                  label="Dirección residencial"
+                  name="userAddress"
+                  type="text"
+                  value={formData.userAddress}
+                  placeholder="Dirección residencial"
+                  onChange={handleChange}
+                  error={errors.userAddress}
+                />
+                
+                {/* Entradas de Fechas como Texto */}
+                <Input
+                  label="Fecha inicio laboral"
+                  name="userStartDate"
+                  type="text"
+                  placeholder="dd/mm/aaaa"
+                  value={formData.userStartDate}
+                  onChange={handleChange}
+                  error={errors.userStartDate}
+                />
+                <Input
+                  label="Fecha fin laboral"
+                  name="userEndDate"
+                  type="text"
+                  placeholder="dd/mm/aaaa"
+                  value={formData.userEndDate}
+                  onChange={handleChange}
+                  error={errors.userEndDate}
+                />
+              </div>
+
+              {/* COLUMNA 3 */}
+              <div className="flex flex-col justify-between gap-6 md:col-span-2 lg:col-span-1">
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col items-start gap-2 w-full">
+                    <span className="text-[var(--color-text-inverse)] text-sm font-medium">
+                      Foto de perfil / Archivo
+                    </span>
+                    <FileInput
+                      value={formData.userImage}
+                      onChange={(files) =>
+                        setFormData((prev) => ({ ...prev, userImage: files }))
+                      }
+                      multiple={true}
+                    />
+                    {errors.userImage && (
+                      <span className="text-red-400 text-xs">
+                        {errors.userImage}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="pt-2">
+                    <Checkbox
+                      id="isActive"
+                      name="isActive"
+                      label="Estado del usuario"
+                      checked={formData.isActive}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <Button 
+                    type="button" 
+                    variant="secondary"
+                    size="md" 
+                    className="w-full"
+                  >
+                    Agregar Teléfono Secundario
+                  </Button>
+                </div>
+
+                {/* Botones de acción principales */}
+                <div className="flex flex-col gap-3 w-full pt-4">
+                  <Button 
+                    type="submit" 
+                    variant="primary"
+                    size="md" 
+                    className="w-full"
+                  >
+                    Crear usuario
+                  </Button>
+                </div>
+
+              </div>
+
+            </div>
+          </form>
+        </div>
+      </section>
     </div>
   );
 }

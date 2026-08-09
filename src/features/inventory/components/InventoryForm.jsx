@@ -63,14 +63,18 @@ export default function InventoryForm() {
     }
 
     setErrors({});
-    console.log("Inventario creado:", result.data);
-    alert("Inventario registrado correctamente");
+    // Navega a la segunda pantalla enviando el objeto de datos
+    navigate("/dashboard/createInventorySteps", {
+      state: { formData: result.data },
+    });
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 pt-28 pb-12">
-      {/* Botón Atrás */}
-      <div className="flex justify-start mb-6">
+    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10">
+      
+      {/* Header superior */}
+      <div className="flex items-center justify-between gap-4 mb-6">
+        
         <Button
           variant="secondary"
           size="sm"
@@ -79,19 +83,20 @@ export default function InventoryForm() {
         >
           Atrás
         </Button>
-      </div>
-
-      {/* Tarjeta con padding simétrico */}
-      <div className="bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)] shadow-2xl p-8">
-        <h1 className="text-[var(--text-title)] font-[var(--font-heading)] mb-8 text-[var(--color-text-inverse)]">
+        <h1 className="text-xl sm:text-2xl font-bold text-white text-right">
           Crear Inventario
         </h1>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Grid de 3 Columnas */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+      {/* Tarjeta contenedora */}
+      <div className="bg-[var(--color-background-inverse)] rounded-2xl md:rounded-3xl border border-[var(--color-brand)] shadow-2xl p-5 sm:p-8 md:p-10">
+        
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          
+          {/* Grid de campos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
             
-            {/* 📍 Columna 1 */}
+            {/* Columna 1 */}
             <div className="flex flex-col gap-4">
               <Select
                 label="Marca"
@@ -136,7 +141,7 @@ export default function InventoryForm() {
               />
             </div>
 
-            {/* 📍 Columna 2 */}
+            {/* Columna 2 */}
             <div className="flex flex-col gap-4">
               <Input
                 label="Cantidad"
@@ -179,14 +184,14 @@ export default function InventoryForm() {
               />
             </div>
 
-            {/* 📍 Columna 3: FileInput centrado */}
-            <div className="flex flex-col items-center justify-center gap-3 pt-6">
-              <span className="text-[var(--color-text-inverse)] text-[var(--text-small)] font-[var(--font-label)] self-start md:self-center">
+            {/* Columna 3: Adjunto de imagen */}
+            <div className="flex flex-col gap-3">
+              <span className="text-[var(--color-text-inverse)] text-[var(--text-small)] font-[var(--font-label)]">
                 Imagen del producto
               </span>
 
               <FileInput
-                className="border-[var(--color-border)]"
+                className="border-[var(--color-border)] w-full"
                 value={formData.userImage}
                 onChange={(files) =>
                   setFormData((prev) => ({ ...prev, userImage: files }))
@@ -200,16 +205,20 @@ export default function InventoryForm() {
                 </span>
               )}
             </div>
+
           </div>
 
-          {/* Botón Submit al final de la tarjeta */}
-          <div className="flex justify-end pt-4">
-            <Button variant="primary" type="submit">
-              Siguiente
-            </Button>
+          {/* Bloque inferior: Contenedor DIV nativo que garantiza alineación */}
+          <div className="w-full flex justify-end pt-6 border-t border-[var(--color-border)]/20">
+            <div>
+              <Button type="submit" variant="primary">
+                Siguiente
+              </Button>
+            </div>
           </div>
+
         </form>
       </div>
-    </div>
+    </section>
   );
 }

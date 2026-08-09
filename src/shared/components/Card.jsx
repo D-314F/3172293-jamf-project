@@ -1,43 +1,56 @@
-// Componente Card (Presentacional, limpio y reutilizable)
+// Componente Card (Presentacional, limpio, moderno y reutilizable)
 // src/shared/components/Card.jsx
 
 const Card = ({ product }) => {
-const { title, image, price, description } = product;
+  const { title, image, price, description } = product;
 
-return (
+  return (
     <div
-        className="
+      className="
         w-80
-        text-text-inverse
-        dark:bg-neutral-950/70
-        backdrop-blur-[2px]
-        shadow-lg
+        bg-zinc-900
+        border-2 border-zinc-800
+        hover:border-[var(--color-brand)]
+        text-zinc-100
+        shadow-xl
+        hover:shadow-2xl
+        hover:shadow-[var(--color-brand)]
         rounded-2xl
         overflow-hidden
-        hover:shadow-black
-        transition-shadow
-        duration-700
-    "
+        transition-all
+        hover:-translate-y-1.5
+        flex
+        flex-col
+      "
     >
-      <img
-        src={image}
-        alt={title}
-        className="w-full h-48 object-contain"
-      />
+      {/* Contenedor de la imagen con un fondo sutil para evitar contrastes cortantes */}
+      <div className="relative w-full h-48 bg-zinc-950/50 overflow-hidden">
+        <img
+          src={image}
+          alt={title}
+          className="w-full h-full"
+        />
+      </div>
 
-      <div className="p-5 space-y-3">
-        <h2 className="text-xl font-semibold">
-          {title}
-        </h2>
+      {/* Contenido de la card */}
+      <div className="p-5 flex flex-col flex-grow justify-between space-y-3">
+        <div className="space-y-2">
+          <h2 className="text-xl font-bold text-white">
+            {title}
+          </h2>
 
-        <p className="text-sm">
-          {description}
-        </p>
+          <p className="text-sm text-zinc-400">
+            {description}
+          </p>
+        </div>
 
-        <p className="text-lg font-bold text-cyan-200">
-          {/* Esto agrega separadores de miles, lo que mejora la lectura. toLocaleString() */}
-          ${price.toLocaleString()}
-        </p>
+        {/* Precio destacado con el color de marca */}
+        <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
+          <span className="text-xs uppercase text-zinc-500 font-semibold">Precio</span>
+          <p className="text-lg font-extrabold text-[var(--color-brand)]">
+            ${price.toLocaleString()}
+          </p>
+        </div>
       </div>
     </div>
   );

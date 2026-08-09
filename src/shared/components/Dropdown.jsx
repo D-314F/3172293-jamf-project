@@ -88,36 +88,44 @@ export function DropdownTrigger({ children }) {
 
 // Content
 // Esto aparece cuando le das clic
+// Content
+// En Dropdown.jsx -> DropdownContent
 export function DropdownContent({ children, className = "" }) {
-  const { open } = useContext(DropdownContext)
+  const { open, setOpen } = useContext(DropdownContext);
 
-
-  if (!open) return null //Si está cerrado, ni renderiza el menú
+  if (!open) return null;
 
   return (
     <div
       role="menu"
       className={`
-        absolute
-        mt-1
-        min-w-48
-        border
-        text-text-inverse
-        p-1
-        dark:bg-neutral-950/80
-        backdrop-blur-[1px]
-        shadow-lg
-        rounded-2xl
-        overflow-hidden
-        hover:shadow-black
-        transition-shadow duration-700
+        /* Mobile sidebar */
+        fixed top-0 left-0 h-full w-64 rounded-r-2xl
+
+        /* Desktop dropdown (Alineado debajo de la barra y pegado a la derecha) */
+        md:absolute md:top-full md:mt-2.5 md:right-0 md:left-auto md:w-64 md:h-auto md:rounded-xl md:shadow-2xl
+
+        border border-[var(--color-brand)] 
+        bg-[var(--color-background-inverse)]       
+        text-[var(--color-text-inverse)]           
+        font-[var(--font-body)]
+        p-4
+        z-50
         ${className}
       `}
     >
+      <button
+        onClick={() => setOpen(false)}
+        className="mb-4 text-sm text-[var(--color-error)] font-[var(--font-heading)] md:hidden"
+      >
+        ✕ Cerrar
+      </button>
       {children}
     </div>
-  )
+  );
 }
+
+
 
 // Item
 export function DropdownItem({

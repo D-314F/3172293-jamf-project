@@ -2,29 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input, Select, Checkbox, Button } from "@/shared";
 import { orderSchema } from "../schemas/orderSchema";
-
-const MESEROS = [
-  { value: "1", label: "Pablo García Escobar" },
-  { value: "2", label: "Sofía Vargas" },
-  { value: "3", label: "Juan Pablo Ríos" },
-  { value: "4", label: "Camila Herrera" },
-  { value: "5", label: "Santiago Morales" },
-  { value: "6", label: "Valentina Castro" },
-  { value: "7", label: "Andrés Pinzón" },
-];
-
-const PLATILLOS = [
-  { value: "1", label: "Souffle grand marmier" },
-  { value: "2", label: "Cazuela Parisina" },
-  { value: "3", label: "Entradas Refinadas" },
-  { value: "4", label: "Bistec turco" },
-  { value: "5", label: "Principales magníficos" },
-  { value: "6", label: "Torta atún rojo" },
-  { value: "7", label: "Carpacio de pulpo" },
-];
+import { MESEROS, PLATILLOS } from "../data/ordersData";
 
 export default function OrderForm() {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     tableNumber: "",
     isActive: true,
@@ -38,10 +20,14 @@ export default function OrderForm() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleSubmit = (e) => {
@@ -50,7 +36,7 @@ export default function OrderForm() {
 
     if (!result.success) {
       const newErrors = {};
-      result.error.issues.forEach(issue => {
+      result.error.issues.forEach((issue) => {
         newErrors[issue.path[0]] = issue.message;
       });
       setErrors(newErrors);
@@ -59,86 +45,106 @@ export default function OrderForm() {
 
     setErrors({});
     console.log("Orden creada:", result.data);
-    alert("Orden creada correctamente");
+    alert("¡Orden creada correctamente!");
+
+    // Opción 2: Limpia los campos para registrar otra orden de inmediato
+    setFormData({
+      tableNumber: "",
+      isActive: true,
+      waiterId: "",
+      dishId: "",
+      quantity: "1",
+      observations: "",
+    });
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4">
-      <div className="self-start mt-4"> 
+    <section className="w-full max-w-5xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10">
+      
+      {/* Header con botón Atrás redirigiendo al Dashboard / Home */}
+      <div className="flex items-center justify-between gap-4 mb-6">
         <Button
           variant="secondary"
           size="sm"
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/dashboard")}
         >
           Atrás
         </Button>
+        <h1 className="text-xl sm:text-2xl font-bold text-white text-right">
+          Agregar Orden
+        </h1>
       </div>
 
-      <div className="w-full max-w-2xl p-8 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl">
-        <h2 className="text-[var(--text-title)] font-[var(--font-heading)] text-[var(--color-text-inverse)] mb-6">
-          Agregar orden
-        </h2>
+      {/* Contenedor del Formulario */}
+      <div className="bg-[var(--color-background-inverse)] rounded-2xl md:rounded-3xl border border-[var(--color-brand)] shadow-2xl p-5 sm:p-8 md:p-10">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <Input
+              label="Número de mesa"
+              name="tableNumber"
+              type="number"
+              value={formData.tableNumber}
+              onChange={handleChange}
+              error={errors.tableNumber}
+            />
 
-        <form onSubmit={handleSubmit} className="gap-6 flex flex-col">
-          <Input
-            label="Número de mesa"
-            name="tableNumber"
-            type="number"
-            value={formData.tableNumber}
-            onChange={handleChange}
-            error={errors.tableNumber}
-          />
+            <div className="flex items-center md:pt-6">
+              <Checkbox
+                label="Estado"
+                name="isActive"
+                checked={formData.isActive}
+                onChange={handleChange}
+                text={formData.isActive ? "Activo" : "Inactivo"}
+              />
+            </div>
 
-          <Checkbox
-            label="Estado"
-            name="isActive"
-            checked={formData.isActive}
-            onChange={handleChange}
-            text={formData.isActive ? "Activo" : "Inactivo"}
-          />
+            <Select
+              label="Mesero Responsable"
+              name="waiterId"
+              value={formData.waiterId}
+              onChange={handleChange}
+              options={MESEROS}
+              error={errors.waiterId}
+            />
 
-          <Select
-            label="Mesero Responsable"
-            name="waiterId"
-            value={formData.waiterId}
-            onChange={handleChange}
-            options={MESEROS}
-            error={errors.waiterId}
-          />
+            <Select
+              label="Lista Platillos"
+              name="dishId"
+              value={formData.dishId}
+              onChange={handleChange}
+              options={PLATILLOS}
+              error={errors.dishId}
+            />
 
-          <Select
-            label="Lista Platillos" 
-            name="dishId"
-            value={formData.dishId}
-            onChange={handleChange}
-            options={PLATILLOS}
-            error={errors.dishId}
-          />
+            <Input
+              label="Cantidades del Platillo"
+              name="quantity"
+              type="number"
+              value={formData.quantity}
+              onChange={handleChange}
+              error={errors.quantity}
+            />
 
-          <Input
-            label="Cantidades del Platillo"
-            name="quantity"
-            type="number"
-            value={formData.quantity}
-            onChange={handleChange}
-            error={errors.quantity}
-          />
+            <Input
+              label="Observaciones"
+              name="observations"
+              value={formData.observations}
+              onChange={handleChange}
+              error={errors.observations}
+              placeholder="Ej: Sin cebolla, término medio..."
+            />
+          </div>
 
-          <Input
-            label="Observaciones"
-            name="observations"
-            value={formData.observations}
-            onChange={handleChange}
-            error={errors.observations}
-            placeholder="Ej: Sin cebolla, término medio..."
-          />
+          <div className="w-full flex justify-end gap-3 pt-6 border-t border-[var(--color-border)]/20">
+            <Button variant="primary" type="submit">
+              Crear Orden
+            </Button>
+          </div>
 
-          <Button variant="primary" type="submit">
-            Crear Orden
-          </Button>
         </form>
       </div>
-    </div>
+    </section>
   );
 }

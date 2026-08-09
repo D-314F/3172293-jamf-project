@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Menu } from "lucide-react";
+import { 
+  Menu, 
+  Users, 
+  BookOpen, 
+  UtensilsCrossed, 
+  Truck, 
+  Boxes, 
+  LogIn 
+} from "lucide-react";
 import {
   IconButton,
   SearchField,
@@ -10,10 +18,11 @@ import {
 } from "@/shared";
 import logo from "@/assets/images/1-logo.png";
 import logo2 from "@/assets/images/2-logo.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [search, setSearch] = useState("");
+  const navigate = useNavigate();
 
   const handleSearch = (value) => {
     console.log("Buscar:", value);
@@ -23,18 +32,24 @@ export default function Navbar() {
     console.log("Campo limpiado");
   };
 
+  const handleLoginRedirect = () => {
+    navigate("/login"); // 👈 Redirige correctamente a tu LoginForm.jsx
+  };
+
   return (
     <nav className="w-full bg-brand border-b-2 text-black">
-      <div className="mx-auto max-w-7xl px-4">
-        <div className="flex h-16 items-center justify-between">
+      <div className="mx-auto max-w-7xl px-4 py-2">
+        
+        {/* FILA PRINCIPAL: Logos + Links Desktop + Buscador Desktop + Menú */}
+        <div className="flex items-center justify-between gap-2 h-14 md:h-16">
 
-          {/* 📍 Logos agrupados sin separador */}
-          <Link to="/dashboard" className="flex items-center gap-4">
-            <img src={logo2} alt="Logo Rico" className="h-10 object-contain" />
-            <img src={logo} alt="Logo SENA" className="h-10 object-contain" />
+          {/* 📍 Logos agrupados */}
+          <Link to="/dashboard" className="flex items-center gap-2 sm:gap-4 shrink-0">
+            <img src={logo2} alt="Logo Rico" className="h-7 sm:h-10 object-contain" />
+            <img src={logo} alt="Logo SENA" className="h-7 sm:h-10 object-contain" />
           </Link>
 
-          {/* Links de navegación */}
+          {/* Links de navegación (Solo Desktop) */}
           <ul className="hidden md:flex items-center gap-6 font-medium">
             <li>
               <Link to="/dashboard/home" className="hover:text-primary transition">
@@ -58,22 +73,22 @@ export default function Navbar() {
             </li>
           </ul>
 
-          {/* SearchField */}
-          <div>
+          {/* Buscador Versión DESKTOP */}
+          <div className="hidden md:block w-72 lg:w-80">
             <SearchField
               value={search}
               onChange={setSearch}
               onSubmit={handleSearch}
               onClear={handleClear}
-              placeholder="Buscar productos..."
+              placeholder="Buscar..."
               size="md"
               variant="outlined"
-              className="w-76"
+              className="w-full"
             />
           </div>
 
-          {/* Dropdown Menu */}
-          <div>
+          {/* Dropdown Menu Hamburguesa Remasterizado */}
+          <div className="shrink-0 relative">
             <Dropdown className="z-15">
               <DropdownTrigger>
                 <IconButton>
@@ -81,69 +96,81 @@ export default function Navbar() {
                 </IconButton>
               </DropdownTrigger>
 
-              <DropdownContent>
-                <DropdownItem>Gestión de Productos</DropdownItem>
+              <DropdownContent className="w-56 p-2 bg-black border border-brand rounded-xl">
 
+                {/* Ver Menú (Reemplaza a productos) */}
                 <DropdownItem>
-                  <Link to="/dashboard/userCreate" className="block w-full">
-                    Crear Usuarios
+                  <Link to="/dashboard/menu" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
+                    <BookOpen size={18} className="text-amber-400" />
+                    <span>Ver Menú</span>
                   </Link>
                 </DropdownItem>
 
+                {/* Gestión de Usuarios */}
                 <DropdownItem>
-                  <Link to="/dashboard/userList" className="block w-full">
-                    Listar usuarios
+                  <Link to="/dashboard/userList" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
+                    <Users size={18} className="text-amber-400" />
+                    <span>Gestionar Usuarios</span>
                   </Link>
                 </DropdownItem>
 
+                {/* Gestión de Platillos */}
                 <DropdownItem>
-                  <Link to="/dashboard/dishCreate" className="block w-full">
-                    Crear Platillos
+                  <Link to="/dashboard/dishList" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
+                    <UtensilsCrossed size={18} className="text-amber-400" />
+                    <span>Gestionar Platillo</span>
                   </Link>
                 </DropdownItem>
 
+                {/* Gestión de Proveedores */}
                 <DropdownItem>
-                  <Link to="/dashboard/dishList" className="block w-full">
-                    Listar Platillos
+                  <Link to="/dashboard/providerList" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
+                    <Truck size={18} className="text-amber-400" />
+                    <span>Gestionar Proveedores</span>
                   </Link>
                 </DropdownItem>
 
+                {/* Gestión de Inventario */}
                 <DropdownItem>
-                  <Link to="/dashboard/ProviderCreate" className="block w-full">
-                    Crear Proveedores
+                  <Link to="/dashboard/inventoryList" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
+                    <Boxes size={18} className="text-amber-400" />
+                    <span>Gestionar Inventario</span>
                   </Link>
                 </DropdownItem>
 
-              <DropdownItem>
-                <Link to="/dashboard/providerList" className="block w-full">
-                Listar Proveedores
-                </Link>
-              </DropdownItem>
+                {/* Separador visual */}
+                <hr className="border-gray-700 my-2" />
 
-
+                {/* Iniciar Sesión */}
                 <DropdownItem>
-                  <Link to="/dashboard/createInventory" className="block w-full">
-                    Crear Inventario
-                  </Link>
+                  <button 
+                    onClick={handleLoginRedirect} 
+                    className="flex items-center gap-3 w-full py-1 text-left text-amber-400 hover:text-amber-300 font-medium transition cursor-pointer"
+                  >
+                    <LogIn size={18} />
+                    <span>Iniciar sesión</span>
+                  </button>
                 </DropdownItem>
-                <DropdownItem>
-                  <Link to="/dashboard/inventoryList" className="block w-full">
-                    Listar inventario
-                  </Link>
-                </DropdownItem>
-
-                <DropdownItem>
-                  <Link to="/dashboard/OrderForm" className="block w-full">
-                    Crear Ordenes
-                  </Link>
-                </DropdownItem>
-
-                <DropdownItem>Cerrar Sesión</DropdownItem>
               </DropdownContent>
             </Dropdown>
           </div>
 
         </div>
+
+        {/* FILA SECUNDARIA: Buscador MÓVIL */}
+        <div className="block md:hidden pt-1 pb-2 w-full">
+          <SearchField
+            value={search}
+            onChange={setSearch}
+            onSubmit={handleSearch}
+            onClear={handleClear}
+            placeholder="Buscar..."
+            size="md"
+            variant="outlined"
+            className="w-full"
+          />
+        </div>
+
       </div>
     </nav>
   );

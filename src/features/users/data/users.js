@@ -5,11 +5,11 @@
 export const users = [
     {
         id: 1,
-        userName: "Fabian Guzman",
-        userEmail: "fabianguzman206@gmail.com",
-        userPhone: "3001234567",
+        userName: "Maycol James Guzman",
+        userEmail: "maycoljamesguzmanvelasquez@gmail.com",
+        userPhone: "3147801819",
         userDocumentTypes: "CC",
-        userDocumentNumber: "3001234567",
+        userDocumentNumber: "1030405816",
         isActive: true
     },
     {

@@ -61,31 +61,30 @@ export default function DishForm() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto px-8 pt-28 pb-12">
+        /* Padding fluido: pequeño en móvil (px-4, pt-20), amplio en desktop (sm:px-6 md:px-8 md:pt-28) */
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-12">
             
-            {/* Botón Atrás */}
-            <div className="flex justify-start mb-6">
+            {/* Header con Botón Atrás integrado alineado al título */}
+            <div className="flex items-center justify-between gap-4 mb-6">
                 <Button
                     variant="secondary"
                     size="sm"
                     type="button"
                     onClick={() => navigate(-1)}
                 >
-                  Atrás
+                    Atrás
                 </Button>
+                <h1 className="text-xl sm:text-2xl font-bold text-[var(--color-text-inverse)]">
+                    Registrar platillo
+                </h1>
             </div>
 
-            {/* Tarjeta contenedora */}
-            <div className="bg-[var(--color-background-inverse)] p-10 rounded-3xl border border-[var(--color-brand)]"> 
+            {/* Tarjeta contenedora con padding adaptativo */}
+            <div className="bg-[var(--color-background-inverse)] p-5 sm:p-8 md:p-10 rounded-2xl md:rounded-3xl border border-[var(--color-brand)] shadow-lg"> 
 
-                <h1 className="text-[var(--text-title)] font-[var(--font-heading)] text-[var(--color-text-inverse)] mb-8">
-                    Agregar Platillo
-                </h1>
-
-                {/* Formulario reorganizado en 2 columnas */}
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     
-                    {/* Campos del formulario */}
+                    {/* Columna 1: Campos de texto */}
                     <div className="flex flex-col gap-4">
                         <Input
                             label="Nombre"
@@ -125,17 +124,15 @@ export default function DishForm() {
                         />
                     </div>
 
-                    {/* FileInput arriba y Botón abajo */}
-                    <div className="flex flex-col items-center justify-between h-full pt-2">
-                        
-                        {/* Carga de Imagen */}
-                        <div className="flex flex-col items-center gap-3 w-full">
-                            <span className="text-[var(--color-text-inverse)] text-[var(--text-small)] font-[var(--font-label)] self-start md:self-center">
+                    {/* Columna 2: Carga de archivo y botón de envío */}
+                    <div className="flex flex-col justify-between gap-6">
+                        <div className="flex flex-col items-start md:items-center gap-3 w-full">
+                            <span className="text-[var(--color-text-inverse)] text-sm font-[var(--font-label)]">
                                 Imagen del platillo
                             </span>
 
                             <FileInput 
-                                className="border-[var(--color-border)]"
+                                className="border-[var(--color-border)] w-full"
                                 value={formData.userImage}
                                 onChange={(files) => 
                                     setFormData((prev) => ({ ...prev, userImage: files }))
@@ -144,14 +141,14 @@ export default function DishForm() {
                             />
 
                             {errors.userImage && (
-                                <span className="text-[var(--color-error)] text-[var(--text-small)]">
+                                <span className="text-[var(--color-error)] text-xs">
                                     {errors.userImage}
                                 </span>
                             )}
                         </div>
 
-                        {/* Botón "Agregar" en la esquina inferior derecha */}
-                        <div className="w-full flex justify-end mt-8">
+                        {/* Botón adaptativo: Ancho completo en móvil, auto en desktop */}
+                        <div className="w-full flex justify-end pt-2">
                             <div className="w-full md:w-48">
                                 <Button variant="primary" type="submit" size="md">
                                     Agregar

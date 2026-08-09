@@ -54,17 +54,17 @@ export default function ReportConfigModal({ isOpen, onClose }) {
 
   return (
     // Overlay con fondo oscuro difuminado
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/60">
       
-      {/* Contenedor del modal en modo oscuro */}
-      <div className="w-full max-w-lg rounded-xl bg-zinc-900 border-4 border-amber-600 p-6 shadow-2xl text-black">
+      {/* Contenedor del modal unificado con variables de marca */}
+      <div className="w-full max-w-lg rounded-xl bg-zinc-900 border-4 border-[var(--color-brand)] p-6 shadow-2xl text-[var(--color-text-inverse)]">
         
-        {/* Título en tono dorado */}
-        <h2 className="mb-6 text-xl font-semibold text-amber-500">
+        {/* Título unificado */}
+        <h2 className="mb-6 text-xl font-semibold text-[var(--color-text-inverse)]">
           Generar reporte de usuarios
         </h2>
 
-        {/* Selección de formato */}
+        {/* Selección de formato con estilos oscuros y de marca */}
         <div className="mb-4">
           <Select
             label="Formato del reporte"
@@ -75,6 +75,7 @@ export default function ReportConfigModal({ isOpen, onClose }) {
               { label: "PDF", value: "pdf" },
               { label: "Excel", value: "excel" },
             ]}
+            className="bg-zinc-800 text-white border-[var(--color-brand)] w-full"
           />
         </div>
 
@@ -82,7 +83,7 @@ export default function ReportConfigModal({ isOpen, onClose }) {
         <div className="mb-4">
           <p className="mb-2 font-medium text-zinc-300">Campos del reporte</p>
 
-          {/* Grid de checkboxes (ahora las letras blancas sí se verán bien) */}
+          {/* Grid de checkboxes */}
           <div className="grid grid-cols-2 gap-2 text-zinc-200">
             {userReportFields.map((field) => {
               const checked = selectedFields.some(
@@ -103,7 +104,7 @@ export default function ReportConfigModal({ isOpen, onClose }) {
           </div>
         </div>
 
-        {/* Selección de alcance */}
+        {/* Selección de alcance con estilos oscuros y de marca */}
         <div className="mb-4">
           <Select
             label="Alcance del reporte"
@@ -114,6 +115,7 @@ export default function ReportConfigModal({ isOpen, onClose }) {
               { label: "Todos los usuarios", value: "all" },
               { label: "Filtrar por documento", value: "document" },
             ]}
+            className="bg-zinc-800 text-white border-[var(--color-brand)] w-full"
           />
         </div>
 
