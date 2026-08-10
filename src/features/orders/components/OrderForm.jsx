@@ -67,7 +67,7 @@ export default function OrderForm() {
           variant="secondary"
           size="sm"
           type="button"
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate("/dashboard/home")}
         >
           Atrás
         </Button>
