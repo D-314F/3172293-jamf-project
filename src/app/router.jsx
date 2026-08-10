@@ -22,7 +22,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/register",
-    element: <UserRegisterForm />, // Reutilizamos formulario para el registro público
+    element: <UserRegisterForm />, 
   },
   {
     path: "/auth",
