@@ -10,6 +10,7 @@ import HomePage from "@/features/home/pages/HomePage";
 import MenuPage from "@/features/menu/pages/MenuPage";
 import { UserEditPage } from "@/features/users";
 import LoginForm from "@/features/users/components/LoginForm";
+import { PermissionPage } from "@/features/permissions";
 
 const router = createBrowserRouter([
   {
@@ -61,6 +62,10 @@ const router = createBrowserRouter([
       { path: "createInventory", element: <InventoryForm /> },
       { path: "createInventorySteps", element: <InventoryUltimosPasos /> },
       { path: "inventoryList", element: <InventoryListPage /> },
+
+      {
+          path: "/dashboard/permissions", element: <PermissionPage />,
+      },
 
       
       { path: "OrderForm", element: <OrderForm /> },

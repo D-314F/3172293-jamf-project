@@ -7,7 +7,8 @@ import {
   Logs, 
   Truck, 
   Boxes, 
-  LogIn 
+  LogIn,
+  ShieldCheck,
 } from "lucide-react";
 import {
   IconButton,
@@ -144,6 +145,13 @@ export default function Navbar() {
                   <Link to="/dashboard/inventoryList" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
                     <Boxes size={18} className="text-amber-400" />
                     <span>Gestionar Inventario</span>
+                  </Link>
+                </DropdownItem>
+
+                <DropdownItem>
+                  <Link to="/dashboard/permissions" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
+                    <ShieldCheck size={18} className="text-amber-400" />
+                    <span>Gestionar Permisos</span>
                   </Link>
                 </DropdownItem>
 
