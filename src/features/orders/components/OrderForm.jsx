@@ -47,7 +47,7 @@ export default function OrderForm() {
     console.log("Orden creada:", result.data);
     alert("¡Orden creada correctamente!");
 
-    // Opción 2: Limpia los campos para registrar otra orden de inmediato
+    // Limpia los campos
     setFormData({
       tableNumber: "",
       isActive: true,
@@ -56,6 +56,9 @@ export default function OrderForm() {
       quantity: "1",
       observations: "",
     });
+
+    // Redirigir al home del dashboard después de crear la orden con éxito
+    navigate("/dashboard/home");
   };
 
   return (
