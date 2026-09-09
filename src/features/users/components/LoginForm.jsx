@@ -90,9 +90,10 @@ export default function LoginForm () {
 
                     <div className="text-center text-sm">
                         <span className="text-white">¿Olvidaste tu contraseña? </span>
-                        <Link to="/recuperar-password" className="text-brand">
-                            Recupérala Aquí
-                        </Link>
+                        <Link to="/forgot-password" className="text-brand">
+  Recupérala Aquí
+</Link>
+
                     </div>
 
                     <Button
