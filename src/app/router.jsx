@@ -56,20 +56,12 @@ const router = createBrowserRouter([
       { path: "dishes/:id/view", element: <DishViewPage /> },
       { path: "dishes/:id/edit", element: <DishEditPage /> },
 
-
-
       { path: "createInventory", element: <InventoryForm /> },
       { path: "createInventorySteps", element: <InventoryUltimosPasos /> },
       { path: "inventoryList", element: <InventoryListPage /> },
 
-<<<<<<< HEAD
-=======
-      {
-          path: "/dashboard/permissions", element: <PermissionPage />,
-      },
+      { path: "permissions", element: <PermissionPage /> },
 
-      
->>>>>>> dev
       { path: "OrderForm", element: <OrderForm /> },
     ],
   },
