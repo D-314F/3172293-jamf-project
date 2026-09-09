@@ -1,6 +1,8 @@
 // Iconos usados en los botones de acciones
 import { Pencil, Trash2, Eye } from "lucide-react";
 
+import { IconButton } from "@/shared";
+
 // Hook de React Router para navegar programáticamente entre rutas
 import { useNavigate } from "react-router-dom";
 
@@ -27,34 +29,30 @@ export default function UserRowActions({ user }) {
   };
 
   return (
-    // Contenedor de los botones de acciones
-    <div className="flex gap-2">
-      {/* Botón ver */}
-      <button
-        onClick={handleView}
-        className="p-1 rounded hover:bg-[var(--color-brand-soft)] transition-colors duration-200"
-        title="Ver usuario"
-      >
-        <Eye size={16} color="var(--color-text-primary)" />
-      </button>
-
-      {/* Botón editar */}
-      <button
-        onClick={handleEdit}
-        className="p-1 rounded hover:bg-[var(--color-surface-muted)] transition-colors duration-200"
-        title="Editar usuario"
-      >
-        <Pencil size={16} color="var(--color-text-primary)" />
-      </button>
-
-      {/* Botón eliminar */}
-      <button
-        onClick={handleDelete}
-        className="p-1 rounded hover:bg-[var(--color-error-soft)] transition-colors duration-200"
-        title="Eliminar usuario"
-      >
-        <Trash2 size={16} color="#ef4444" />
-      </button>
-    </div>
-  );
+     <div className="flex gap-2">
+       {/* Botón ver */}
+       <IconButton
+         onClick={handleView}
+         className="bg-[var(--color-brand)] text-[var(--color-text-primary)] hover:bg-[var(--color-brand-hover)] transition"
+       >
+         <Eye size={16} />
+       </IconButton>
+ 
+       {/* Botón editar */}
+       <IconButton
+         onClick={handleEdit}
+         className="bg-[var(--color-brand)] text-[var(--color-text-primary)] hover:bg-[var(--color-brand-hover)] transition"
+       >
+         <Pencil size={16} />
+       </IconButton>
+ 
+       {/* Botón eliminar */}
+       <IconButton
+         onClick={handleDelete}
+         className="bg-[var(--color-error)] text-[var(--color-text-inverse)] hover:bg-[var(--color-error-hover)] transition"
+       >
+         <Trash2 size={16} />
+       </IconButton>
+     </div>
+   );
 }

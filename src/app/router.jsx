@@ -2,7 +2,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AuthLayout, DashboardLayout } from "@/shared";
 import { UserListPage, UserRegisterForm, UserDetailPage } from "@/features/users";
-import { DishForm, DishListPage } from "@/features/dishes";
+import { DishForm, DishListPage, DishViewPage, DishEditPage } from "@/features/dishes";
 import { ProviderCreateForm, ProviderListPage, ProviderDetailPage } from "@/features/providers";
 import { InventoryForm, InventoryListPage, InventoryUltimosPasos } from "@/features/inventory";
 import { OrderForm } from "@/features/orders";
@@ -57,6 +57,10 @@ const router = createBrowserRouter([
 
       { path: "dishCreate", element: <DishForm /> },
       { path: "dishList", element: <DishListPage /> },
+      { path: "dishes/:id/view", element: <DishViewPage /> },
+      { path: "dishes/:id/edit", element: <DishEditPage /> },
+
+
 
       
       { path: "createInventory", element: <InventoryForm /> },
