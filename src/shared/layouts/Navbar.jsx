@@ -3,10 +3,12 @@ import {
   Menu, 
   Users, 
   BookOpen, 
-  UtensilsCrossed, 
+  UtensilsCrossed,
+  Logs, 
   Truck, 
   Boxes, 
-  LogIn 
+  LogIn,
+  ShieldCheck,
 } from "lucide-react";
 import {
   IconButton,
@@ -33,17 +35,17 @@ export default function Navbar() {
   };
 
   const handleLoginRedirect = () => {
-    navigate("/login"); // 👈 Redirige correctamente a tu LoginForm.jsx
+    navigate("/login"); 
   };
 
   return (
     <nav className="w-full bg-brand border-b-2 text-black">
       <div className="mx-auto max-w-7xl px-4 py-2">
         
-        {/* FILA PRINCIPAL: Logos + Links Desktop + Buscador Desktop + Menú */}
+        {/* FILA PRINCIPAL */}
         <div className="flex items-center justify-between gap-2 h-14 md:h-16">
 
-          {/* 📍 Logos agrupados */}
+          {/* Logos agrupados */}
           <Link to="/dashboard" className="flex items-center gap-2 sm:gap-4 shrink-0">
             <img src={logo2} alt="Logo Rico" className="h-7 sm:h-10 object-contain" />
             <img src={logo} alt="Logo SENA" className="h-7 sm:h-10 object-contain" />
@@ -122,6 +124,14 @@ export default function Navbar() {
                   </Link>
                 </DropdownItem>
 
+                {/* Gestión de Ordenes */}
+                <DropdownItem>
+                  <Link to="/dashboard/OrderForm" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
+                    <Logs size={18} className="text-amber-400" />
+                    <span>Agregar Orden</span>
+                  </Link>
+                </DropdownItem>
+
                 {/* Gestión de Proveedores */}
                 <DropdownItem>
                   <Link to="/dashboard/providerList" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
@@ -135,6 +145,13 @@ export default function Navbar() {
                   <Link to="/dashboard/inventoryList" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
                     <Boxes size={18} className="text-amber-400" />
                     <span>Gestionar Inventario</span>
+                  </Link>
+                </DropdownItem>
+
+                <DropdownItem>
+                  <Link to="/dashboard/permissions" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
+                    <ShieldCheck size={18} className="text-amber-400" />
+                    <span>Gestionar Permisos</span>
                   </Link>
                 </DropdownItem>
 

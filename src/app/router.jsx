@@ -2,13 +2,14 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AuthLayout, DashboardLayout } from "@/shared";
 import { UserListPage, UserRegisterForm, UserDetailPage, UserEditPage } from "@/features/users";
-import { DishForm, DishListPage } from "@/features/dishes";
+import { DishForm, DishListPage, DishViewPage, DishEditPage } from "@/features/dishes";
 import { ProviderCreateForm, ProviderListPage, ProviderDetailPage, ProviderEditPage } from "@/features/providers";
 import { InventoryForm, InventoryListPage, InventoryUltimosPasos } from "@/features/inventory";
 import { OrderForm } from "@/features/orders";
 import HomePage from "@/features/home/pages/HomePage";
 import MenuPage from "@/features/menu/pages/MenuPage";
 import LoginForm from "@/features/users/components/LoginForm";
+import { PermissionPage } from "@/features/permissions";
 
 const router = createBrowserRouter([
   {
@@ -21,7 +22,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/register",
-    element: <UserRegisterForm />, // Reutilizamos formulario para el registro público
+    element: <UserRegisterForm />, 
   },
   {
     path: "/auth",
@@ -52,11 +53,23 @@ const router = createBrowserRouter([
 
       { path: "dishCreate", element: <DishForm /> },
       { path: "dishList", element: <DishListPage /> },
+      { path: "dishes/:id/view", element: <DishViewPage /> },
+      { path: "dishes/:id/edit", element: <DishEditPage /> },
+
+
 
       { path: "createInventory", element: <InventoryForm /> },
       { path: "createInventorySteps", element: <InventoryUltimosPasos /> },
       { path: "inventoryList", element: <InventoryListPage /> },
 
+<<<<<<< HEAD
+=======
+      {
+          path: "/dashboard/permissions", element: <PermissionPage />,
+      },
+
+      
+>>>>>>> dev
       { path: "OrderForm", element: <OrderForm /> },
     ],
   },
