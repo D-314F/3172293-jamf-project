@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Input, Button } from "@/shared";
-import { Link, useNavigate } from "react-router-dom"; // 👈 Importamos useNavigate
+import { Link, useNavigate } from "react-router-dom"; 
 import { loginSchema } from "../schemas/loginSchema";
 import bf1 from "@/assets/images/bf-1.png";
 
+import logo from "@/assets/images/1-logo.png"
+
 export default function LoginForm () {
-    const navigate = useNavigate(); // 👈 Inicializamos el hook de navegación
+    const navigate = useNavigate(); 
     const [errors, setErrors] = useState({});
 
     const [formData, setFormData] = useState({
@@ -45,9 +47,9 @@ export default function LoginForm () {
 
         setErrors({});
 
-        // Mensaje de éxito y redirección inmediata al presionar OK en la alerta
+        
         alert("Sesión iniciada correctamente");
-        navigate("/dashboard/home"); // 👈 Te lleva directo a la HomePage
+        navigate("/dashboard/home"); 
     };
 
     return(
@@ -58,7 +60,17 @@ export default function LoginForm () {
             {/* Capa oscura para que resalte el formulario */}
             <div className="absolute inset-0 bg-black/50 z-0"></div>
 
-            <div className="w-full max-w-md p-8 bg-black border border-brand rounded-4xl relative z-10 shadow-2xl">
+            <div className="w-full max-w-md p-8 bg-black border border-brand rounded-4xl relative z-10 shadow-2xl flex flex-col items-center">
+
+               {/* Contenedor con fondo claro e inversión de color si se requiere */}
+            <div className="w-16 h-16 mb-4 rounded-full bg-[var(--color-brand)] p-3 flex items-center justify-center shadow-lg">
+                <img 
+                    src={logo} 
+                    alt="Logo Marca" 
+                    className="w-full h-full object-contain" 
+                />
+            </div>
+
                 <h1 className="text-2xl font-bold text-brand text-center mb-2">
                     Iniciar Sesión
                 </h1>
@@ -91,8 +103,8 @@ export default function LoginForm () {
                     <div className="text-center text-sm">
                         <span className="text-white">¿Olvidaste tu contraseña? </span>
                         <Link to="/forgot-password" className="text-brand">
-  Recupérala Aquí
-</Link>
+                            Recupérala Aquí
+                        </Link>
 
                     </div>
 

@@ -5,6 +5,9 @@ export default function Input({
     type = "text",
     variant="primary",
     size = "sm",
+
+    className = "",
+    
     ...props
 }){
     
@@ -101,6 +104,9 @@ export default function Input({
                         border
                         px-4
                         text-body
+                        text-gray-900
+                        placeholder:text-gray-400
+                        
                         
 
                         focus:outline-none
@@ -111,6 +117,8 @@ export default function Input({
                         ${sizes[size]}
 
                         ${error ? "border-red-800" : "border border-border"}
+
+                        ${className}
                     `}
                         {...props}
                     />
