@@ -10,6 +10,8 @@ import HomePage from "@/features/home/pages/HomePage";
 import MenuPage from "@/features/menu/pages/MenuPage";
 import LoginForm from "@/features/users/components/LoginForm";
 import { PermissionPage } from "@/features/permissions";
+import ViewMenuPage from "@/features/menu/pages/ViewMenuPage";
+
 
 const router = createBrowserRouter([
   {
@@ -40,6 +42,8 @@ const router = createBrowserRouter([
       { index: true },
       { path: "home", element: <HomePage /> },
       { path: "menu", element: <MenuPage /> },
+      { path: "menu/view/:id", element: <ViewMenuPage /> },
+
 
       { path: "userList", element: <UserListPage /> },
       { path: "userCreate", element: <UserRegisterForm /> },
