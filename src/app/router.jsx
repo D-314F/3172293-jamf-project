@@ -10,6 +10,10 @@ import HomePage from "@/features/home/pages/HomePage";
 import MenuPage from "@/features/menu/pages/MenuPage";
 import LoginForm from "@/features/users/components/LoginForm";
 import { PermissionPage } from "@/features/permissions";
+import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
+import ResetPasswordPage from "@/features/auth/pages/ResetPasswordPage";
+import VerifyCodePage from "@/features/auth/pages/VerifyCodePage";
+
 
 const router = createBrowserRouter([
   {
@@ -24,6 +28,20 @@ const router = createBrowserRouter([
     path: "/register",
     element: <UserRegisterForm />, 
   },
+  {
+    path: "/forgot-password",
+    element: <ForgotPasswordPage />,
+  },
+  {
+    path: "/verify-code",
+    element: <VerifyCodePage />,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPasswordPage />,
+  },
+
+
   {
     path: "/auth",
     element: <AuthLayout />,
