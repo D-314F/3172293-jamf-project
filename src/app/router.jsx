@@ -4,7 +4,7 @@ import { AuthLayout, DashboardLayout } from "@/shared";
 import { UserListPage, UserRegisterForm, UserDetailPage, UserEditPage } from "@/features/users";
 import { DishForm, DishListPage, DishViewPage, DishEditPage } from "@/features/dishes";
 import { ProviderCreateForm, ProviderListPage, ProviderDetailPage, ProviderEditPage } from "@/features/providers";
-import { InventoryForm, InventoryListPage, InventoryUltimosPasos } from "@/features/inventory";
+import { InventoryForm, InventoryListPage, InventoryUltimosPasos, EditInventoryPage, ViewInventoryPage } from "@/features/inventory";
 import { OrderForm } from "@/features/orders";
 import HomePage from "@/features/home/pages/HomePage";
 import MenuPage from "@/features/menu/pages/MenuPage";
@@ -80,6 +80,8 @@ const router = createBrowserRouter([
       { path: "createInventory", element: <InventoryForm /> },
       { path: "createInventorySteps", element: <InventoryUltimosPasos /> },
       { path: "inventoryList", element: <InventoryListPage /> },
+      { path: "inventory/:id/edit", element: <EditInventoryPage /> },
+      { path: "inventory/:id/view", element: <ViewInventoryPage /> },
 
       { path: "permissions", element: <PermissionPage /> },
 

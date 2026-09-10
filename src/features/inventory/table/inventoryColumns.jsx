@@ -1,3 +1,5 @@
+import InventoryRowActions from "../components/InventoryRowActions";
+
 export const inventoryColumns = [
   { accessorKey: "id", header: "Id" },
   { accessorKey: "name", header: "Nombre" },
@@ -6,4 +8,8 @@ export const inventoryColumns = [
   { accessorKey: "unitPrice", header: "Precio" },
   { accessorKey: "brand", header: "Marca" },
   { accessorKey: "status", header: "Estado" },
+  {
+    header: "Acciones",
+    cell: ({ row }) => <InventoryRowActions item={row.original} />,
+  },
 ];
