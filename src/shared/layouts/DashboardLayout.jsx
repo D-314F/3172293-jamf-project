@@ -15,7 +15,7 @@ export default function DashboardLayout() {
     >
       <Navbar />
 
-      <main className="flex-grow mx-auto">
+      <main className="flex-grow ">
         <Outlet />
       </main>
 
