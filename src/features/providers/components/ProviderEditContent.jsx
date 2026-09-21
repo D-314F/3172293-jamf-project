@@ -5,16 +5,18 @@ import { Select, Input, Button, Checkbox, FileInput } from "@/shared";
 import documentTypes from "../../../data/selects/documentsTypes.json";
 import productCategories from "../../../data/selects/productCategories.json";
 import { providerSchema } from "../schemas/providerSchema";
+import { showSuccessAlert, showCancelAlert } from "@/shared/services/alertService"; 
+
 
 export default function ProviderEditContent({
   formData = {},
   setFormData,
-  onSubmit,
+  // onSubmit,
 }) {
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
 
-  // 🔹 Manejo de cambios
+  // Manejo de cambios
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
     setFormData((prev) => ({
@@ -23,24 +25,59 @@ export default function ProviderEditContent({
     }));
   };
 
-  // 🔹 Validación con Zod
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const result = providerSchema.safeParse(formData);
-
-    if (!result.success) {
-      const fieldErrors = {};
-      result.error.issues.forEach((issue) => {
-        const fieldName = issue.path[0];
-        fieldErrors[fieldName] = issue.message;
-      });
-      setErrors(fieldErrors);
-      return;
-    }
-
-    setErrors({});
-    onSubmit ? onSubmit(formData) : console.log("Datos de proveedor válidos:", formData);
-  };
+  // Validación con Zod
+  const handleSubmit = async (e) => {
+      e.preventDefault();
+  
+      const result = providerSchema.safeParse(formData);
+  
+      if (!result.success) {
+        console.log("Errores de Zod:", result.error.issues);
+        const fieldErrors = {};
+        result.error.issues.forEach((issue) => {
+          fieldErrors[issue.path[0]] = issue.message;
+        });
+        setErrors(fieldErrors);
+        return;
+      }
+  
+      setErrors({});
+  
+      try {
+        // FIX 2: Se corrigió la sintaxis de los comentarios de prueba
+        // const response = await createUser(result.data);
+        // console.log("Proveedor editado:", response);
+  
+        // Feedback básico al Proveedor 
+        await showSuccessAlert({
+          title: "Proveedor editado",
+          text: "El Proveedor se ha editado correctamente",
+          timer: 2000,
+        });
+  
+        // Navegamos a la vista anterior
+        navigate(-1);
+        
+      } catch (error) {
+        console.error("Error al editar el Proveedor", error);
+        setErrors({ submit: "Error al editar el Proveedor" });
+      }
+  
+      
+    };
+        const handleCancel = async () => {
+          // Desplegamos la alerta de confirmación
+          const result = await showCancelAlert({
+              title: "Cancelado",
+              text: "Los cambios no guardados se perderán.",
+              timer: 3000,
+          });
+      
+          if (result.isConfirmed) {
+              // Navegamos a la vista anterior
+              navigate(-1);
+          }
+      };
 
   return (
     <div className="p-8">
@@ -169,12 +206,21 @@ export default function ProviderEditContent({
               onChange={handleChange}
             />
 
-            <Button
-              type="submit"
-              className="bg-[var(--color-success)] text-[var(--color-text-inverse)] px-4 py-2 rounded-md hover:bg-[var(--color-success-hover)] transition w-full"
-            >
-              Aplicar Cambios
-            </Button>
+            
+            <div className="flex flex-col gap-3 w-full pt-4">
+              <Button 
+                    type="button" 
+                    variant="secondary"
+                    size="md" 
+                    className="w-full"
+                    onClick={handleCancel}
+                  >
+                    Cancelar
+                  </Button>
+              <Button type="submit" variant="primary">
+                Editar proveedor
+              </Button>
+            </div>
           </div>
         </div>
       </form>

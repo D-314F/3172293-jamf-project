@@ -20,6 +20,7 @@ export function showSuccessAlert({
             popup: "rounded-2x1",
             title: "text-green-600",  
             confirmButton: "bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg",
+            timerProgressBar: "!bg-green-600"
         },
 
         buttonsStyling: false,
