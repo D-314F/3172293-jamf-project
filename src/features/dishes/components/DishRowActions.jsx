@@ -3,12 +3,19 @@ import { Pencil, Trash2, Eye } from "lucide-react";
 import { IconButton } from "@/shared";
 import { useNavigate } from "react-router-dom";
 
-export default function DishRowActions({ dish }) {
+import Swal from "sweetalert2";
+import {
+  showConfirmDeleteAlert,
+  showSuccessAlert,
+  showCancelAlert,
+} from "@/shared/services/alertService";
+
+// Componente que renderiza las acciones de cada fila de platillo
+export default function DishRowActions({ dish, onDeleteSuccess }) {
   const navigate = useNavigate();
 
   // Acción para ver el platillo
   const handleView = () => {
-    // 👇 Ajustado a la ruta que tienes en router.jsx
     navigate(`/dashboard/dishes/${dish.id}/view`);
   };
 
@@ -18,12 +25,31 @@ export default function DishRowActions({ dish }) {
   };
 
   // Acción para eliminar el platillo
-  const handleDelete = () => {
-    const nombrePlatillo = dish.nombre || dish.dishName || dish.name;
+  const handleDelete = async () => {
+    const nombrePlatillo = dish.nombre || dish.dishName || dish.name || "el platillo";
 
-    if (confirm(`¿Estás seguro de que deseas eliminar el platillo ${nombrePlatillo}?`)) {
-      alert(`Platillo "${nombrePlatillo}" eliminado con éxito`);
-      // Aquí luego puedes integrar la lógica real de eliminación
+    const result = await showConfirmDeleteAlert({
+      title: "¿Estás seguro?",
+      text: `¿Deseas eliminar el platillo "${nombrePlatillo}"?. No podrás revertir esto.`,
+    });
+
+    if (result.isConfirmed) {
+      // Si recibes un callback para actualizar la lista local/estado
+      if (onDeleteSuccess) {
+        await onDeleteSuccess(dish.id);
+      }
+
+      // Alerta de éxito al eliminar
+      await showSuccessAlert({
+        title: "¡Eliminado!",
+        text: `El platillo "${nombrePlatillo}" fue eliminado con éxito.`,
+      });
+    } else if (result.dismiss === Swal.DismissReason.cancel) {
+      // Alerta al cancelar la eliminación
+      showCancelAlert({
+        title: "Cancelado",
+        text: `El platillo "${nombrePlatillo}" no sufrió ningún cambio.`,
+      });
     }
   };
 

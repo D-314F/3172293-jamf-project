@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Input, Select, Checkbox, Button } from "@/shared";
 import { orderSchema } from "../schemas/orderSchema";
 import { MESEROS, PLATILLOS } from "../data/ordersData";
+import { 
+  showSuccessAlert, 
+  showUserErrorAlert 
+} from "@/shared/services/alertService";
 
 export default function OrderForm() {
   const navigate = useNavigate();
@@ -30,7 +34,7 @@ export default function OrderForm() {
     }
   };
 
-  const handleSubmit = (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     const result = orderSchema.safeParse(formData);
 
@@ -40,28 +44,48 @@ export default function OrderForm() {
         newErrors[issue.path[0]] = issue.message;
       });
       setErrors(newErrors);
+
+      await showUserErrorAlert({
+        title: "Error al crear la orden",
+        text: "Por favor, revisa y completa los campos obligatorios.",
+      });
+
       return;
     }
 
     setErrors({});
-    console.log("Orden creada:", result.data);
-    alert("¡Orden creada correctamente!");
 
-    // Limpia los campos
-    setFormData({
-      tableNumber: "",
-      isActive: true,
-      waiterId: "",
-      dishId: "",
-      quantity: "1",
-      observations: "",
-    });
+    try {
+      console.log("Orden creada:", result.data);
 
-    // Redirigir al home del dashboard después de crear la orden con éxito
-    navigate("/dashboard/home");
+      await showSuccessAlert({
+        title: "¡Orden Creada!",
+        text: "La orden se ha generado exitosamente.",
+        timer: 2000,
+      });
+
+      // Limpia los campos
+      setFormData({
+        tableNumber: "",
+        isActive: true,
+        waiterId: "",
+        dishId: "",
+        quantity: "1",
+        observations: "",
+      });
+
+      // Redirigir al home del dashboard después de crear la orden con éxito
+      navigate("/dashboard/home");
+    } catch (error) {
+      console.error(error);
+      await showUserErrorAlert({
+        title: "Error inesperado",
+        text: "Ocurrió un error al intentar crear la orden.",
+      });
+    }
   };
 
-  return (
+return (
     <section className="w-full max-w-5xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10">
       
       {/* Header con botón Atrás redirigiendo al Dashboard / Home */}

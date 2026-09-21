@@ -3,7 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { Input, Select, Checkbox, Button, FileInput } from "@/shared";
 import { providerSchema } from "../schemas/providerSchema";
 import { documentTypes, providerProducts } from "../data/providersValue"; // Importación limpia
-import { showSuccessAlert, showCancelAlert } from "@/shared/services/alertService"; 
+import { 
+  showSuccessAlert, 
+  showUserErrorAlert, 
+  showCancelAlert 
+} from "@/shared/services/alertService";
 
 
 export default function ProviderCreateForm() {
@@ -31,59 +35,62 @@ export default function ProviderCreateForm() {
     }));
   };
 
-   const handleSubmit = async (e) => {
-      e.preventDefault();
-  
-      const result = providerSchema.safeParse(formData);
-  
-      if (!result.success) {
-        console.log("Errores de Zod:", result.error.issues);
-        const fieldErrors = {};
-        result.error.issues.forEach((issue) => {
-          fieldErrors[issue.path[0]] = issue.message;
-        });
-        setErrors(fieldErrors);
-        return;
-      }
-  
-      setErrors({});
-  
-      try {
-        // FIX 2: Se corrigió la sintaxis de los comentarios de prueba
-        // const response = await createUser(result.data);
-        // console.log("Proveedor Creado:", response);
-  
-        // Feedback básico al Proveedor 
-        await showSuccessAlert({
-          title: "Proveedor creado",
-          text: "El Proveedor se ha creado correctamente",
-          timer: 2000,
-        });
-  
-        // Navegamos a la vista anterior
-        navigate(-1);
-        
-      } catch (error) {
-        console.error("Error al crear el Proveedor", error);
-        setErrors({ submit: "Error al crear el Proveedor" });
-      }
-  
+const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const result = providerSchema.safeParse(formData);
+
+    if (!result.success) {
+      console.log("Errores de Zod:", result.error.issues);
+      const fieldErrors = {};
+      result.error.issues.forEach((issue) => {
+        fieldErrors[issue.path[0]] = issue.message;
+      });
+      setErrors(fieldErrors);
+
+      await showUserErrorAlert({
+        title: "Error al crear el proveedor",
+        text: "Por favor, completa correctamente todos los campos requeridos.",
+      });
+
+      return;
+    }
+
+    setErrors({});
+
+    try {
+      // Feedback al usuario
+      await showSuccessAlert({
+        title: "Proveedor creado",
+        text: "El Proveedor se ha creado correctamente",
+        timer: 2000,
+      });
+
+      // Navegamos a la vista anterior
+      navigate(-1);
       
-    };
-        const handleCancel = async () => {
-          // Desplegamos la alerta de confirmación
-          const result = await showCancelAlert({
-              title: "Cancelado",
-              text: "Los cambios no guardados se perderán.",
-              timer: 3000,
-          });
-      
-          if (result.isConfirmed) {
-              // Navegamos a la vista anterior
-              navigate(-1);
-          }
-      };
-      
+    } catch (error) {
+      console.error("Error al crear el Proveedor", error);
+      setErrors({ submit: "Error al crear el Proveedor" });
+
+      await showUserErrorAlert({
+        title: "Error inesperado",
+        text: "Ocurrió un problema al procesar la solicitud.",
+      });
+    }
+  };
+
+  const handleCancel = async () => {
+    const result = await showCancelAlert({
+      title: "¿Deseas cancelar?",
+      text: "Los cambios no guardados se perderán.",
+      timer: 3000,
+    });
+
+    if (result.isConfirmed) {
+      navigate(-1);
+    }
+  };
   return (
     <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10">
       

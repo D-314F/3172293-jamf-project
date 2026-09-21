@@ -22,6 +22,9 @@ import logo from "@/assets/images/1-logo.png";
 import logo2 from "@/assets/images/2-logo.png";
 import { Link, useNavigate } from "react-router-dom";
 
+// Importamos la alerta de error del servicio
+import { showOpsAlert } from "@/shared/services/alertService";
+
 export default function Navbar() {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
@@ -36,6 +39,38 @@ export default function Navbar() {
 
   const handleLoginRedirect = () => {
     navigate("/login"); 
+  };
+
+  // Handlers para mostrar la alerta de error en las secciones solicitadas
+  const handleCursosClick = (e) => {
+    e.preventDefault();
+    showOpsAlert({
+      title: "Ops, hubo un error",
+      text: "El módulo de Cursos no está disponible en este momento.",
+    });
+  };
+
+  const handleMultimediaClick = (e) => {
+    e.preventDefault();
+    showOpsAlert({
+      title: "Ops, hubo un error",
+      text: "No se pudieron cargar los recursos multimedia del sistema.",
+    });
+  };
+
+  const handleContactoClick = (e) => {
+    e.preventDefault();
+    showOpsAlert({
+      title: "Ops, hubo un error",
+      text: "El servicio de contacto no responde. Inténtalo más tarde.",
+    });
+  };
+
+  const handlePermissionsClick = () => {
+    showOpsAlert({
+      title: "Ops, hubo un error",
+      text: "No tienes los permisos suficientes o el módulo de permisos no está disponible en este momento.",
+    });
   };
 
   return (
@@ -59,19 +94,28 @@ export default function Navbar() {
               </Link>
             </li>
             <li>
-              <Link to="/dashboard" className="hover:text-primary transition">
+              <button 
+                onClick={handleCursosClick} 
+                className="hover:text-primary transition cursor-pointer font-medium"
+              >
                 Cursos
-              </Link>
+              </button>
             </li>
             <li>
-              <Link to="/inicio" className="hover:text-primary transition">
+              <button 
+                onClick={handleMultimediaClick} 
+                className="hover:text-primary transition cursor-pointer font-medium"
+              >
                 Multimedia
-              </Link>
+              </button>
             </li>
             <li>
-              <Link to="/inicio" className="hover:text-primary transition">
+              <button 
+                onClick={handleContactoClick} 
+                className="hover:text-primary transition cursor-pointer font-medium"
+              >
                 Contacto
-              </Link>
+              </button>
             </li>
           </ul>
 
@@ -89,7 +133,7 @@ export default function Navbar() {
             />
           </div>
 
-          {/* Dropdown Menu Hamburguesa Remasterizado */}
+          {/* Dropdown Menu Hamburguesa */}
           <div className="shrink-0 relative">
             <Dropdown className="z-15">
               <DropdownTrigger>
@@ -100,7 +144,7 @@ export default function Navbar() {
 
               <DropdownContent className="w-56 p-2 bg-black border border-brand rounded-xl">
 
-                {/* Ver Menú (Reemplaza a productos) */}
+                {/* Ver Menú */}
                 <DropdownItem>
                   <Link to="/dashboard/menu" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
                     <BookOpen size={18} className="text-amber-400" />
@@ -124,7 +168,7 @@ export default function Navbar() {
                   </Link>
                 </DropdownItem>
 
-                {/* Gestión de Ordenes */}
+                {/* Gestión de Órdenes */}
                 <DropdownItem>
                   <Link to="/dashboard/OrderForm" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
                     <Logs size={18} className="text-amber-400" />
@@ -148,11 +192,15 @@ export default function Navbar() {
                   </Link>
                 </DropdownItem>
 
+                {/* Gestión de Permisos -> Muestra la alerta de error */}
                 <DropdownItem>
-                  <Link to="/dashboard/permissions" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
+                  <button
+                    onClick={handlePermissionsClick}
+                    className="flex items-center gap-3 w-full py-1 text-left text-white hover:text-amber-400 transition cursor-pointer"
+                  >
                     <ShieldCheck size={18} className="text-amber-400" />
                     <span>Gestionar Permisos</span>
-                  </Link>
+                  </button>
                 </DropdownItem>
 
                 {/* Separador visual */}
