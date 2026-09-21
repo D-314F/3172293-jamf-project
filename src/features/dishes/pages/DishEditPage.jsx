@@ -16,10 +16,9 @@ export default function DishEditPage({ dish = {} }) {
     isActive: dish.active ?? true,
   });
 
-  const handleSubmit = (e) => {
-    if (e && typeof e.preventDefault === "function") e.preventDefault();
-    alert("¡Cambios aplicados con éxito!");
-    navigate(-1);
+  const handleSubmit = async (data) => {
+    // Aquí en el futuro conectarás la llamada a tu API / Backend
+    console.log("Guardando cambios en el servidor/estado:", data);
   };
 
   return (

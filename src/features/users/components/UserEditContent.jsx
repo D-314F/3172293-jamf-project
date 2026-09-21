@@ -6,6 +6,7 @@ import { Select, Input, Button, Checkbox } from "@/shared";
 import documentTypes from "../../../data/selects/documentsTypes.json";
 import userTypes from "../../../data/selects/userTypes.json";
 import { userSchema } from "../schemas/userSchema";
+import { showSuccessAlert, showCancelAlert } from "@/shared/services/alertService"; 
 
 export default function UserEditContent({
   formData = {},
@@ -24,7 +25,8 @@ export default function UserEditContent({
     }));
   };
 
-  const handleSubmit = (e) => {
+  // 2. HACEMOS ASYNC EL SUBMIT Y AÑADIMOS LA ALERTA DE ÉXITO
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const result = userSchema.safeParse(formData);
 
@@ -39,13 +41,42 @@ export default function UserEditContent({
     }
 
     setErrors({});
-    onSubmit ? onSubmit(formData) : console.log("Datos de usuario válidos:", formData);
+
+    try {
+      if (onSubmit) {
+        await onSubmit(formData);
+      }
+
+      await showSuccessAlert({
+        title: "Usuario actualizado",
+        text: "Los datos del usuario se han actualizado correctamente.",
+        timer: 2000,
+      });
+
+      navigate(-1);
+    } catch (error) {
+      console.error("Error al actualizar usuario:", error);
+      setErrors({ submit: "Error al actualizar el usuario" });
+    }
+  };
+
+  const handleCancel = async () => {
+    const result = await showCancelAlert({
+      title: "¿Deseas cancelar?",
+      text: "Los cambios realizados no se guardarán.",
+      timer: 3000,
+    });
+
+    if (result.isConfirmed) {
+      navigate(-1);
+    }
   };
 
   return (
     <div className="p-8">
       {/* Botón Volver */}
       <Button
+        variant="secondary"
         type="button"
         onClick={() => navigate(-1)}
         className="flex items-center gap-2 bg-[var(--color-secondary-950)] text-[var(--color-text-inverse)] px-4 py-2 rounded-md mb-6 hover:bg-[var(--color-error-hover)] transition"
@@ -210,7 +241,15 @@ export default function UserEditContent({
             >
               Agregar Teléfono Secundario
             </Button>
-
+            
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={handleCancel}
+              className="bg-[var(--color-error)] text-[var(--color-text-inverse)] px-4 py-2 rounded-md hover:bg-[var(--color-error-hover)] transition w-full"
+            >
+              Cancelar
+            </Button>
             <Button
               type="submit"
               className="bg-[var(--color-success)] text-[var(--color-text-inverse)] px-4 py-2 rounded-md hover:bg-[var(--color-success-hover)] transition w-full"

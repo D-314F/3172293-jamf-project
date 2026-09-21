@@ -9,6 +9,8 @@ import FileInput from "../../../shared/components/FileInput";
 import { getDishCategories } from "../../../services/selectService"; 
 import { dishSchema } from "../schemas/dishSchema"; 
 
+import { showSuccessAlert, showCancelAlert } from "@/shared/services/alertService"; 
+
 export default function DishForm() {
     const navigate = useNavigate();
     const [errors, setErrors] = useState({});
@@ -34,7 +36,8 @@ export default function DishForm() {
         }));
     };
 
-    const handleSubmit = (e) => {
+    
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const result = dishSchema.safeParse(formData);
@@ -52,25 +55,43 @@ export default function DishForm() {
 
         try {
             console.log("¡Éxito! Platillo creado:", result.data);
-            alert("¡Platillo agregado correctamente!");
-            setFormData({ nombre: "", precio: "", categoria: "", descripcion: "", userImage: [] });
+
+            // Alerta de éxito
+            await showSuccessAlert({
+                title: "Platillo agregado",
+                text: "El platillo se ha registrado correctamente.",
+                timer: 2000,
+            });
+
+            navigate(-1);
         } catch (error) {
             console.error(error);
             setErrors({ submit: "Error interno al procesar el plato" });
         }
     };
 
+    const handleCancel = async () => {
+        const result = await showCancelAlert({
+            title: "¿Deseas cancelar?",
+            text: "Los datos ingresados no se guardarán.",
+            timer: 3000,
+        });
+
+        if (result.isConfirmed) {
+            navigate(-1);
+        }
+    };
+
     return (
-        /* Padding fluido: pequeño en móvil (px-4, pt-20), amplio en desktop (sm:px-6 md:px-8 md:pt-28) */
         <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-12">
             
-            {/* Header con Botón Atrás integrado alineado al título */}
+            {/* Header */}
             <div className="flex items-center justify-between gap-4 mb-6">
                 <Button
                     variant="secondary"
                     size="sm"
                     type="button"
-                    onClick={() => navigate(-1)}
+                    onClick={handleCancel}
                 >
                     Atrás
                 </Button>
@@ -79,7 +100,7 @@ export default function DishForm() {
                 </h1>
             </div>
 
-            {/* Tarjeta contenedora con padding adaptativo */}
+            {/* Tarjeta contenedora */}
             <div className="bg-[var(--color-background-inverse)] p-5 sm:p-8 md:p-10 rounded-2xl md:rounded-3xl border border-[var(--color-brand)] shadow-lg"> 
 
                 <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
@@ -124,7 +145,7 @@ export default function DishForm() {
                         />
                     </div>
 
-                    {/* Columna 2: Carga de archivo y botón de envío */}
+                    {/* Columna 2: Carga de archivo y botones */}
                     <div className="flex flex-col justify-between gap-6">
                         <div className="flex flex-col items-start md:items-center gap-3 w-full">
                             <span className="text-[var(--color-text-inverse)] text-sm font-[var(--font-label)]">
@@ -147,9 +168,19 @@ export default function DishForm() {
                             )}
                         </div>
 
-                        {/* Botón adaptativo: Ancho completo en móvil, auto en desktop */}
-                        <div className="w-full flex justify-end pt-2">
-                            <div className="w-full md:w-48">
+                        {/* Botones */}
+                        <div className="w-full flex flex-col sm:flex-row justify-end gap-3 pt-2">
+                            <div className="w-full sm:w-36">
+                                <Button 
+                                    variant="secondary" 
+                                    type="button" 
+                                    size="md"
+                                    onClick={handleCancel}
+                                >
+                                    Cancelar
+                                </Button>
+                            </div>
+                            <div className="w-full sm:w-48">
                                 <Button variant="primary" type="submit" size="md">
                                     Agregar
                                 </Button>
