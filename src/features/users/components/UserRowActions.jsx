@@ -6,6 +6,13 @@ import { IconButton } from "@/shared";
 // Hook de React Router para navegar programáticamente entre rutas
 import { useNavigate } from "react-router-dom";
 
+import Swal from "sweetalert2";
+import {
+  showConfirmDeleteAlert,
+  showSuccessAlert,
+  showCancelAlert,
+} from "@/shared/services/alertService";
+
 // Componente que renderiza las acciones de cada fila de usuario
 // Recibe como prop el objeto user
 export default function UserRowActions({ user }) {
@@ -17,9 +24,27 @@ export default function UserRowActions({ user }) {
   };
 
   // Acción para eliminar el usuario
-  const handleDelete = () => {
-  if (confirm(`¿Estás seguro de que deseas eliminar al usuario ${user.userName}?`)) {
-    alert("Usuario eliminado con éxito");
+const handleDelete = async () => {
+  const result = await showConfirmDeleteAlert({
+    title: "¿Estás seguro?",
+    text: `¿Deseas eliminar al usuario ${user.userName}?. 
+    No podrás revertir esto.`,
+  });
+
+  if (result.isConfirmed) {
+
+    // Alerta de éxito al eliminar
+    await showSuccessAlert({
+      title: "¡Eliminado!",
+      text: `El usuario ${user.userName} fue eliminado con éxito.`,
+    });
+  } else if (result.dismiss === Swal.DismissReason.cancel) {
+
+    // Alerta al cancelar la eliminación
+    showCancelAlert({
+      title: "Cancelado",
+      text: `El usuario ${user.userName} no sufrió ningún cambio.`,
+    });
   }
 };
 
