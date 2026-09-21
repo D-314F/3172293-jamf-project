@@ -6,6 +6,7 @@ import Input from "../../../shared/components/Input";
 import Select from "../../../shared/components/Select";
 import FileInput from "../../../shared/components/FileInput";
 import { inventorySchema } from "../schemas/inventorySchema";
+import { showCancelAlert } from "@/shared/services/alertService";
 
 export default function InventoryForm() {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ export default function InventoryForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -55,26 +57,42 @@ export default function InventoryForm() {
 
     if (!result.success) {
       const fieldErrors = {};
+
       result.error.issues.forEach((issue) => {
         fieldErrors[issue.path[0]] = issue.message;
       });
+
       setErrors(fieldErrors);
       return;
     }
 
     setErrors({});
-    // Navega a la segunda pantalla enviando el objeto de datos
+
     navigate("/dashboard/createInventorySteps", {
-      state: { formData: result.data },
+      state: {
+        formData: result.data,
+      },
     });
+  };
+
+  const handleCancel = async () => {
+    const result = await showCancelAlert({
+      title: "Cancelado",
+      text: "Los cambios no guardados se perderán.",
+      timer: 3000,
+    });
+
+    if (result.isConfirmed) {
+      navigate(-1);
+    }
   };
 
   return (
     <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10">
-      
+
       {/* Header superior */}
       <div className="flex items-center justify-between gap-4 mb-6">
-        
+
         <Button
           variant="secondary"
           size="sm"
@@ -83,21 +101,24 @@ export default function InventoryForm() {
         >
           Atrás
         </Button>
+
         <h1 className="text-xl sm:text-2xl font-bold text-white text-right">
           Crear Inventario
         </h1>
+
       </div>
 
       {/* Tarjeta contenedora */}
       <div className="bg-[var(--color-background-inverse)] rounded-2xl md:rounded-3xl border border-[var(--color-brand)] shadow-2xl p-5 sm:p-8 md:p-10">
-        
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          
-          {/* Grid de campos */}
+
+        <form onSubmit={handleSubmit}>
+
+          {/* Grid principal */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
-            
-            {/* Columna 1 */}
+
+            {/* ==================== COLUMNA 1 ==================== */}
             <div className="flex flex-col gap-4">
+
               <Select
                 label="Marca"
                 name="marca"
@@ -139,10 +160,13 @@ export default function InventoryForm() {
                 onChange={handleChange}
                 error={errors.cuentadante}
               />
+
             </div>
 
-            {/* Columna 2 */}
+
+            {/* ==================== COLUMNA 2 ==================== */}
             <div className="flex flex-col gap-4">
+
               <Input
                 label="Cantidad"
                 name="cantidad"
@@ -182,41 +206,65 @@ export default function InventoryForm() {
                 onChange={handleChange}
                 error={errors.valorTotal}
               />
+
             </div>
 
-            {/* Columna 3: Adjunto de imagen */}
-            <div className="flex flex-col gap-3">
-              <span className="text-[var(--color-text-inverse)] text-[var(--text-small)] font-[var(--font-label)]">
-                Imagen del producto
-              </span>
 
-              <FileInput
-                className="border-[var(--color-border)] w-full"
-                value={formData.userImage}
-                onChange={(files) =>
-                  setFormData((prev) => ({ ...prev, userImage: files }))
-                }
-                multiple={true}
-              />
+            {/* ==================== COLUMNA 3 ==================== */}
+            <div className="flex flex-col gap-4">
 
-              {errors.userImage && (
-                <span className="text-[var(--color-error)] text-[var(--text-small)]">
-                  {errors.userImage}
+              {/* Imagen */}
+              <div className="flex flex-col gap-3">
+
+                <span className="text-[var(--color-text-inverse)] text-[var(--text-small)] font-[var(--font-label)]">
+                  Imagen del producto
                 </span>
-              )}
+
+                <FileInput
+                  className="border-[var(--color-border)] w-full"
+                  value={formData.userImage}
+                  onChange={(files) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      userImage: files,
+                    }))
+                  }
+                  multiple={true}
+                />
+
+                {errors.userImage && (
+                  <span className="text-[var(--color-error)] text-[var(--text-small)]">
+                    {errors.userImage}
+                  </span>
+                )}
+
+              </div>
+
+
+              {/* Botones */}
+              <div className="flex flex-col gap-2 pt-6">
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="md"
+                  className="w-full"
+                  onClick={handleCancel}
+                >
+                  Cancelar
+                </Button>
+
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="md"
+                  className="w-full"
+                >
+                  Siguiente
+                </Button>
+              </div>
             </div>
-
           </div>
-
-          {/* Bloque inferior: Contenedor DIV nativo que garantiza alineación */}
-          <div className="w-full flex justify-end pt-6 border-t border-[var(--color-border)]/20">
-            <div>
-              <Button type="submit" variant="primary">
-                Siguiente
-              </Button>
-            </div>
-          </div>
-
         </form>
       </div>
     </section>

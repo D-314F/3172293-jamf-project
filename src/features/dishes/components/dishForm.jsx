@@ -91,7 +91,7 @@ export default function DishForm() {
                     variant="secondary"
                     size="sm"
                     type="button"
-                    onClick={handleCancel}
+                    onClick={() => navigate(-1)}
                 >
                     Atrás
                 </Button>
