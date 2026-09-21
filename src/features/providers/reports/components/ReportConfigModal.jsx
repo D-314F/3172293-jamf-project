@@ -10,10 +10,7 @@ import { generateProviderReport } from "../services/generateProviderReport";
 import { Button, Input, Select, Checkbox } from "@/shared";
 
 // Helpers de alertas personalizadas
-import {
-  showSuccessAlert,
-  showCancelAlert,
-} from "@/shared/services/alertService";
+import {showSuccessAlert,showCancelAlert,} from "@/shared/services/alertService";
 
 // Componente modal para configuración de reportes de proveedores
 export default function ReportConfigModal({ isOpen, onClose }) {
