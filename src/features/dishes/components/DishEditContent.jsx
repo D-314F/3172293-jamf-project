@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Select, Input, Button, Checkbox, FileInput } from "@/shared";
 import dishCategories from "../../../data/selects/dishCategories.json";
 import { dishSchema } from "../schemas/dishSchema";
+import { showSuccessAlert, showCancelAlert } from "@/shared/services/alertService"; 
+
 
 export default function DishEditContent({
   formData = {},
@@ -9,6 +12,7 @@ export default function DishEditContent({
   dish = {},
   onSubmit,
 }) {
+  const navigate = useNavigate();
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
@@ -19,7 +23,8 @@ export default function DishEditContent({
     }));
   };
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const adaptedData = {
@@ -45,12 +50,37 @@ export default function DishEditContent({
     }
 
     setErrors({});
-    alert("¡El platillo fue actualizado de manera exitosa!");
 
-    if (onSubmit) {
-      onSubmit(formData);
-    } else {
-      console.log("Datos del platillo válidos:", formData);
+    try {
+      if (onSubmit) {
+        await onSubmit(formData);
+      } else {
+        console.log("Datos del platillo válidos:", formData);
+      }
+
+      await showSuccessAlert({
+        title: "Platillo actualizado",
+        text: "Los cambios se guardaron correctamente.",
+        timer: 2000,
+      });
+
+      navigate(-1);
+    } catch (error) {
+      console.error(error);
+      setErrors({ submit: "Error al actualizar el platillo" });
+    }
+  };
+
+  
+  const handleCancel = async () => {
+    const result = await showCancelAlert({
+      title: "¿Deseas cancelar?",
+      text: "Los cambios realizados no se guardarán.",
+      timer: 3000,
+    });
+
+    if (result.isConfirmed) {
+      navigate(-1);
     }
   };
 
@@ -59,16 +89,15 @@ export default function DishEditContent({
       <form onSubmit={handleSubmit}>
         <div className="bg-[var(--color-background-inverse)] text-[var(--color-black)] rounded-3xl p-6 sm:p-10 max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8 border border-[var(--color-brand)]">
           
-              {/* Título */}
-            <div className="sm:col-span-2 flex items-center justify-center mb-4">
-                <span
-                    className="font-[var(--font-heading)] text-[var(--text-display)]"
-                    style={{ color: "var(--color-text-inverse)" }}
-                >
-                    Editar platillo
-                </span>
-            </div>
-
+          {/* Título */}
+          <div className="sm:col-span-2 flex items-center justify-center mb-4">
+            <span
+              className="font-[var(--font-heading)] text-[var(--text-display)]"
+              style={{ color: "var(--color-text-inverse)" }}
+            >
+              Editar platillo
+            </span>
+          </div>
 
           {/* Campos principales */}
           <div className="flex flex-col gap-4">
@@ -139,12 +168,24 @@ export default function DishEditContent({
               onChange={handleChange}
             />
 
-            <Button
-              type="submit"
-              className="bg-[var(--color-brand)] text-[var(--color-text-primary)] font-[var(--font-heading)] px-4 py-2 rounded-md hover:bg-[var(--color-brand-hover)] transition w-full"
-            >
-              Aplicar cambios
-            </Button>
+            <div className="w-full flex flex-col gap-3">
+              <Button
+                variant="secondary"
+                type="button"
+                onClick={handleCancel}
+                className="bg-[var(--color-secondary-950)] text-[var(--color-text-inverse)] font-[var(--font-heading)] px-4 py-2 rounded-md hover:bg-[var(--color-error-hover)] transition w-full"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                className="bg-[var(--color-brand)] text-[var(--color-text-primary)] font-[var(--font-heading)] px-4 py-2 rounded-md hover:bg-[var(--color-brand-hover)] transition w-full"
+              >
+                Aplicar cambios
+              </Button>
+
+              
+            </div>
           </div>
         </div>
       </form>
