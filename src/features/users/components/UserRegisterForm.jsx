@@ -4,6 +4,7 @@ import { Input, Select, Checkbox, Button, FileInput } from "@/shared";
 import { getDocumentTypes, getUserTypes } from "@/services/selectService";
 import { useNavigate } from "react-router-dom";
 import { userSchema } from "../schemas/userSchema";
+import { showSuccessAlert, showCancelAlert } from "@/shared/services/alertService"; 
 import bf1 from "@/assets/images/bf-2.png";
 
 export default function UserRegisterForm() {
@@ -41,7 +42,8 @@ export default function UserRegisterForm() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  // FIX 1: Marcamos handleSubmit como async para permitir 'await'
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const result = userSchema.safeParse(formData);
@@ -59,17 +61,40 @@ export default function UserRegisterForm() {
     setErrors({});
 
     try {
-      // Mensaje de éxito
-      alert("Usuario creado correctamente");
-      
-      // Redirección inmediata a la lista de usuarios al dar Aceptar
-      navigate("/dashboard/userList");
+      // FIX 2: Se corrigió la sintaxis de los comentarios de prueba
+      // const response = await createUser(result.data);
+      // console.log("Usuario Creado:", response);
+
+      // Feedback básico al usuario 
+      await showSuccessAlert({
+        title: "Usuario creado",
+        text: "El usuario se ha creado correctamente",
+        timer: 2000,
+      });
+
+      // Navegamos a la vista anterior
+      navigate(-1);
       
     } catch (error) {
       console.error("Error al crear el usuario", error);
       setErrors({ submit: "Error al crear el usuario" });
     }
+
+    
   };
+      const handleCancel = async () => {
+        // Desplegamos la alerta de confirmación
+        const result = await showCancelAlert({
+            title: "Cancelado",
+            text: "Los cambios no guardados se perderán.",
+            timer: 3000,
+        });
+    
+        if (result.isConfirmed) {
+            // Navegamos a la vista anterior
+            navigate(-1);
+        }
+    };
 
   return (
     <div 
@@ -244,7 +269,7 @@ export default function UserRegisterForm() {
 
                   <Button 
                     type="button" 
-                    variant="secondary"
+                    variant="primary"
                     size="md" 
                     className="w-full"
                   >
@@ -254,6 +279,15 @@ export default function UserRegisterForm() {
 
                 {/* Botones de acción principales */}
                 <div className="flex flex-col gap-3 w-full pt-4">
+                  <Button 
+                    type="button" 
+                    variant="secondary"
+                    size="md" 
+                    className="w-full"
+                    onClick={handleCancel}
+                  >
+                    Cancelar
+                  </Button>
                   <Button 
                     type="submit" 
                     variant="primary"
