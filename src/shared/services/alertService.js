@@ -101,3 +101,22 @@ export function showOpsAlert({
     buttonsStyling: false,
   });
 }
+
+// Error al crear usuario
+export function showUserErrorAlert({
+  title = "Error al crear usuario",
+  text = "No se pudo registrar el usuario. Por favor, verifica que los campos estén correctos.",
+}) {
+  return Swal.fire({
+    icon: "error",
+    title,
+    text,
+    confirmButtonText: "Intentar de nuevo",
+    customClass: {
+      popup: "rounded-2xl",
+      title: "!text-red-600 font-bold",
+      confirmButton: "bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-lg font-medium transition",
+    },
+    buttonsStyling: false,
+  });
+}

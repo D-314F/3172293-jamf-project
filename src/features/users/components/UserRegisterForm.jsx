@@ -4,7 +4,11 @@ import { Input, Select, Checkbox, Button, FileInput } from "@/shared";
 import { getDocumentTypes, getUserTypes } from "@/services/selectService";
 import { useNavigate } from "react-router-dom";
 import { userSchema } from "../schemas/userSchema";
-import { showSuccessAlert, showCancelAlert } from "@/shared/services/alertService"; 
+import { 
+  showSuccessAlert, 
+  showCancelAlert, 
+  showUserErrorAlert 
+} from "@/shared/services/alertService";
 import bf1 from "@/assets/images/bf-2.png";
 
 export default function UserRegisterForm() {
@@ -55,6 +59,13 @@ export default function UserRegisterForm() {
         fieldErrors[issue.path[0]] = issue.message;
       });
       setErrors(fieldErrors);
+
+      // ALERTA DE ERROR
+      await showUserErrorAlert({
+        title: "Campos inválidos",
+        text: "Por favor, completa correctamente todos los campos obligatorios.",
+      });
+
       return;
     }
 

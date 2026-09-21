@@ -9,7 +9,11 @@ import FileInput from "../../../shared/components/FileInput";
 import { getDishCategories } from "../../../services/selectService"; 
 import { dishSchema } from "../schemas/dishSchema"; 
 
-import { showSuccessAlert, showCancelAlert } from "@/shared/services/alertService"; 
+import { 
+  showSuccessAlert, 
+  showCancelAlert, 
+  showUserErrorAlert 
+} from "@/shared/services/alertService";
 
 export default function DishForm() {
     const navigate = useNavigate();
@@ -37,7 +41,7 @@ export default function DishForm() {
     };
 
     
-    const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
         e.preventDefault();
 
         const result = dishSchema.safeParse(formData);
@@ -48,6 +52,12 @@ export default function DishForm() {
                 fieldErrors[issue.path[0]] = issue.message;
             });
             setErrors(fieldErrors);
+
+            await showUserErrorAlert({
+                title: "Error al registrar platillo",
+                text: "Por favor, completa correctamente todos los campos obligatorios.",
+            });
+
             return;
         }
 
@@ -56,7 +66,6 @@ export default function DishForm() {
         try {
             console.log("¡Éxito! Platillo creado:", result.data);
 
-            // Alerta de éxito
             await showSuccessAlert({
                 title: "Platillo agregado",
                 text: "El platillo se ha registrado correctamente.",
@@ -67,6 +76,11 @@ export default function DishForm() {
         } catch (error) {
             console.error(error);
             setErrors({ submit: "Error interno al procesar el plato" });
+
+            await showUserErrorAlert({
+                title: "Error interno",
+                text: "No se pudo registrar el platillo en el servidor.",
+            });
         }
     };
 
