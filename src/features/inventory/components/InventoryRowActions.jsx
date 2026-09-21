@@ -1,52 +1,81 @@
-// src/features/inventory/components/InventoryRowActions.jsx
 import { Pencil, Trash2, Eye } from "lucide-react";
+import { IconButton } from "@/shared";
 import { useNavigate } from "react-router-dom";
 
-export default function InventoryRowActions({ item }) {
+import Swal from "sweetalert2";
+import {
+  showConfirmDeleteAlert,
+  showSuccessAlert,
+  showCancelAlert,
+} from "@/shared/services/alertService";
+
+export default function InventoryRowActions({ item, onDeleteSuccess }) {
   const navigate = useNavigate();
 
+  // Acción para ver el ítem de inventario
   const handleView = () => {
-  navigate(`/dashboard/inventory/${item.id}/view`);
-};
+    navigate(`/dashboard/inventory/${item.id}/view`);
+  };
 
-const handleEdit = () => {
-  navigate(`/dashboard/inventory/${item.id}/edit`);
-};
+  // Acción para editar el ítem de inventario
+  const handleEdit = () => {
+    navigate(`/dashboard/inventory/${item.id}/edit`);
+  };
 
+  // Acción para eliminar el producto del inventario
+  const handleDelete = async () => {
+    const itemName = item.name || item.nombre || item.productName || "el producto";
 
-  // Acción para eliminar el producto
-  const handleDelete = () => {
-    console.log("Eliminar producto del inventario", item.id);
+    const result = await showConfirmDeleteAlert({
+      title: "¿Estás seguro?",
+      text: `¿Deseas eliminar "${itemName}" del inventario?. No podrás revertir esto.`,
+    });
+
+    if (result.isConfirmed) {
+      if (onDeleteSuccess) {
+        await onDeleteSuccess(item.id);
+      }
+
+      await showSuccessAlert({
+        title: "¡Eliminado!",
+        text: `El producto "${itemName}" fue eliminado con éxito.`,
+      });
+    } else if (result.dismiss === Swal.DismissReason.cancel) {
+      showCancelAlert({
+        title: "Cancelado",
+        text: `El producto "${itemName}" no sufrió ningún cambio.`,
+      });
+    }
   };
 
   return (
     <div className="flex gap-2">
       {/* Botón ver */}
-      <button
+      <IconButton
         onClick={handleView}
-        className="p-1 rounded hover:bg-[var(--color-surface-muted)] transition-colors duration-200"
         title="Ver producto"
+        className="bg-[var(--color-brand)] text-[var(--color-text-primary)] hover:bg-[var(--color-brand-hover)] transition"
       >
-        <Eye size={16} color="var(--color-text-primary)" />
-      </button>
+        <Eye size={16} />
+      </IconButton>
 
       {/* Botón editar */}
-      <button
+      <IconButton
         onClick={handleEdit}
-        className="p-1 rounded hover:bg-[var(--color-surface-muted)] transition-colors duration-200"
         title="Editar producto"
+        className="bg-[var(--color-brand)] text-[var(--color-text-primary)] hover:bg-[var(--color-brand-hover)] transition"
       >
-        <Pencil size={16} color="var(--color-text-primary)" />
-      </button>
+        <Pencil size={16} />
+      </IconButton>
 
       {/* Botón eliminar */}
-      <button
+      <IconButton
         onClick={handleDelete}
-        className="p-1 rounded hover:bg-[var(--color-error-soft)] transition-colors duration-200"
         title="Eliminar producto"
+        className="bg-[var(--color-error)] text-[var(--color-text-inverse)] hover:bg-[var(--color-error-hover)] transition"
       >
-        <Trash2 size={16} color="var(--color-error)" />
-      </button>
+        <Trash2 size={16} />
+      </IconButton>
     </div>
   );
 }
