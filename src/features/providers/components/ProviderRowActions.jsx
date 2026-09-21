@@ -1,53 +1,85 @@
 import { Pencil, Trash2, Eye } from "lucide-react";
+import { IconButton } from "@/shared";
 import { useNavigate } from "react-router-dom";
 
-export default function ProviderRowActions({ provider }) {
+import Swal from "sweetalert2";
+import {
+  showConfirmDeleteAlert,
+  showSuccessAlert,
+  showCancelAlert,
+} from "@/shared/services/alertService";
+
+export default function ProviderRowActions({ provider, onDeleteSuccess }) {
   const navigate = useNavigate();
 
+  // Acción para ver detalle del proveedor
   const handleView = () => {
     navigate(`/dashboard/providerView/${provider.id}`);
   };
 
+  // Acción para editar el proveedor
   const handleEdit = () => {
     navigate(`/dashboard/providerEdit/${provider.id}`);
   };
 
-  const handleDelete = () => {
-    if (confirm(`¿Estás seguro de que deseas eliminar al proveedor 
-      ${provider.fullName || ""}?`)) {
-      alert("Proveedor eliminado con éxito");
+  // Acción para eliminar el proveedor
+  const handleDelete = async () => {
+    const providerName =
+      provider.fullName ||
+      provider.name ||
+      provider.nombre ||
+      "el proveedor";
+
+    const result = await showConfirmDeleteAlert({
+      title: "¿Estás seguro?",
+      text: `¿Deseas eliminar al proveedor "${providerName}"?. No podrás revertir esto.`,
+    });
+
+    if (result.isConfirmed) {
+      if (onDeleteSuccess) {
+        await onDeleteSuccess(provider.id);
+      }
+
+      await showSuccessAlert({
+        title: "¡Eliminado!",
+        text: `El proveedor "${providerName}" fue eliminado con éxito.`,
+      });
+    } else if (result.dismiss === Swal.DismissReason.cancel) {
+      showCancelAlert({
+        title: "Cancelado",
+        text: `El proveedor "${providerName}" no sufrió ningún cambio.`,
+      });
     }
   };
 
   return (
     <div className="flex gap-2">
       {/* Botón ver */}
-      <button
+      <IconButton
         onClick={handleView}
-        className="p-1 rounded hover:bg-[var(--color-brand-soft)] transition-colors duration-200"
         title="Ver proveedor"
+        className="bg-[var(--color-brand)] text-[var(--color-text-primary)] hover:bg-[var(--color-brand-hover)] transition"
       >
-        <Eye size={16} color="var(--color-text-primary)" />
-      </button>
+        <Eye size={16} />
+      </IconButton>
 
       {/* Botón editar */}
-      <button
+      <IconButton
         onClick={handleEdit}
-        className="p-1 rounded hover:bg-[var(--color-surface-muted)] transition-colors duration-200"
         title="Editar proveedor"
+        className="bg-[var(--color-brand)] text-[var(--color-text-primary)] hover:bg-[var(--color-brand-hover)] transition"
       >
-        <Pencil size={16} color="var(--color-text-primary)" />
-      </button>
+        <Pencil size={16} />
+      </IconButton>
 
-      {/* Botón eliminar (Corrección de color) */}
-      <button
+      {/* Botón eliminar */}
+      <IconButton
         onClick={handleDelete}
-        className="p-1 rounded hover:bg-[var(--color-error-soft)] transition-colors duration-200"
         title="Eliminar proveedor"
+        className="bg-[var(--color-error)] text-[var(--color-text-inverse)] hover:bg-[var(--color-error-hover)] transition"
       >
-        {/* Cambia var(--color-error) por 'red' o '#ef4444' (rojo de Tailwind */}
-        <Trash2 size={16} color="#ef4444" />
-      </button>
+        <Trash2 size={16} />
+      </IconButton>
     </div>
   );
 }
