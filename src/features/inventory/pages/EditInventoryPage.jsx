@@ -1,25 +1,46 @@
-// src/features/inventory/pages/EditInventoryPage.jsx
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Button from "@/shared/components/Button";
 import Input from "@/shared/components/Input";
 import FileInput from "@/shared/components/FileInput";
-import Modal from "@/shared/components/Modal";
 import InventoryStatusSelect from "../components/InventoryStatusSelect";
 import { inventory } from "../data/inventory";
 
+// Importamos el nuevo esquema exclusivo de edición
+import { editInventorySchema } from "../schemas/editInventorySchema";
+
+// Importamos los alerts
+import { 
+  showSuccessAlert, 
+  showUserErrorAlert 
+} from "@/shared/services/alertService";
 
 export default function EditInventoryPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const producto = inventory.find((item) => item.id.toString() === id);
-  const [formData, setFormData] = useState(producto || {});
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Mapeamos los campos a String para que coincidan con la validación de Zod
+  const [formData, setFormData] = useState(() => {
+    if (!producto) return {};
+    return {
+      ...producto,
+      id: String(producto.id || ""),
+      name: producto.name || producto.nombre || "",
+      barcode: String(producto.barcode || producto.codigoBarras || ""),
+      quantity: String(producto.quantity ?? producto.cantidad ?? ""),
+      unitPrice: String(producto.unitPrice ?? producto.valorUnitario ?? ""),
+      brand: producto.brand || producto.marca || "",
+      lote: String(producto.lote || producto.batch || ""),
+    };
+  });
+
+  const [errors, setErrors] = useState({});
 
   if (!producto) {
     return (
-      <section className="p-10 text-center text-red-500">
+      <section className="p-10 text-center text-red-500 font-bold">
         <h1>Producto no encontrado</h1>
       </section>
     );
@@ -28,23 +49,60 @@ export default function EditInventoryPage() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleImageChange = (files) => {
     if (files && files.length > 0) {
       setFormData((prev) => ({ ...prev, userImage: files }));
+      if (errors.userImage) {
+        setErrors((prev) => ({ ...prev, userImage: "" }));
+      }
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsModalOpen(true);
-  };
 
-  const confirmUpdate = () => {
-    setIsModalOpen(false);
-    alert("¡Producto actualizado correctamente!");
-    navigate("/dashboard/inventoryList");
+    // Validamos con el esquema de edición
+    const result = editInventorySchema.safeParse(formData);
+
+    if (!result.success) {
+      console.log("Errores de Zod:", result.error.format());
+
+      const fieldErrors = {};
+      result.error.issues.forEach((issue) => {
+        fieldErrors[issue.path[0]] = issue.message;
+      });
+      setErrors(fieldErrors);
+
+      await showUserErrorAlert({
+        title: "Campos inválidos",
+        text: "Por favor, revisa los campos señalados en el formulario.",
+      });
+      return;
+    }
+
+    setErrors({});
+
+    try {
+      await showSuccessAlert({
+        title: "Producto actualizado",
+        text: "Los cambios del inventario se han guardado correctamente.",
+        timer: 2000,
+      });
+
+      navigate("/dashboard/inventoryList");
+    } catch (error) {
+      console.error("Error al actualizar producto", error);
+      await showUserErrorAlert({
+        title: "Error al guardar",
+        text: "No se pudieron actualizar los datos del producto.",
+      });
+    }
   };
 
   return (
@@ -59,15 +117,16 @@ export default function EditInventoryPage() {
         </h1>
       </div>
 
-      {/* Tarjeta principal */}
+      {/* Contenedor principal */}
       <div className="bg-[var(--color-background-inverse)] rounded-3xl p-10 max-w-6xl w-full border border-[var(--color-brand)] shadow-2xl">
-        {/* Selector e imagen */}
+        {/* Foto y Nombre del producto */}
         <div className="flex flex-col items-center justify-center gap-4 mb-10">
           <FileInput
             label="Seleccionar imagen del producto"
             value={formData.userImage || []}
             onChange={handleImageChange}
             multiple={false}
+            error={errors.userImage}
           />
 
           <span className="text-xl font-bold text-[var(--color-text-inverse)]">
@@ -75,19 +134,65 @@ export default function EditInventoryPage() {
           </span>
         </div>
 
-        {/* Formulario */}
+        {/* Inputs del Formulario */}
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Input label="ID (Código único)" name="id" value={formData.id} onChange={handleChange} disabled />
-          <Input label="Nombre completo" name="name" value={formData.name} onChange={handleChange} />
-          <Input label="Código de barras" name="barcode" value={formData.barcode} onChange={handleChange} />
-          <Input label="Cantidad existente" name="quantity" value={formData.quantity} onChange={handleChange} />
-          <Input label="Precio unitario" name="unitPrice" value={formData.unitPrice} onChange={handleChange} />
-          <Input label="Marca" name="brand" value={formData.brand} onChange={handleChange} />
-          <Input label="Lote" name="lote" value={formData.lote || ""} onChange={handleChange} disabled />
+          <Input 
+            label="ID (Código único)" 
+            name="id" 
+            value={formData.id ?? ""} 
+            onChange={handleChange} 
+            disabled 
+            error={errors.id}
+          />
+          <Input 
+            label="Nombre completo" 
+            name="name" 
+            value={formData.name || ""} 
+            onChange={handleChange} 
+            error={errors.name}
+          />
+          <Input 
+            label="Código de barras" 
+            name="barcode" 
+            value={formData.barcode || ""} 
+            onChange={handleChange} 
+            error={errors.barcode}
+          />
+          <Input 
+            label="Cantidad existente" 
+            name="quantity" 
+            value={formData.quantity ?? ""} 
+            onChange={handleChange} 
+            error={errors.quantity}
+          />
+          <Input 
+            label="Precio unitario" 
+            name="unitPrice" 
+            value={formData.unitPrice ?? ""} 
+            onChange={handleChange} 
+            error={errors.unitPrice}
+          />
+          <Input 
+            label="Marca" 
+            name="brand" 
+            value={formData.brand || ""} 
+            onChange={handleChange} 
+            error={errors.brand}
+          />
+          <Input 
+            label="Lote" 
+            name="lote" 
+            value={formData.lote || ""} 
+            onChange={handleChange} 
+            error={errors.lote}
+          />
 
           <InventoryStatusSelect
             initialStatus={formData.status}
-            onStatusChange={(newStatus) => setFormData((prev) => ({ ...prev, status: newStatus }))}
+            onStatusChange={(newStatus) => {
+              setFormData((prev) => ({ ...prev, status: newStatus }));
+              if (errors.status) setErrors((prev) => ({ ...prev, status: "" }));
+            }}
           />
 
           <div className="col-span-2 flex justify-end pt-6 border-t border-[var(--color-border)]/20">
@@ -97,31 +202,6 @@ export default function EditInventoryPage() {
           </div>
         </form>
       </div>
-
-      {/* Modal de confirmación */}
-      {isModalOpen && (
-        <Modal onClose={() => setIsModalOpen(false)}>
-          <div className="p-6">
-            <h2 className="text-lg font-bold mb-4">Confirmar actualización</h2>
-            <p>¿Deseas guardar los cambios del producto?</p>
-            <div className="flex justify-end gap-3 mt-6">
-      <button
-        className=" px-4 py-2 rounded hover:bg-[var(--color-secondary-950)] transition"
-        onClick={() => setIsModalOpen(false)}
-      >
-        Cancelar
-      </button>
-  <button
-    className="bg-[var(--color-brand)] text-[var(--color-text-inverse)] px-4 py-2 rounded hover:bg-[var(--color-brand-hover)] transition"
-    onClick={confirmUpdate}
-  >
-    Confirmar
-  </button>
-</div>
-
-          </div>
-        </Modal>
-      )}
     </section>
   );
 }

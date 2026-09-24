@@ -2,7 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input, Button } from "@/shared";
 import { resetPasswordSchema } from "../schemas/resetPasswordSchema";
-import bf1 from "@/assets/images/bf-1.png"; // 👈 misma imagen que el login
+import { 
+  showSuccessAlert, 
+  showUserErrorAlert 
+} from "@/shared/services/alertService";
+
+import bf1 from "@/assets/images/bf-1.png";
 
 export default function ResetPasswordForm() {
   const [formData, setFormData] = useState({
@@ -10,7 +15,6 @@ export default function ResetPasswordForm() {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
-  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -21,22 +25,51 @@ export default function ResetPasswordForm() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const result = resetPasswordSchema.safeParse(formData);
 
     if (!result.success) {
+      console.log("Errores de Zod:", result.error.issues);
       const fieldErrors = {};
       result.error.issues.forEach((issue) => {
         fieldErrors[issue.path[0]] = issue.message;
       });
       setErrors(fieldErrors);
+
+      // ALERTA DE ERROR POR CAMPOS INVÁLIDOS O ERRORES DE COINCIDENCIA
+      await showUserErrorAlert({
+        title: "Campos inválidos",
+        text: "Por favor, verifica que la contraseña cumpla los requisitos y coincida.",
+      });
+
       return;
     }
 
     setErrors({});
-    setMessage("Contraseña restablecida correctamente");
-    setTimeout(() => navigate("/login"), 2000);
+
+    try {
+      // Petición al backend si aplica:
+      // await resetPassword(formData.password);
+
+      // ALERTA DE ÉXITO ESTANDARIZADA
+      await showSuccessAlert({
+        title: "Contraseña actualizada",
+        text: "Tu contraseña ha sido restablecida correctamente. Redirigiendo...",
+        timer: 2000,
+      });
+
+      // Redirección al Login
+      navigate("/login");
+
+    } catch (error) {
+      console.error("Error al restablecer la contraseña", error);
+
+      await showUserErrorAlert({
+        title: "Error al guardar",
+        text: "No se pudo actualizar la contraseña. Por favor, intenta de nuevo.",
+      });
+    }
   };
 
   return (
@@ -49,15 +82,17 @@ export default function ResetPasswordForm() {
 
       <form
         onSubmit={handleSubmit}
-        className="bg-[var(--color-background-inverse)] border border-[var(--color-brand)] p-8 rounded-3xl w-full max-w-md text-center shadow-lg font-[var(--font-body)] relative z-10"
+        className="w-full max-w-md p-8 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl relative z-10 shadow-2xl font-[var(--font-body)] flex flex-col gap-5 text-left"
       >
-        <h2 className="text-[var(--color-brand)] text-[var(--text-title)] font-[var(--font-heading)] mb-2">
-          Restablecer Contraseña
-        </h2>
+        <div>
+          <h2 className="text-[var(--color-brand)] text-[var(--text-title)] font-[var(--font-heading)] text-center mb-2">
+            Restablecer Contraseña
+          </h2>
 
-        <p className="text-[var(--color-text-secondary)] text-[var(--text-body)] mb-6">
-          Ingresa tu nueva contraseña y confírmala para continuar
-        </p>
+          <p className="text-[var(--color-text-secondary)] text-[var(--text-body)] text-center">
+            Ingresa tu nueva contraseña y confírmala para continuar
+          </p>
+        </div>
 
         <Input
           label="Nueva contraseña"
@@ -83,16 +118,10 @@ export default function ResetPasswordForm() {
           type="submit"
           variant="primary"
           size="md"
-          className="mt-4 w-full"
+          className="w-full mt-2"
         >
           Guardar nueva contraseña
         </Button>
-
-        {message && (
-          <p className="text-[var(--color-success)] text-[var(--text-small)] font-bold mt-4">
-            {message}
-          </p>
-        )}
       </form>
     </div>
   );

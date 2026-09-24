@@ -2,7 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input, Button } from "@/shared";
 import { forgotPasswordSchema } from "../schemas/forgotPasswordSchema";
-import bf1 from "@/assets/images/bf-1.png"; // 👈 misma imagen que el login
+import { 
+  showSuccessAlert, 
+  showUserErrorAlert 
+} from "@/shared/services/alertService";
+
+import bf1 from "@/assets/images/bf-1.png";
 
 export default function ForgotPasswordForm() {
   const navigate = useNavigate();
@@ -19,22 +24,51 @@ export default function ForgotPasswordForm() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const result = forgotPasswordSchema.safeParse(formData);
 
     if (!result.success) {
+      console.log("Errores de Zod:", result.error.issues);
       const fieldErrors = {};
       result.error.issues.forEach((issue) => {
         fieldErrors[issue.path[0]] = issue.message;
       });
       setErrors(fieldErrors);
+
+      // ALERTA DE ERROR POR CAMPO INVÁLIDO
+      await showUserErrorAlert({
+        title: "Correo inválido",
+        text: "Por favor, ingresa un correo electrónico válido.",
+      });
+
       return;
     }
 
     setErrors({});
-    alert("enlace enviado correctamente a tu correo");
-    navigate("/verify-code");
+
+    try {
+      // Petición al backend si aplica:
+      // await sendPasswordResetEmail(formData.email);
+
+      // ALERTA DE ÉXITO ESTANDARIZADA
+      await showSuccessAlert({
+        title: "Código enviado",
+        text: "Se ha enviado el código de recuperación correctamente a tu correo.",
+        timer: 2000,
+      });
+
+      // Redirección a verificación de código
+      navigate("/verify-code");
+
+    } catch (error) {
+      console.error("Error al enviar código de recuperación", error);
+      
+      await showUserErrorAlert({
+        title: "Error de envío",
+        text: "No se pudo enviar el código de recuperación. Por favor intenta de nuevo.",
+      });
+    }
   };
 
   return (
@@ -47,15 +81,17 @@ export default function ForgotPasswordForm() {
 
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md p-8 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl relative z-10 shadow-2xl text-center font-[var(--font-body)]"
+        className="w-full max-w-md p-8 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl relative z-10 shadow-2xl font-[var(--font-body)] flex flex-col gap-5 text-left"
       >
-        <h1 className="text-[var(--text-title)] font-[var(--font-heading)] text-[var(--color-brand)] text-center mb-2">
-          Recuperar Contraseña
-        </h1>
+        <div>
+          <h1 className="text-[var(--text-title)] font-[var(--font-heading)] text-[var(--color-brand)] text-center mb-2">
+            Recuperar Contraseña
+          </h1>
 
-        <p className="text-[var(--color-text-secondary)] text-[var(--text-body)] text-center mb-6">
-          Ingresa tu correo registrado para recibir el enlace de recuperación
-        </p>
+          <p className="text-[var(--color-text-secondary)] text-[var(--text-body)] text-center">
+            Ingresa tu correo registrado para recibir el código de recuperación
+          </p>
+        </div>
 
         <Input
           label="Correo Electrónico"
@@ -71,9 +107,9 @@ export default function ForgotPasswordForm() {
           type="submit"
           variant="primary"
           size="md"
-          className="mt-4 w-full"
+          className="w-full mt-2"
         >
-          Enviar enlace de recuperación
+          Enviar código de recuperación
         </Button>
       </form>
     </div>
