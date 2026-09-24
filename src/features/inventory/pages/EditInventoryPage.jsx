@@ -2,16 +2,16 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
-
 import Button from "@/shared/components/Button";
 import Input from "@/shared/components/Input";
 import FileInput from "@/shared/components/FileInput";
 import InventoryStatusSelect from "../components/InventoryStatusSelect";
+import { inventory } from "../data/inventory";
 
-// Importamos el nuevo esquema exclusivo de edición
+// Importamos el esquema exclusivo de edición
 import { editInventorySchema } from "../schemas/editInventorySchema";
 
-// Importamos los alerts
+// Importamos las alertas estandarizadas
 import { 
   showSuccessAlert, 
   showUserErrorAlert 
@@ -21,6 +21,7 @@ export default function EditInventoryPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
   const producto = inventory.find((item) => item.id.toString() === id);
@@ -39,8 +40,6 @@ export default function EditInventoryPage() {
       lote: String(producto.lote || producto.batch || ""),
     };
   });
-
-  const [errors, setErrors] = useState({});
 
   if (!producto) {
     return (
@@ -68,6 +67,10 @@ export default function EditInventoryPage() {
     }
   };
 
+  const handleCancel = () => {
+    navigate(-1);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -91,6 +94,7 @@ export default function EditInventoryPage() {
     }
 
     setErrors({});
+    setLoading(true);
 
     try {
       await showSuccessAlert({
@@ -106,6 +110,8 @@ export default function EditInventoryPage() {
         title: "Error al guardar",
         text: "No se pudieron actualizar los datos del producto.",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -113,12 +119,11 @@ export default function EditInventoryPage() {
     <section className="p-8 flex flex-col items-center">
       {/* Header */}
       <div className="w-full max-w-6xl">
-        {/* Botón Volver */}
         <div className="p-8">
           <Button
             variant="secondary"
             onClick={() => navigate(-1)}
-            className="flex items-start gap-2 bg-[var(--color-secondary-950)] text-[var(--color-text-white)] px-4 py-2 rounded-md mb-6 hover:bg-[var(--color-secondary-950)] transition"
+            className="flex items-center gap-2 bg-[var(--color-secondary-950)] text-[var(--color-text-white)] px-4 py-2 rounded-md mb-6 hover:bg-[var(--color-secondary-950)] transition"
           >
             <ArrowLeft size={16} /> Atrás
           </Button>
@@ -147,7 +152,7 @@ export default function EditInventoryPage() {
           </span>
         </div>
 
-        {/* Inputs del Formulario */}
+        {/* Formulario */}
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Input 
             label="ID (Código único)" 
@@ -209,14 +214,13 @@ export default function EditInventoryPage() {
           />
 
           {errors.submit && (
-            <div className="col-span-2 text-red-500">
+            <div className="col-span-2 text-red-500 font-medium">
               {errors.submit}
             </div>
           )}
 
           {/* Botones */}
           <div className="col-span-2 flex justify-end gap-3 pt-6 border-t border-[var(--color-border)]/20">
-          
             <Button
               type="button"
               variant="secondary"
@@ -225,6 +229,14 @@ export default function EditInventoryPage() {
               disabled={loading}
             >
               Cancelar
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              disabled={loading}
+            >
+              {loading ? "Guardando..." : "Actualizar"}
             </Button>
           </div>
         </form>
