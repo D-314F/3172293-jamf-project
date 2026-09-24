@@ -1,108 +1,136 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import Button from "../../../shared/components/Button";
 import Input from "../../../shared/components/Input";
 import Select from "../../../shared/components/Select";
 import FileInput from "../../../shared/components/FileInput";
 import { inventorySchema } from "../schemas/inventorySchema";
+import { 
+  showCancelAlert, 
+  showUserErrorAlert 
+} from "@/shared/services/alertService";
+
+import { MARCAS_OPTIONS, CUENTADANTES_OPTIONS } from "../data/inventory";
 
 export default function InventoryForm() {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [formData, setFormData] = useState({
-    marca: "",
-    cantidad: "",
-    codigo: "",
-    cantidadTotal: "",
-    nombre: "",
-    cantidadMinima: "",
-    codigoBarras: "",
-    valorUnitario: "",
-    cuentadante: "",
-    valorTotal: "",
-    userImage: [],
-  });
+  // Si volvemos desde el paso 2, recuperamos la información ingresada previa
+  const [formData, setFormData] = useState(
+    location.state?.formData || {
+      marca: "",
+      cantidad: "",
+      codigo: "",
+      cantidadTotal: "",
+      nombre: "",
+      cantidadMinima: "",
+      codigoBarras: "",
+      valorUnitario: "",
+      cuentadante: "",
+      valorTotal: "",
+      userImage: [],
+    }
+  );
 
   const [errors, setErrors] = useState({});
 
-  const marcas = [
-    { value: "alain Miliat", label: "Jugos" },
-    { value: "neuhaus", label: "Chocolate" },
-    { value: "tartuflanghe", label: "Trufas" },
-    { value: "caviaroli", label: "Caviar" },
-    { value: "jean Leon", label: "Vino" },
-  ];
-
-  const cuentadantes = [
-    { value: "julian ramiros", label: "Julian Ramiros" },
-    { value: "karen cardona vicente", label: "Karen Cardona Vicente" },
-    { value: "paola garcia", label: "Paola García" },
-  ];
-
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const result = inventorySchema.safeParse(formData);
 
     if (!result.success) {
       const fieldErrors = {};
+
       result.error.issues.forEach((issue) => {
         fieldErrors[issue.path[0]] = issue.message;
       });
+
       setErrors(fieldErrors);
+
+      await showUserErrorAlert({
+        title: "Error al registrar inventario",
+        text: "Por favor, completa correctamente todos los campos requeridos.",
+      });
+
       return;
     }
 
     setErrors({});
-    // Navega a la segunda pantalla enviando el objeto de datos
-    navigate("/dashboard/createInventorySteps", {
-      state: { formData: result.data },
+
+    // Redirige al paso 2 (Detalles) pasando los datos validados
+    navigate("/dashboard/inventoryDetails", {
+      state: {
+        formData: result.data,
+      },
     });
+  };
+
+  const handleCancel = async () => {
+    const result = await showCancelAlert({
+      title: "¿Deseas cancelar?",
+      text: "Los cambios no guardados se perderán.",
+      timer: 3000,
+    });
+
+    if (result.isConfirmed) {
+      // Redirige explícitamente a la lista de inventario
+      navigate("/dashboard/inventoryList");
+    }
   };
 
   return (
     <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10">
-      
+
       {/* Header superior */}
       <div className="flex items-center justify-between gap-4 mb-6">
-        
+
         <Button
           variant="secondary"
           size="sm"
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={handleCancel}
         >
           Atrás
         </Button>
+
         <h1 className="text-xl sm:text-2xl font-bold text-white text-right">
           Crear Inventario
         </h1>
+
       </div>
 
       {/* Tarjeta contenedora */}
       <div className="bg-[var(--color-background-inverse)] rounded-2xl md:rounded-3xl border border-[var(--color-brand)] shadow-2xl p-5 sm:p-8 md:p-10">
-        
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          
-          {/* Grid de campos */}
+
+        <form onSubmit={handleSubmit}>
+
+          {/* Grid principal */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
-            
-            {/* Columna 1 */}
+
+            {/* ==================== COLUMNA 1 ==================== */}
             <div className="flex flex-col gap-4">
+
               <Select
                 label="Marca"
                 name="marca"
                 value={formData.marca}
-                options={marcas}
+                options={MARCAS_OPTIONS}
                 onChange={handleChange}
                 error={errors.marca}
               />
@@ -135,14 +163,17 @@ export default function InventoryForm() {
                 label="Cuentadante"
                 name="cuentadante"
                 value={formData.cuentadante}
-                options={cuentadantes}
+                options={CUENTADANTES_OPTIONS}
                 onChange={handleChange}
                 error={errors.cuentadante}
               />
+
             </div>
 
-            {/* Columna 2 */}
+
+            {/* ==================== COLUMNA 2 ==================== */}
             <div className="flex flex-col gap-4">
+
               <Input
                 label="Cantidad"
                 name="cantidad"
@@ -182,41 +213,65 @@ export default function InventoryForm() {
                 onChange={handleChange}
                 error={errors.valorTotal}
               />
+
             </div>
 
-            {/* Columna 3: Adjunto de imagen */}
-            <div className="flex flex-col gap-3">
-              <span className="text-[var(--color-text-inverse)] text-[var(--text-small)] font-[var(--font-label)]">
-                Imagen del producto
-              </span>
 
-              <FileInput
-                className="border-[var(--color-border)] w-full"
-                value={formData.userImage}
-                onChange={(files) =>
-                  setFormData((prev) => ({ ...prev, userImage: files }))
-                }
-                multiple={true}
-              />
+            {/* ==================== COLUMNA 3 ==================== */}
+            <div className="flex flex-col gap-4">
 
-              {errors.userImage && (
-                <span className="text-[var(--color-error)] text-[var(--text-small)]">
-                  {errors.userImage}
+              {/* Imagen */}
+              <div className="flex flex-col items-start gap-2 w-full">
+                <span className="text-[var(--color-text-inverse)] text-sm font-medium">
+                  Imagen del producto
                 </span>
-              )}
+
+                <FileInput
+                  className="border-[var(--color-border)] w-full"
+                  value={formData.userImage}
+                  onChange={(files) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      userImage: files,
+                    }));
+                    if (errors.userImage) {
+                      setErrors((prev) => ({ ...prev, userImage: "" }));
+                    }
+                  }}
+                  multiple={true}
+                />
+
+                {errors.userImage && (
+                  <span className="text-red-400 text-xs">
+                    {errors.userImage}
+                  </span>
+                )}
+              </div>
+
+              {/* Botones */}
+              <div className="flex flex-col gap-2 pt-6">
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="md"
+                  className="w-full"
+                  onClick={handleCancel}
+                >
+                  Cancelar
+                </Button>
+
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="md"
+                  className="w-full"
+                >
+                  Siguiente
+                </Button>
+              </div>
             </div>
-
           </div>
-
-          {/* Bloque inferior: Contenedor DIV nativo que garantiza alineación */}
-          <div className="w-full flex justify-end pt-6 border-t border-[var(--color-border)]/20">
-            <div>
-              <Button type="submit" variant="primary">
-                Siguiente
-              </Button>
-            </div>
-          </div>
-
         </form>
       </div>
     </section>

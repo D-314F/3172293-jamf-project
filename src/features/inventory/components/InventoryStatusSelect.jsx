@@ -6,10 +6,11 @@ import Button from "@/shared/components/Button";
 
 import { showSuccessAlert } from "@/shared/services/alertService";
 
-export default function InventoryStatusSelect({ initialStatus = "activo", onStatusChange }) {
+export default function InventoryStatusSelect({
+  initialStatus = "activo",
+  onStatusChange,
+}) {
   const [status, setStatus] = useState(initialStatus);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [pendingStatus, setPendingStatus] = useState(null);
 
   // Sincroniza el estado si initialStatus cambia cuando se cargan los datos del backend
   useEffect(() => {
@@ -27,9 +28,6 @@ export default function InventoryStatusSelect({ initialStatus = "activo", onStat
 
   const handleChange = (e) => {
     const newStatus = e.target.value;
-    setPendingStatus(newStatus);
-    setIsModalOpen(true);
-  };
 
   const confirmChange = async () => {
     setStatus(pendingStatus);

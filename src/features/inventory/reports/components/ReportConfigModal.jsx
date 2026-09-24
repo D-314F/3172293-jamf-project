@@ -9,11 +9,15 @@ import { generateInventoryReport } from "../services/generateInventoryReport";
 // Componentes UI reutilizables (design system)
 import { Button, Input, Select, Checkbox } from "@/shared";
 
+import {showSuccessAlert,showCancelAlert,} from "@/shared/services/alertService";
+
+
 // Componente modal para configuración de reportes de inventario
 export default function ReportConfigModal({ isOpen, onClose }) {
   const [format, setFormat] = useState("pdf");
   const [scope, setScope] = useState("all");
   const [category, setCategory] = useState("");
+  const [loading, setLoading] = useState(false);
   const [selectedFields, setSelectedFields] = useState(() =>
     inventoryReportFields.filter((field) => field.default || true) // por defecto todos
   );
@@ -29,10 +33,49 @@ export default function ReportConfigModal({ isOpen, onClose }) {
     );
   };
 
-  const handleGenerateReport = () => {
-    generateInventoryReport({ format, selectedFields, scope, category });
-    onClose();
-  };
+  // Generar reporte
+    const handleGenerateReport = async () => {
+      // Validar que haya al menos un campo seleccionado
+      if (selectedFields.length === 0) {
+        return alert("Debes seleccionar al menos un campo para el reporte.");
+      }
+  
+      try {
+        await generateInventoryReport({
+          format,
+          selectedFields,
+          scope,
+          category,
+        });
+  
+        // Alerta de éxito
+        await showSuccessAlert({
+          title: "Reporte de inventario generado",
+          text: `El archivo en formato ${format.toUpperCase()} se generó correctamente.`,
+          timer: 2000,
+        });
+  
+        // Cerrar modal después de generar
+        onClose();
+      } catch (error) {
+        console.error("Error al generar el reporte de inventario:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    // Cancelar reporte
+    const handleCancel = async () => {
+      const result = await showCancelAlert({
+        title: "¿Deseas cancelar?",
+        text: "Se descartará la configuración seleccionada.",
+        timer: 2500,
+      });
+  
+      if (result.isConfirmed) {
+        onClose();
+      }
+    };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/60">
@@ -93,7 +136,13 @@ export default function ReportConfigModal({ isOpen, onClose }) {
         )}
 
         <div className="mt-6 flex justify-end gap-3">
-          <Button variant="secondary" onClick={onClose}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleCancel}
+            disabled={loading}
+            className="w-full sm:w-auto"
+          >
             Cancelar
           </Button>
           <Button variant="primary" onClick={handleGenerateReport}>

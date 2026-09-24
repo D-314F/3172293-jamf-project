@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+
+
 import Button from "@/shared/components/Button";
 import Input from "@/shared/components/Input";
 import FileInput from "@/shared/components/FileInput";
 import InventoryStatusSelect from "../components/InventoryStatusSelect";
-import { inventory } from "../data/inventory";
 
 // Importamos el nuevo esquema exclusivo de edición
 import { editInventorySchema } from "../schemas/editInventorySchema";
@@ -18,6 +20,8 @@ import {
 export default function EditInventoryPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const [errors, setErrors] = useState({});
 
   const producto = inventory.find((item) => item.id.toString() === id);
 
@@ -108,18 +112,27 @@ export default function EditInventoryPage() {
   return (
     <section className="p-8 flex flex-col items-center">
       {/* Header */}
-      <div className="w-full max-w-6xl mb-6 flex items-center justify-between">
-        <Button variant="secondary" size="sm" onClick={() => navigate(-1)}>
-          Atrás
-        </Button>
-        <h1 className="text-xl sm:text-2xl font-bold text-white">
-          Editar Inventario
-        </h1>
+      <div className="w-full max-w-6xl">
+        {/* Botón Volver */}
+        <div className="p-8">
+          <Button
+            variant="secondary"
+            onClick={() => navigate(-1)}
+            className="flex items-start gap-2 bg-[var(--color-secondary-950)] text-[var(--color-text-white)] px-4 py-2 rounded-md mb-6 hover:bg-[var(--color-secondary-950)] transition"
+          >
+            <ArrowLeft size={16} /> Atrás
+          </Button>
+
+          <h1 className="text-xl sm:text-2xl font-bold text-white">
+            Editar Inventario
+          </h1>
+        </div>
       </div>
 
       {/* Contenedor principal */}
       <div className="bg-[var(--color-background-inverse)] rounded-3xl p-10 max-w-6xl w-full border border-[var(--color-brand)] shadow-2xl">
-        {/* Foto y Nombre del producto */}
+        
+        {/* Selector e imagen */}
         <div className="flex flex-col items-center justify-center gap-4 mb-10">
           <FileInput
             label="Seleccionar imagen del producto"
@@ -195,9 +208,23 @@ export default function EditInventoryPage() {
             }}
           />
 
-          <div className="col-span-2 flex justify-end pt-6 border-t border-[var(--color-border)]/20">
-            <Button type="submit" variant="primary">
-              Actualizar
+          {errors.submit && (
+            <div className="col-span-2 text-red-500">
+              {errors.submit}
+            </div>
+          )}
+
+          {/* Botones */}
+          <div className="col-span-2 flex justify-end gap-3 pt-6 border-t border-[var(--color-border)]/20">
+          
+            <Button
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={handleCancel}
+              disabled={loading}
+            >
+              Cancelar
             </Button>
           </div>
         </form>
