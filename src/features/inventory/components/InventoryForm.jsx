@@ -1,45 +1,40 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import Button from "../../../shared/components/Button";
 import Input from "../../../shared/components/Input";
 import Select from "../../../shared/components/Select";
 import FileInput from "../../../shared/components/FileInput";
 import { inventorySchema } from "../schemas/inventorySchema";
-import { showCancelAlert } from "@/shared/services/alertService";
+import { 
+  showCancelAlert, 
+  showUserErrorAlert 
+} from "@/shared/services/alertService";
+
+import { MARCAS_OPTIONS, CUENTADANTES_OPTIONS } from "../data/inventory";
 
 export default function InventoryForm() {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [formData, setFormData] = useState({
-    marca: "",
-    cantidad: "",
-    codigo: "",
-    cantidadTotal: "",
-    nombre: "",
-    cantidadMinima: "",
-    codigoBarras: "",
-    valorUnitario: "",
-    cuentadante: "",
-    valorTotal: "",
-    userImage: [],
-  });
+  // Si volvemos desde el paso 2, recuperamos la información ingresada previa
+  const [formData, setFormData] = useState(
+    location.state?.formData || {
+      marca: "",
+      cantidad: "",
+      codigo: "",
+      cantidadTotal: "",
+      nombre: "",
+      cantidadMinima: "",
+      codigoBarras: "",
+      valorUnitario: "",
+      cuentadante: "",
+      valorTotal: "",
+      userImage: [],
+    }
+  );
 
   const [errors, setErrors] = useState({});
-
-  const marcas = [
-    { value: "alain Miliat", label: "Jugos" },
-    { value: "neuhaus", label: "Chocolate" },
-    { value: "tartuflanghe", label: "Trufas" },
-    { value: "caviaroli", label: "Caviar" },
-    { value: "jean Leon", label: "Vino" },
-  ];
-
-  const cuentadantes = [
-    { value: "julian ramiros", label: "Julian Ramiros" },
-    { value: "karen cardona vicente", label: "Karen Cardona Vicente" },
-    { value: "paola garcia", label: "Paola García" },
-  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,9 +43,13 @@ export default function InventoryForm() {
       ...prev,
       [name]: value,
     }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const result = inventorySchema.safeParse(formData);
@@ -63,12 +62,19 @@ export default function InventoryForm() {
       });
 
       setErrors(fieldErrors);
+
+      await showUserErrorAlert({
+        title: "Error al registrar inventario",
+        text: "Por favor, completa correctamente todos los campos requeridos.",
+      });
+
       return;
     }
 
     setErrors({});
 
-    navigate("/dashboard/createInventorySteps", {
+    // Redirige al paso 2 (Detalles) pasando los datos validados
+    navigate("/dashboard/inventoryDetails", {
       state: {
         formData: result.data,
       },
@@ -77,13 +83,14 @@ export default function InventoryForm() {
 
   const handleCancel = async () => {
     const result = await showCancelAlert({
-      title: "Cancelado",
+      title: "¿Deseas cancelar?",
       text: "Los cambios no guardados se perderán.",
       timer: 3000,
     });
 
     if (result.isConfirmed) {
-      navigate(-1);
+      // Redirige explícitamente a la lista de inventario
+      navigate("/dashboard/inventoryList");
     }
   };
 
@@ -97,7 +104,7 @@ export default function InventoryForm() {
           variant="secondary"
           size="sm"
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={handleCancel}
         >
           Atrás
         </Button>
@@ -123,7 +130,7 @@ export default function InventoryForm() {
                 label="Marca"
                 name="marca"
                 value={formData.marca}
-                options={marcas}
+                options={MARCAS_OPTIONS}
                 onChange={handleChange}
                 error={errors.marca}
               />
@@ -156,7 +163,7 @@ export default function InventoryForm() {
                 label="Cuentadante"
                 name="cuentadante"
                 value={formData.cuentadante}
-                options={cuentadantes}
+                options={CUENTADANTES_OPTIONS}
                 onChange={handleChange}
                 error={errors.cuentadante}
               />
@@ -214,32 +221,32 @@ export default function InventoryForm() {
             <div className="flex flex-col gap-4">
 
               {/* Imagen */}
-              <div className="flex flex-col gap-3">
-
-                <span className="text-[var(--color-text-inverse)] text-[var(--text-small)] font-[var(--font-label)]">
+              <div className="flex flex-col items-start gap-2 w-full">
+                <span className="text-[var(--color-text-inverse)] text-sm font-medium">
                   Imagen del producto
                 </span>
 
                 <FileInput
                   className="border-[var(--color-border)] w-full"
                   value={formData.userImage}
-                  onChange={(files) =>
+                  onChange={(files) => {
                     setFormData((prev) => ({
                       ...prev,
                       userImage: files,
-                    }))
-                  }
+                    }));
+                    if (errors.userImage) {
+                      setErrors((prev) => ({ ...prev, userImage: "" }));
+                    }
+                  }}
                   multiple={true}
                 />
 
                 {errors.userImage && (
-                  <span className="text-[var(--color-error)] text-[var(--text-small)]">
+                  <span className="text-red-400 text-xs">
                     {errors.userImage}
                   </span>
                 )}
-
               </div>
-
 
               {/* Botones */}
               <div className="flex flex-col gap-2 pt-6">

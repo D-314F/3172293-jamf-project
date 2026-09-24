@@ -64,3 +64,17 @@ export const inventory = [
     status: "Vencido",
   },
 ];
+
+export const MARCAS_OPTIONS = [
+  { value: "alain Miliat", label: "Jugos" },
+  { value: "neuhaus", label: "Chocolate" },
+  { value: "tartuflanghe", label: "Trufas" },
+  { value: "caviaroli", label: "Caviar" },
+  { value: "jean Leon", label: "Vino" },
+];
+
+export const CUENTADANTES_OPTIONS = [
+  { value: "julian ramiros", label: "Julian Ramiros" },
+  { value: "karen cardona vicente", label: "Karen Cardona Vicente" },
+  { value: "paola garcia", label: "Paola García" },
+];
