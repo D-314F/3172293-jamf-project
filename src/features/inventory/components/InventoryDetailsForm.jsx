@@ -3,22 +3,22 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import Button from "../../../shared/components/Button";
 import Input from "../../../shared/components/Input";
-import { inventoryUltimosSchema } from "../schemas/inventoryUltimosSchema";
+import { inventoryDetailsSchema } from "../schemas/inventoryDetailsSchema";
 
-// Servicio de alertas
+// Servicios de alertas
 import {
   showSuccessAlert,
   showCancelAlert,
+  showUserErrorAlert,
 } from "../../../shared/services/alertService";
 
-export default function InventoryUltimosPasos() {
+export default function InventoryDetailsForm() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Datos recibidos del formulario anterior
+  // Datos recibidos del formulario anterior (Paso 1)
   const datosAnteriores = location.state?.formData || {};
 
-  // Estado del formulario
   const [formData, setFormData] = useState({
     lote: "",
     descripcion: "",
@@ -27,13 +27,9 @@ export default function InventoryUltimosPasos() {
     comentarioProducto: "",
   });
 
-  // Estado de errores
   const [errors, setErrors] = useState({});
-
-  // Estado de carga
   const [loading, setLoading] = useState(false);
 
-  // Manejar cambios en los inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -42,7 +38,6 @@ export default function InventoryUltimosPasos() {
       [name]: value,
     }));
 
-    // Limpiar error cuando el usuario empieza a escribir
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -51,9 +46,8 @@ export default function InventoryUltimosPasos() {
     }
   };
 
-  // Validar formulario
-  const validateForm = () => {
-    const result = inventoryUltimosSchema.safeParse(formData);
+  const validateForm = async () => {
+    const result = inventoryDetailsSchema.safeParse(formData);
 
     if (!result.success) {
       const fieldErrors = {};
@@ -64,107 +58,106 @@ export default function InventoryUltimosPasos() {
 
       setErrors(fieldErrors);
 
+      // Alerta de error si faltan campos obligatorios
+      await showUserErrorAlert({
+        title: "Error de validación",
+        text: "Por favor, completa correctamente todos los campos obligatorios.",
+      });
+
       return null;
     }
 
     setErrors({});
 
-    // Unir los datos anteriores con los datos actuales
     return {
       ...datosAnteriores,
       ...result.data,
     };
   };
 
-  // Crear inventario
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const dataFinal = validateForm();
+    const dataFinal = await validateForm();
 
-    // Si la validación falla, no continúa
     if (!dataFinal) return;
 
     try {
       setLoading(true);
 
-      // Aquí posteriormente puedes conectar el servicio para guardar
-      // await createInventory(dataFinal);
-
+      // Aquí se conectará con el API para guardar en BD
       console.log("Inventario listo para guardar:", dataFinal);
 
-      // Alerta de creación exitosa
       await showSuccessAlert({
         title: "¡Producto creado correctamente!",
-        text: "El producto se ha registrado correctamente.",
+        text: "El producto se ha registrado exitosamente.",
         timer: 2000,
       });
 
-      // Redirigir al listado de inventario
+      // Redirección explícita a la lista al finalizar
       navigate("/dashboard/inventoryList");
     } catch (error) {
       console.error("Error al registrar el producto:", error);
 
-      // Alerta de error
-      alert("Error al registrar el producto");
+      await showUserErrorAlert({
+        title: "Error inesperado",
+        text: "Ocurrió un error al registrar el producto. Inténtalo de nuevo.",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Regresar al formulario anterior
-  const handleVolverAtras = async () => {
+  // Regresar al Paso 1 conservando la información
+  const handleVolverAtras = () => {
+    navigate("/dashboard/createInventory", {
+      state: {
+        formData: {
+          ...datosAnteriores,
+          ...formData,
+        },
+      },
+    });
+  };
+
+  // Cancelar todo el proceso y volver a la lista principal
+  const handleCancelAll = async () => {
     const result = await showCancelAlert({
-      title: "¿Deseas volver atrás?",
-      text: "Los datos ingresados en este formulario se conservarán.",
-      timer: 2500,
+      title: "¿Deseas cancelar?",
+      text: "Los cambios no guardados se perderán.",
+      timer: 3000,
     });
 
     if (result.isConfirmed) {
-      navigate("/dashboard/createInventory", {
-        state: {
-          formData: {
-            ...datosAnteriores,
-            ...formData,
-          },
-        },
-      });
+      navigate("/dashboard/inventoryList");
     }
   };
 
   return (
     <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10">
-      
-      {/* Header */}
+  {/* Header superior */}
       <div className="flex items-center justify-between gap-4 mb-6">
-        
-        <Button
-          variant="secondary"
-          size="sm"
-          type="button"
-          onClick={handleVolverAtras}
-          disabled={loading}
-        >
-          Atrás
-        </Button>
-
-        <h1 className="text-xl sm:text-2xl font-bold text-white text-right">
-          Crear Inventario - Últimos Pasos
-        </h1>
+    
+            <Button
+              variant="secondary"
+              size="sm"
+              type="button"
+              onClick={handleVolverAtras}
+            >
+              Atrás
+            </Button>
+    
+            <h1 className="text-xl sm:text-2xl font-bold text-white text-right">
+              Crear Inventario - Detalles
+            </h1>
+    
       </div>
 
       {/* Tarjeta del formulario */}
       <div className="bg-[var(--color-background-inverse)] rounded-2xl md:rounded-3xl border border-[var(--color-brand)] shadow-2xl p-5 sm:p-8 md:p-10">
-        
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col gap-6"
-        >
-          
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {/* Campos del formulario */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-            
-            {/* Lote */}
             <Input
               label="Lote"
               name="lote"
@@ -173,7 +166,6 @@ export default function InventoryUltimosPasos() {
               error={errors.lote}
             />
 
-            {/* Ubicación */}
             <Input
               label="Ubicación"
               name="ubicacion"
@@ -182,17 +174,15 @@ export default function InventoryUltimosPasos() {
               error={errors.ubicacion}
             />
 
-            {/* Fecha de vencimiento */}
             <Input
               label="Fecha de vencimiento"
               name="fechaVencimiento"
-              placeholder="Ej: DD/MM/AAAA"
+              type="date"
               value={formData.fechaVencimiento}
               onChange={handleChange}
               error={errors.fechaVencimiento}
             />
 
-            {/* Descripción */}
             <Input
               label="Descripción"
               name="descripcion"
@@ -201,10 +191,9 @@ export default function InventoryUltimosPasos() {
               error={errors.descripcion}
             />
 
-            {/* Comentario */}
             <div className="md:col-span-2">
               <Input
-                label="Comentario del producto"
+                label="Comentario del producto (Opcional)"
                 name="comentarioProducto"
                 value={formData.comentarioProducto}
                 onChange={handleChange}
@@ -213,17 +202,29 @@ export default function InventoryUltimosPasos() {
             </div>
           </div>
 
-          {/* Botón de crear */}
-          <div className="w-full flex justify-end gap-3 pt-6 border-t border-[var(--color-border)]/20">
-            
+          {/* Botones de acción inferiores */}
+          <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-3 pt-6 border-t border-[var(--color-border)]/20">
             <Button
-              type="submit"
-              variant="primary"
+              type="button"
+              variant="secondary"
+              onClick={handleCancelAll}
               disabled={loading}
+              className="w-full sm:w-auto"
             >
-              {loading ? "Creando..." : "Crear Inventario"}
+              Cancelar
             </Button>
 
+            <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
+
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={loading}
+                className="w-full sm:w-auto"
+              >
+                {loading ? "Creando..." : "Crear Inventario"}
+              </Button>
+            </div>
           </div>
         </form>
       </div>
