@@ -2,9 +2,13 @@ import { useState } from "react";
 import { Input, Button } from "@/shared";
 import { Link, useNavigate } from "react-router-dom"; 
 import { loginSchema } from "../schemas/loginSchema";
-import bf1 from "@/assets/images/bf-1.png";
+import { 
+  showSuccessAlert, 
+  showUserErrorAlert 
+} from "@/shared/services/alertService";
 
-import logo from "@/assets/images/1-logo.png"
+import bf1 from "@/assets/images/bf-1.png";
+import logo from "@/assets/images/1-logo.png";
 
 export default function LoginForm () {
     const navigate = useNavigate(); 
@@ -29,27 +33,55 @@ export default function LoginForm () {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Validaciones con Zod Schema
         const result = loginSchema.safeParse(formData);
 
         if (!result.success) {
+            console.log("Errores de Zod:", result.error.issues);
             const fieldErrors = {};
-
             result.error.issues.forEach((issue) => {
                 fieldErrors[issue.path[0]] = issue.message;
             });
-
             setErrors(fieldErrors);
+
+            // ALERTA DE ERROR POR CAMPOS INVÁLIDOS
+            await showUserErrorAlert({
+                title: "Campos inválidos",
+                text: "Por favor, completa correctamente todos los campos obligatorios.",
+            });
+
             return;
         }
 
         setErrors({});
 
-        
-        alert("Sesión iniciada correctamente");
-        navigate("/dashboard/home"); 
+        try {
+            // Petición al backend si aplica:
+            // const response = await loginUser(result.data);
+
+            // ALERTA DE ÉXITO
+            await showSuccessAlert({
+                title: "Sesión iniciada",
+                text: "Has ingresado correctamente a la plataforma.",
+                timer: 2000,
+            });
+
+            // Redirección al Dashboard
+            navigate("/dashboard/home"); 
+
+        } catch (error) {
+            console.error("Error al iniciar sesión", error);
+            setErrors({ submit: "Error al iniciar sesión" });
+
+            // ALERTA DE ERROR DE AUTENTICACIÓN
+            await showUserErrorAlert({
+                title: "Error de autenticación",
+                text: "El correo o la contraseña son incorrectos.",
+            });
+        }
     };
 
     return(
@@ -57,19 +89,19 @@ export default function LoginForm () {
             className="min-h-screen w-full flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat relative"
             style={{ backgroundImage: `url(${bf1})` }}
         >
-            {/* Capa oscura para que resalte el formulario */}
+            {/* Capa oscura para resaltar el formulario */}
             <div className="absolute inset-0 bg-black/50 z-0"></div>
 
             <div className="w-full max-w-md p-8 bg-black border border-brand rounded-4xl relative z-10 shadow-2xl flex flex-col items-center">
 
-               {/* Contenedor con fondo claro e inversión de color si se requiere */}
-            <div className="w-16 h-16 mb-4 rounded-full bg-[var(--color-brand)] p-3 flex items-center justify-center shadow-lg">
-                <img 
-                    src={logo} 
-                    alt="Logo Marca" 
-                    className="w-full h-full object-contain" 
-                />
-            </div>
+                {/* Contenedor con fondo claro */}
+                <div className="w-16 h-16 mb-4 rounded-full bg-[var(--color-brand)] p-3 flex items-center justify-center shadow-lg">
+                    <img 
+                        src={logo} 
+                        alt="Logo Marca" 
+                        className="w-full h-full object-contain" 
+                    />
+                </div>
 
                 <h1 className="text-2xl font-bold text-brand text-center mb-2">
                     Iniciar Sesión
@@ -79,7 +111,7 @@ export default function LoginForm () {
                     Inicia sesión en nuestra web del SENA que estamos trabajando
                 </p>
 
-                <form onSubmit={handleSubmit} className="gap-6 flex flex-col">
+                <form onSubmit={handleSubmit} className="gap-6 flex flex-col w-full">
                     <Input
                         label="Correo Electrónico"
                         name="userEmail"
@@ -105,7 +137,6 @@ export default function LoginForm () {
                         <Link to="/forgot-password" className="text-brand">
                             Recupérala Aquí
                         </Link>
-
                     </div>
 
                     <Button

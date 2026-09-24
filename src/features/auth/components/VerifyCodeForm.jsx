@@ -2,7 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input, Button } from "@/shared";
 import { verifyCodeSchema } from "../schemas/verifyCodeSchema";
-import bf1 from "@/assets/images/bf-1.png"; // 👈 misma imagen que el login
+import { 
+  showSuccessAlert, 
+  showUserErrorAlert 
+} from "@/shared/services/alertService";
+
+import bf1 from "@/assets/images/bf-1.png";
 
 export default function VerifyCodeForm() {
   const navigate = useNavigate();
@@ -19,22 +24,51 @@ export default function VerifyCodeForm() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const result = verifyCodeSchema.safeParse(formData);
 
     if (!result.success) {
+      console.log("Errores de Zod:", result.error.issues);
       const fieldErrors = {};
       result.error.issues.forEach((issue) => {
         fieldErrors[issue.path[0]] = issue.message;
       });
       setErrors(fieldErrors);
+
+      // ALERTA DE ERROR POR CÓDIGO INVÁLIDO EN FORMULARIO
+      await showUserErrorAlert({
+        title: "Código inválido",
+        text: "Por favor, ingresa un código de verificación válido.",
+      });
+
       return;
     }
 
     setErrors({});
-    alert("Código verificado correctamente");
-    navigate("/reset-password");
+
+    try {
+      // Petición al backend si aplica:
+      // await verifyCode(formData.code);
+
+      // ALERTA DE ÉXITO ESTANDARIZADA
+      await showSuccessAlert({
+        title: "Código verificado",
+        text: "El código es correcto. Ahora puedes restablecer tu contraseña.",
+        timer: 2000,
+      });
+
+      // Redirección al cambio de contraseña
+      navigate("/reset-password");
+
+    } catch (error) {
+      console.error("Error al verificar el código", error);
+
+      await showUserErrorAlert({
+        title: "Error de verificación",
+        text: "El código ingresado es incorrecto o ha expirado.",
+      });
+    }
   };
 
   return (
@@ -47,15 +81,17 @@ export default function VerifyCodeForm() {
 
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md p-8 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl relative z-10 shadow-2xl text-center font-[var(--font-body)]"
+        className="w-full max-w-md p-8 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl relative z-10 shadow-2xl font-[var(--font-body)] flex flex-col gap-5 text-left"
       >
-        <h1 className="text-[var(--color-brand)] text-[var(--text-title)] font-[var(--font-heading)] text-center mb-2">
-          Verificar Código
-        </h1>
+        <div>
+          <h1 className="text-[var(--color-brand)] text-[var(--text-title)] font-[var(--font-heading)] text-center mb-2">
+            Verificar Código
+          </h1>
 
-        <p className="text-[var(--color-text-secondary)] text-[var(--text-body)] text-center mb-6">
-          Ingresa el código que enviamos a tu correo
-        </p>
+          <p className="text-[var(--color-text-secondary)] text-[var(--text-body)] text-center">
+            Ingresa el código que enviamos a tu correo
+          </p>
+        </div>
 
         <Input
           label="Código de verificación"
@@ -71,7 +107,7 @@ export default function VerifyCodeForm() {
           type="submit"
           variant="primary"
           size="md"
-          className="mt-4 w-full"
+          className="w-full mt-2"
         >
           Verificar
         </Button>
