@@ -32,7 +32,7 @@ export function showCancelAlert({
     title = "Cancelado",
     text = "",
     confirmButtonText = "Aceptar",
-    timer = 1000,
+    timer = 2000,
 }) {
    // Swal.fire() crea el modal.
    return Swal.fire({

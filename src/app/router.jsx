@@ -1,11 +1,18 @@
 // src/app/router.jsx
 import { createBrowserRouter, Navigate } from "react-router-dom";
+
 import { AuthLayout, DashboardLayout } from "@/shared";
+
 import { UserListPage, UserRegisterForm, UserDetailPage, UserEditPage } from "@/features/users";
+
 import { DishForm, DishListPage, DishViewPage, DishEditPage } from "@/features/dishes";
+
 import { ProviderCreateForm, ProviderListPage, ProviderDetailPage, ProviderEditPage } from "@/features/providers";
+
 import { InventoryForm, InventoryListPage, InventoryDetailsForm, EditInventoryPage, ViewInventoryPage } from "@/features/inventory";
-import { OrderForm } from "@/features/orders";
+
+import { OrderForm, OrderListPage } from "@/features/orders";
+
 import HomePage from "@/features/home/pages/HomePage";
 import MenuPage from "@/features/menu/pages/MenuPage";
 import LoginForm from "@/features/users/components/LoginForm";
@@ -85,6 +92,8 @@ const router = createBrowserRouter([
 
       { path: "permissions", element: <PermissionPage /> },
 
+      { path: "orderList", element: <OrderListPage /> },
+      { path: "orders/create", element: <OrderForm /> },
       { path: "OrderForm", element: <OrderForm /> },
     ],
   },

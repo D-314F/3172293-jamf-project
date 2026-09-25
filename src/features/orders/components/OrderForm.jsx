@@ -5,7 +5,8 @@ import { orderSchema } from "../schemas/orderSchema";
 import { MESEROS, PLATILLOS } from "../data/ordersData";
 import { 
   showSuccessAlert, 
-  showUserErrorAlert 
+  showUserErrorAlert,
+  showCancelAlert 
 } from "@/shared/services/alertService";
 
 export default function OrderForm() {
@@ -34,7 +35,7 @@ export default function OrderForm() {
     }
   };
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const result = orderSchema.safeParse(formData);
 
@@ -74,8 +75,8 @@ const handleSubmit = async (e) => {
         observations: "",
       });
 
-      // Redirigir al home del dashboard después de crear la orden con éxito
-      navigate("/dashboard/home");
+      // Redirige al listado de órdenes
+      navigate("/dashboard/orderList");
     } catch (error) {
       console.error(error);
       await showUserErrorAlert({
@@ -85,18 +86,30 @@ const handleSubmit = async (e) => {
     }
   };
 
-return (
+  // Función para cancelar o regresar con alerta de confirmación
+  const handleCancel = async () => {
+    const result = await showCancelAlert({
+      title: "¿Deseas cancelar?",
+      text: "Los datos ingresados en esta orden no se guardarán.",
+    });
+
+    if (result.isConfirmed) {
+      navigate("/dashboard/orderList");
+    }
+  };
+
+  return (
     <section className="w-full max-w-5xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10">
       
-      {/* Header con botón Atrás redirigiendo al Dashboard / Home */}
+      {/* Header con botón Atrás */}
       <div className="flex items-center justify-between gap-4 mb-6">
         <Button
           variant="secondary"
           size="sm"
           type="button"
-          onClick={() => navigate("/dashboard/home")}
+          onClick={() => navigate(-1)}
         >
-          Atrás
+          ← Atrás
         </Button>
         <h1 className="text-xl sm:text-2xl font-bold text-white text-right">
           Agregar Orden
@@ -164,8 +177,19 @@ return (
             />
           </div>
 
+          {/* Botones de acción al final */}
           <div className="w-full flex justify-end gap-3 pt-6 border-t border-[var(--color-border)]/20">
-            <Button variant="primary" type="submit">
+            <Button 
+              variant="secondary" 
+              type="button" 
+              onClick={handleCancel}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              variant="primary" 
+              type="submit"
+            >
               Crear Orden
             </Button>
           </div>

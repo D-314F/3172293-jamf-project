@@ -4,6 +4,8 @@ import jsPDF from "jspdf";
 // Plugin para creacion de tablas dentro del PDF
 import autoTable from "jspdf-autotable";
 
+
+
 // Funcion utilitaria para generar un reporte en PDF
 // Patron: exportacion de datos (dataset -> documento estructurado)
 export function generatePdfReport({
@@ -17,6 +19,14 @@ export function generatePdfReport({
   // Configuracion del titulo
   doc.setFontSize(16);
   doc.text("Reporte de Usuarios", 14, 20); // Posicion (x, y)
+  // Subtítulo con fecha y hora de generación
+  doc.setFontSize(10);
+  doc.setTextColor(100);
+  // ESTO SIRVE PARA GENERAR FEHCA DENTRO DEL DOCUMENTO PDF
+  doc.text(`Fecha y Hora de Generación: ${new Date().toLocaleString()}`, 14, 26);
+
+  // ESTO SIRVE PARA GENERAR FEHCA DENTRO DEL DOCUMENTO PDF
+  doc.text(`Fecha y Hora de Generación: ${new Date().toLocaleString()}`, 14, 26);
 
   // Generacion de tabla automatica
   autoTable(doc, {
