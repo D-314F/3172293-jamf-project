@@ -1,6 +1,5 @@
 import { useState } from "react";
 import userProfile from "@/assets/images/user-profile.png";
-import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Select, Input, Button, Checkbox } from "@/shared";
 import documentTypes from "../../../data/selects/documentsTypes.json";
@@ -81,7 +80,7 @@ export default function UserEditContent({
         onClick={() => navigate(-1)}
         className="flex items-center gap-2 bg-[var(--color-secondary-950)] text-[var(--color-text-inverse)] px-4 py-2 rounded-md mb-6 hover:bg-[var(--color-error-hover)] transition"
       >
-        <ArrowLeft size={16} /> Atrás
+      Atrás
       </Button>
 
       {/* Formulario */}

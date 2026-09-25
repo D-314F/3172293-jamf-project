@@ -1,4 +1,3 @@
-// src/app/router.jsx
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import { AuthLayout, DashboardLayout } from "@/shared";
@@ -11,7 +10,7 @@ import { ProviderCreateForm, ProviderListPage, ProviderDetailPage, ProviderEditP
 
 import { InventoryForm, InventoryListPage, InventoryDetailsForm, EditInventoryPage, ViewInventoryPage } from "@/features/inventory";
 
-import { OrderForm, OrderListPage } from "@/features/orders";
+import { OrderForm, OrderListPage, EditOrderPage } from "@/features/orders";
 
 import HomePage from "@/features/home/pages/HomePage";
 import MenuPage from "@/features/menu/pages/MenuPage";
@@ -21,7 +20,6 @@ import ViewMenuPage from "@/features/menu/pages/ViewMenuPage";
 import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
 import ResetPasswordPage from "@/features/auth/pages/ResetPasswordPage";
 import VerifyCodePage from "@/features/auth/pages/VerifyCodePage";
-
 
 const router = createBrowserRouter([
   {
@@ -34,7 +32,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/register",
-    element: <UserRegisterForm />, 
+    element: <UserRegisterForm />,
   },
   {
     path: "/forgot-password",
@@ -48,8 +46,6 @@ const router = createBrowserRouter([
     path: "/reset-password",
     element: <ResetPasswordPage />,
   },
-
-
   {
     path: "/auth",
     element: <AuthLayout />,
@@ -67,7 +63,6 @@ const router = createBrowserRouter([
       { path: "home", element: <HomePage /> },
       { path: "menu", element: <MenuPage /> },
       { path: "menu/view/:id", element: <ViewMenuPage /> },
-
 
       { path: "userList", element: <UserListPage /> },
       { path: "userCreate", element: <UserRegisterForm /> },
@@ -94,6 +89,7 @@ const router = createBrowserRouter([
 
       { path: "orderList", element: <OrderListPage /> },
       { path: "orders/create", element: <OrderForm /> },
+      { path: "orders/edit/:id", element: <EditOrderPage /> },
       { path: "OrderForm", element: <OrderForm /> },
     ],
   },
