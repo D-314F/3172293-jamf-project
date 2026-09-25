@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Select, Input, Button, Checkbox, FileInput } from "@/shared";
 import documentTypes from "../../../data/selects/documentsTypes.json";
@@ -86,7 +85,7 @@ export default function ProviderEditContent({
         onClick={() => navigate(-1)}
         className="flex items-center gap-2 bg-[var(--color-secondary-950)] text-[var(--color-text-white)] px-4 py-2 rounded-md mb-6 hover:bg-[var(--color-secondary-950)] transition"
       >
-        <ArrowLeft size={16} /> Atrás
+      Atrás
       </Button>
 
       {/* Formulario */}
