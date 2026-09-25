@@ -66,12 +66,6 @@ export default function Navbar() {
     });
   };
 
-  const handlePermissionsClick = () => {
-    showOpsAlert({
-      title: "Ops, hubo un error",
-      text: "No tienes los permisos suficientes o el módulo de permisos no está disponible en este momento.",
-    });
-  };
 
   return (
     <nav className="w-full bg-brand border-b-2 text-black">
@@ -170,9 +164,9 @@ export default function Navbar() {
 
                 {/* Gestión de Órdenes */}
                 <DropdownItem>
-                  <Link to="/dashboard/OrderForm" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
-                    <Logs size={18} className="text-amber-400" />
-                    <span>Agregar Orden</span>
+                  <Link to="/dashboard/orderList" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
+                  <Logs size={18} className="text-amber-400" />
+                      <span>Gestionar Órdenes</span>
                   </Link>
                 </DropdownItem>
 
@@ -192,28 +186,25 @@ export default function Navbar() {
                   </Link>
                 </DropdownItem>
 
-                {/* Gestión de Permisos -> Muestra la alerta de error */}
+                {/* Gestión de Permisos*/}
                 <DropdownItem>
-                  <button
-                    onClick={handlePermissionsClick}
-                    className="flex items-center gap-3 w-full py-1 text-left text-white hover:text-amber-400 transition cursor-pointer"
-                  >
+                  <Link to="/dashboard/permissions" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
                     <ShieldCheck size={18} className="text-amber-400" />
                     <span>Gestionar Permisos</span>
-                  </button>
+                  </Link>
                 </DropdownItem>
 
                 {/* Separador visual */}
                 <hr className="border-gray-700 my-2" />
 
-                {/* Iniciar Sesión */}
+                {/* Cerrar sesión */}
                 <DropdownItem>
                   <button 
                     onClick={handleLoginRedirect} 
                     className="flex items-center gap-3 w-full py-1 text-left text-amber-400 hover:text-amber-300 font-medium transition cursor-pointer"
                   >
                     <LogIn size={18} />
-                    <span>Iniciar sesión</span>
+                    <span>Cerrar sesión</span>
                   </button>
                 </DropdownItem>
               </DropdownContent>

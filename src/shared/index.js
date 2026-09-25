@@ -23,4 +23,4 @@ export {default as DetailItem} from "./components/DetailItem";
 
 
 // layouts components
-export {default as Navbar} from "./layouts/navbar";
+export {default as Navbar} from "./layouts/Navbar";
