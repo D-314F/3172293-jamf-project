@@ -1,7 +1,9 @@
+
+
 import UserDetailForm from "../components/UserDetailForm";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared";
-import { ArrowLeft } from "lucide-react";
+// import { ArrowLeft } from "lucide-react";
 
 export default function UserDetailPage() {
   const navigate = useNavigate();
@@ -30,7 +32,7 @@ export default function UserDetailPage() {
           onClick={() => navigate(-1)}
           className="flex items-center gap-2"
         >
-          <ArrowLeft size={16} /> Atrás
+           Atrás
         </Button>
       </div>
 
