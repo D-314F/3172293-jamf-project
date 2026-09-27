@@ -1,13 +1,14 @@
+
+
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/shared";
-import { ArrowLeft } from "lucide-react";
+// import { ArrowLeft } from "lucide-react";
 import DishViewContent from "../components/DishViewContent";
 
 export default function DishViewPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // 🔥 Simulación de datos (luego lo conectas a tu API)
   const dish = {
     id,
     nombre: "Soufflé Grand Marnier",
@@ -28,7 +29,7 @@ export default function DishViewPage() {
           onClick={() => navigate(-1)}
           className="flex items-center gap-2"
         >
-          <ArrowLeft size={16} /> Atrás
+          Atrás
         </Button>
       </div>
 

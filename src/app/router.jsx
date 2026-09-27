@@ -1,3 +1,5 @@
+
+
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import { AuthLayout, DashboardLayout } from "@/shared";
@@ -10,7 +12,8 @@ import { ProviderCreateForm, ProviderListPage, ProviderDetailPage, ProviderEditP
 
 import { InventoryForm, InventoryListPage, InventoryDetailsForm, EditInventoryPage, ViewInventoryPage } from "@/features/inventory";
 
-import { OrderForm, OrderListPage, EditOrderPage } from "@/features/orders";
+// 1. Importamos ViewOrderPage aquí
+import { OrderForm, OrderListPage, EditOrderPage, ViewOrderPage } from "@/features/orders";
 
 import HomePage from "@/features/home/pages/HomePage";
 import MenuPage from "@/features/menu/pages/MenuPage";
@@ -90,6 +93,7 @@ const router = createBrowserRouter([
       { path: "orderList", element: <OrderListPage /> },
       { path: "orders/create", element: <OrderForm /> },
       { path: "orders/edit/:id", element: <EditOrderPage /> },
+      { path: "orders/detail/:id", element: <ViewOrderPage /> },
       { path: "OrderForm", element: <OrderForm /> },
     ],
   },

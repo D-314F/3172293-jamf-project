@@ -1,4 +1,8 @@
+
+
+
 import userProfile from "@/assets/images/user-profile.png";
+import Input from "@/shared/components/Input";
 
 export default function UserDetailForm({ user }) {
   return (
@@ -37,7 +41,7 @@ export default function UserDetailForm({ user }) {
           <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
             Tipo de documento
           </label>
-          <input
+          <Input
             type="text"
             value={user.documentType}
             readOnly
@@ -49,7 +53,7 @@ export default function UserDetailForm({ user }) {
           <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
             Correo electrónico
           </label>
-          <input
+          <Input
             type="text"
             value={user.email}
             readOnly
@@ -61,7 +65,7 @@ export default function UserDetailForm({ user }) {
           <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
             Número de documento
           </label>
-          <input
+          <Input
             type="text"
             value={user.documentNumber}
             readOnly
@@ -73,7 +77,7 @@ export default function UserDetailForm({ user }) {
           <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
             Número telefónico
           </label>
-          <input
+          <Input
             type="text"
             value={user.phone}
             readOnly
@@ -85,7 +89,7 @@ export default function UserDetailForm({ user }) {
           <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
             Nombre completo
           </label>
-          <input
+          <Input
             type="text"
             value={user.fullName}
             readOnly
@@ -97,7 +101,7 @@ export default function UserDetailForm({ user }) {
           <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
             Dirección residencial
           </label>
-          <input
+          <Input
             type="text"
             value={user.address}
             readOnly
@@ -109,7 +113,7 @@ export default function UserDetailForm({ user }) {
           <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
             Tipo de usuario
           </label>
-          <input
+          <Input
             type="text"
             value={user.userType}
             readOnly
@@ -121,7 +125,7 @@ export default function UserDetailForm({ user }) {
           <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
             Fecha inicio laboral
           </label>
-          <input
+          <Input
             type="text"
             value={user.startDate}
             readOnly
@@ -133,7 +137,7 @@ export default function UserDetailForm({ user }) {
           <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
             Fecha fin laboral
           </label>
-          <input
+          <Input
             type="text"
             value={user.endDate}
             readOnly

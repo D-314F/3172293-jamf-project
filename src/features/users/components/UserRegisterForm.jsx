@@ -178,7 +178,7 @@ export default function UserRegisterForm() {
                 <div className="pt-2">
                   <Button 
                     type="button" 
-                    variant="secondary"
+                    variant="primary"
                     size="md" 
                     className="w-full"
                   >
