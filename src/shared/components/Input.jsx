@@ -5,9 +5,7 @@ export default function Input({
     type = "text",
     variant="primary",
     size = "sm",
-
     className = "",
-    
     ...props
 }){
     
@@ -28,20 +26,20 @@ export default function Input({
     const sizes = {
         
         sm: `
-            h-8
+            h-9
             
         `, 
         md: `
-            h-10
+            h-11
         `, 
         lg: `
-            h-12
+            h-14
         `
     }
 
 
     return(
-        <div className="w-80">
+        <div className="w-full flex flex-col">
                 {/*Label */}
             <label 
                 // htmlFor con kebab-case
@@ -72,9 +70,7 @@ export default function Input({
 
                     className="
                         relative
-                        h-12
-                        flex
-                        items-center
+                       
                     "
                 >
                 {/* Area interactiva invisible (48px)*/}

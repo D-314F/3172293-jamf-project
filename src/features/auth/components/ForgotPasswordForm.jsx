@@ -36,7 +36,6 @@ export default function ForgotPasswordForm() {
       });
       setErrors(fieldErrors);
 
-      // ALERTA DE ERROR POR CAMPO INVÁLIDO
       await showUserErrorAlert({
         title: "Correo inválido",
         text: "Por favor, ingresa un correo electrónico válido.",
@@ -48,17 +47,12 @@ export default function ForgotPasswordForm() {
     setErrors({});
 
     try {
-      // Petición al backend si aplica:
-      // await sendPasswordResetEmail(formData.email);
-
-      // ALERTA DE ÉXITO ESTANDARIZADA
       await showSuccessAlert({
         title: "Código enviado",
         text: "Se ha enviado el código de recuperación correctamente a tu correo.",
         timer: 2000,
       });
 
-      // Redirección a verificación de código
       navigate("/verify-code");
 
     } catch (error) {
@@ -79,39 +73,57 @@ export default function ForgotPasswordForm() {
       {/* Overlay oscuro */}
       <div className="absolute inset-0 bg-black/50 z-0"></div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md p-8 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl relative z-10 shadow-2xl font-[var(--font-body)] flex flex-col gap-5 text-left"
-      >
-        <div>
-          <h1 className="text-[var(--text-title)] font-[var(--font-heading)] text-[var(--color-brand)] text-center mb-2">
-            Recuperar Contraseña
-          </h1>
-
-          <p className="text-[var(--color-text-secondary)] text-[var(--text-body)] text-center">
-            Ingresa tu correo registrado para recibir el código de recuperación
-          </p>
+      
+      <div className="w-full max-w-md flex flex-col gap-4 relative z-10">
+        
+      
+        <div className="flex justify-start">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="!w-auto flex items-center gap-2"
+          >
+            ← Atrás
+          </Button>
         </div>
 
-        <Input
-          label="Correo Electrónico"
-          name="email"
-          type="email"
-          value={formData.email}
-          placeholder="Escribe tu correo electrónico"
-          onChange={handleChange}
-          error={errors.email}
-        />
-
-        <Button
-          type="submit"
-          variant="primary"
-          size="md"
-          className="w-full mt-2"
+     
+        <form
+          onSubmit={handleSubmit}
+          className="w-full p-8 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl shadow-2xl font-[var(--font-body)] flex flex-col gap-5 text-left"
         >
-          Enviar código de recuperación
-        </Button>
-      </form>
+          <div>
+            <h1 className="text-[var(--text-title)] font-[var(--font-heading)] text-[var(--color-brand)] text-center mb-2">
+              Recuperar Contraseña
+            </h1>
+
+            <p className="text-[var(--color-text-secondary)] text-[var(--text-body)] text-center">
+              Ingresa tu correo registrado para recibir el código de recuperación
+            </p>
+          </div>
+
+          <Input
+            label="Correo Electrónico"
+            name="email"
+            type="email"
+            value={formData.email}
+            placeholder="Escribe tu correo electrónico"
+            onChange={handleChange}
+            error={errors.email}
+          />
+
+          <Button
+            type="submit"
+            variant="primary"
+            size="md"
+            className="w-full mt-2"
+          >
+            Enviar código de recuperación
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }

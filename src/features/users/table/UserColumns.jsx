@@ -38,7 +38,11 @@ export const UserColumns = [
     accessorKey: "userPhone",
     header: "Telefono",
   },
-
+  // Columna Rol
+  {
+    accessorKey: "userRole",
+    header: "Rol",
+  },
 
   // Columna Estado (activo / inactivo)
   {

@@ -10,13 +10,14 @@ export default function Select({
     className = "", // 1. Añadimos className por si lo queremos personalizar
 }){
     return (
-        <div>
+        <div className="w-full flex flex-col">
             {label &&(
                 <label 
                     htmlFor={htmlFor}
                     className={`
                         block 
                         text-caption
+                        mb-1
                         text-secondary
                         text-white
                         ${error ? "text-red-800" : "text-secondary"}
@@ -32,7 +33,7 @@ export default function Select({
                 value={value}
                 id={htmlFor}
                 className={`
-                    w-80
+                    w-full
                     h-10
                     rounded-md
                     border

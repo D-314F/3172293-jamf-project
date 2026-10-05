@@ -1,5 +1,3 @@
-// Nombre, Correo, Telefono, tipos de documento, numero de documento
-
 // src/data/users.js
 
 export const users = [
@@ -10,6 +8,7 @@ export const users = [
         userPhone: "3147801819",
         userDocumentTypes: "CC",
         userDocumentNumber: "1030405816",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -19,6 +18,7 @@ export const users = [
         userPhone: "3012345678",
         userDocumentTypes: "CC",
         userDocumentNumber: "3012345678",
+        userRole: "Empleado",
         isActive: true
     },
     {
@@ -28,6 +28,7 @@ export const users = [
         userPhone: "3023456789",
         userDocumentTypes: "CC",
         userDocumentNumber: "3023456789",
+        userRole: "Supervisor",
         isActive: true
     },
     {
@@ -37,6 +38,7 @@ export const users = [
         userPhone: "3034567890",
         userDocumentTypes: "CC",
         userDocumentNumber: "3034567890",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -46,6 +48,7 @@ export const users = [
         userPhone: "3045678901",
         userDocumentTypes: "CC",
         userDocumentNumber: "3045678901",
+        userRole: "Empleado",
         isActive: true
     },
     {
@@ -55,6 +58,7 @@ export const users = [
         userPhone: "3056789012",
         userDocumentTypes: "CC",
         userDocumentNumber: "3056789012",
+        userRole: "Supervisor",
         isActive: true
     },
     {
@@ -64,6 +68,7 @@ export const users = [
         userPhone: "3067890123",
         userDocumentTypes: "CC",
         userDocumentNumber: "3067890123",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -73,6 +78,7 @@ export const users = [
         userPhone: "3078901234",
         userDocumentTypes: "CC",
         userDocumentNumber: "3078901234",
+        userRole: "Empleado",
         isActive: true
     },
     {
@@ -82,6 +88,7 @@ export const users = [
         userPhone: "3089012345",
         userDocumentTypes: "CC",
         userDocumentNumber: "3089012345",
+        userRole: "Supervisor",
         isActive: true
     },
     {
@@ -91,6 +98,7 @@ export const users = [
         userPhone: "3090123456",
         userDocumentTypes: "CC",
         userDocumentNumber: "3090123456",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -100,6 +108,7 @@ export const users = [
         userPhone: "3101234567",
         userDocumentTypes: "CC",
         userDocumentNumber: "3101234567",
+        userRole: "Empleado",
         isActive: true
     },
     {
@@ -109,6 +118,7 @@ export const users = [
         userPhone: "3112345678",
         userDocumentTypes: "CC",
         userDocumentNumber: "3112345678",
+        userRole: "Supervisor",
         isActive: true
     },
     {
@@ -118,6 +128,7 @@ export const users = [
         userPhone: "3123456789",
         userDocumentTypes: "CC",
         userDocumentNumber: "3123456789",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -127,6 +138,7 @@ export const users = [
         userPhone: "3134567890",
         userDocumentTypes: "CC",
         userDocumentNumber: "3134567890",
+        userRole: "Empleado",
         isActive: true
     },
     {
@@ -136,6 +148,7 @@ export const users = [
         userPhone: "3145678901",
         userDocumentTypes: "CC",
         userDocumentNumber: "3145678901",
+        userRole: "Supervisor",
         isActive: true
     },
     {
@@ -145,6 +158,7 @@ export const users = [
         userPhone: "3156789012",
         userDocumentTypes: "CC",
         userDocumentNumber: "3156789012",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -154,6 +168,7 @@ export const users = [
         userPhone: "3167890123",
         userDocumentTypes: "CC",
         userDocumentNumber: "3167890123",
+        userRole: "Empleado",
         isActive: true
     },
     {
@@ -163,6 +178,7 @@ export const users = [
         userPhone: "3178901234",
         userDocumentTypes: "CC",
         userDocumentNumber: "3178901234",
+        userRole: "Supervisor",
         isActive: true
     },
     {
@@ -172,6 +188,7 @@ export const users = [
         userPhone: "3189012345",
         userDocumentTypes: "CC",
         userDocumentNumber: "3189012345",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -181,6 +198,7 @@ export const users = [
         userPhone: "3190123456",
         userDocumentTypes: "CC",
         userDocumentNumber: "3190123456",
+        userRole: "Empleado",
         isActive: true
     },
     {
@@ -190,6 +208,7 @@ export const users = [
         userPhone: "3201234567",
         userDocumentTypes: "CC",
         userDocumentNumber: "3201234567",
+        userRole: "Supervisor",
         isActive: true
     },
     {
@@ -199,6 +218,7 @@ export const users = [
         userPhone: "3212345678",
         userDocumentTypes: "CC",
         userDocumentNumber: "3212345678",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -208,6 +228,7 @@ export const users = [
         userPhone: "3223456789",
         userDocumentTypes: "CC",
         userDocumentNumber: "3223456789",
+        userRole: "Empleado",
         isActive: true
     },
     {
@@ -217,6 +238,7 @@ export const users = [
         userPhone: "3234567890",
         userDocumentTypes: "CC",
         userDocumentNumber: "3234567890",
+        userRole: "Supervisor",
         isActive: true
     },
     {
@@ -226,6 +248,7 @@ export const users = [
         userPhone: "3245678901",
         userDocumentTypes: "CC",
         userDocumentNumber: "3245678901",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -235,6 +258,7 @@ export const users = [
         userPhone: "3256789012",
         userDocumentTypes: "CC",
         userDocumentNumber: "3256789012",
+        userRole: "Empleado",
         isActive: true
     },
     {
@@ -244,6 +268,7 @@ export const users = [
         userPhone: "3267890123",
         userDocumentTypes: "CC",
         userDocumentNumber: "3267890123",
+        userRole: "Supervisor",
         isActive: true
     },
     {
@@ -253,6 +278,7 @@ export const users = [
         userPhone: "3278901234",
         userDocumentTypes: "CC",
         userDocumentNumber: "3278901234",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -262,6 +288,7 @@ export const users = [
         userPhone: "3289012345",
         userDocumentTypes: "CC",
         userDocumentNumber: "3289012345",
+        userRole: "Empleado",
         isActive: true
     },
     {
@@ -271,6 +298,7 @@ export const users = [
         userPhone: "3290123456",
         userDocumentTypes: "CC",
         userDocumentNumber: "3290123456",
+        userRole: "Supervisor",
         isActive: true
     },
     {
@@ -280,6 +308,7 @@ export const users = [
         userPhone: "3301234567",
         userDocumentTypes: "CC",
         userDocumentNumber: "3301234567",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -289,6 +318,7 @@ export const users = [
         userPhone: "3312345678",
         userDocumentTypes: "CC",
         userDocumentNumber: "3312345678",
+        userRole: "Empleado",
         isActive: true
     },
     {
@@ -298,6 +328,7 @@ export const users = [
         userPhone: "3323456789",
         userDocumentTypes: "CC",
         userDocumentNumber: "3323456789",
+        userRole: "Supervisor",
         isActive: true
     },
     {
@@ -307,6 +338,7 @@ export const users = [
         userPhone: "3334567890",
         userDocumentTypes: "CC",
         userDocumentNumber: "3334567890",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -316,6 +348,7 @@ export const users = [
         userPhone: "3345678901",
         userDocumentTypes: "CC",
         userDocumentNumber: "3345678901",
+        userRole: "Empleado",
         isActive: true
     },
     {
@@ -325,6 +358,7 @@ export const users = [
         userPhone: "3356789012",
         userDocumentTypes: "CC",
         userDocumentNumber: "3356789012",
+        userRole: "Supervisor",
         isActive: true
     },
     {
@@ -334,6 +368,7 @@ export const users = [
         userPhone: "3367890123",
         userDocumentTypes: "CC",
         userDocumentNumber: "3367890123",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -343,6 +378,7 @@ export const users = [
         userPhone: "3378901234",
         userDocumentTypes: "CC",
         userDocumentNumber: "3378901234",
+        userRole: "Empleado",
         isActive: true
     },
     {
@@ -352,6 +388,7 @@ export const users = [
         userPhone: "3389012345",
         userDocumentTypes: "CC",
         userDocumentNumber: "3389012345",
+        userRole: "Supervisor",
         isActive: true
     },
     {
@@ -361,6 +398,7 @@ export const users = [
         userPhone: "3390123456",
         userDocumentTypes: "CC",
         userDocumentNumber: "3390123456",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -370,6 +408,7 @@ export const users = [
         userPhone: "3401234567",
         userDocumentTypes: "CC",
         userDocumentNumber: "3401234567",
+        userRole: "Empleado",
         isActive: true
     },
     {
@@ -379,6 +418,7 @@ export const users = [
         userPhone: "3412345678",
         userDocumentTypes: "CC",
         userDocumentNumber: "3412345678",
+        userRole: "Supervisor",
         isActive: true
     },
     {
@@ -388,6 +428,7 @@ export const users = [
         userPhone: "3423456789",
         userDocumentTypes: "CC",
         userDocumentNumber: "3423456789",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -397,6 +438,7 @@ export const users = [
         userPhone: "3434567890",
         userDocumentTypes: "CC",
         userDocumentNumber: "3434567890",
+        userRole: "Empleado",
         isActive: true
     },
     {
@@ -406,6 +448,7 @@ export const users = [
         userPhone: "3445678901",
         userDocumentTypes: "CC",
         userDocumentNumber: "3445678901",
+        userRole: "Supervisor",
         isActive: true
     },
     {
@@ -415,6 +458,7 @@ export const users = [
         userPhone: "3456789012",
         userDocumentTypes: "CC",
         userDocumentNumber: "3456789012",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -424,6 +468,7 @@ export const users = [
         userPhone: "3467890123",
         userDocumentTypes: "CC",
         userDocumentNumber: "3467890123",
+        userRole: "Empleado",
         isActive: true
     },
     {
@@ -433,6 +478,7 @@ export const users = [
         userPhone: "3478901234",
         userDocumentTypes: "CC",
         userDocumentNumber: "3478901234",
+        userRole: "Supervisor",
         isActive: true
     },
     {
@@ -442,6 +488,7 @@ export const users = [
         userPhone: "3489012345",
         userDocumentTypes: "CC",
         userDocumentNumber: "3489012345",
+        userRole: "Administrador",
         isActive: true
     },
     {
@@ -451,6 +498,7 @@ export const users = [
         userPhone: "3490123456",
         userDocumentTypes: "CC",
         userDocumentNumber: "3490123456",
+        userRole: "Empleado",
         isActive: true
     }
 ];
