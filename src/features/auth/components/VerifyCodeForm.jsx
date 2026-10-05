@@ -36,7 +36,6 @@ export default function VerifyCodeForm() {
       });
       setErrors(fieldErrors);
 
-      // ALERTA DE ERROR POR CÓDIGO INVÁLIDO EN FORMULARIO
       await showUserErrorAlert({
         title: "Código inválido",
         text: "Por favor, ingresa un código de verificación válido.",
@@ -48,17 +47,12 @@ export default function VerifyCodeForm() {
     setErrors({});
 
     try {
-      // Petición al backend si aplica:
-      // await verifyCode(formData.code);
-
-      // ALERTA DE ÉXITO ESTANDARIZADA
       await showSuccessAlert({
         title: "Código verificado",
         text: "El código es correcto. Ahora puedes restablecer tu contraseña.",
         timer: 2000,
       });
 
-      // Redirección al cambio de contraseña
       navigate("/reset-password");
 
     } catch (error) {
@@ -79,39 +73,56 @@ export default function VerifyCodeForm() {
       {/* Overlay oscuro */}
       <div className="absolute inset-0 bg-black/50 z-0"></div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md p-8 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl relative z-10 shadow-2xl font-[var(--font-body)] flex flex-col gap-5 text-left"
-      >
-        <div>
-          <h1 className="text-[var(--color-brand)] text-[var(--text-title)] font-[var(--font-heading)] text-center mb-2">
-            Verificar Código
-          </h1>
-
-          <p className="text-[var(--color-text-secondary)] text-[var(--text-body)] text-center">
-            Ingresa el código que enviamos a tu correo
-          </p>
+      <div className="w-full max-w-md flex flex-col gap-4 relative z-10">
+        
+        
+        <div className="flex justify-start">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="!w-auto flex items-center gap-2"
+          >
+            ← Atrás
+          </Button>
         </div>
 
-        <Input
-          label="Código de verificación"
-          name="code"
-          type="text"
-          value={formData.code}
-          placeholder="Escribe el código"
-          onChange={handleChange}
-          error={errors.code}
-        />
-
-        <Button
-          type="submit"
-          variant="primary"
-          size="md"
-          className="w-full mt-2"
+  
+        <form
+          onSubmit={handleSubmit}
+          className="w-full p-8 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl shadow-2xl font-[var(--font-body)] flex flex-col gap-5 text-left"
         >
-          Verificar
-        </Button>
-      </form>
+          <div>
+            <h1 className="text-[var(--color-brand)] text-[var(--text-title)] font-[var(--font-heading)] text-center mb-2">
+              Verificar Código
+            </h1>
+
+            <p className="text-[var(--color-text-secondary)] text-[var(--text-body)] text-center">
+              Ingresa el código que enviamos a tu correo
+            </p>
+          </div>
+
+          <Input
+            label="Código de verificación"
+            name="code"
+            type="text"
+            value={formData.code}
+            placeholder="Escribe el código"
+            onChange={handleChange}
+            error={errors.code}
+          />
+
+          <Button
+            type="submit"
+            variant="primary"
+            size="md"
+            className="w-full mt-2"
+          >
+            Verificar
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }

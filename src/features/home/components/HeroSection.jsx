@@ -5,9 +5,9 @@ export default function HeroSection() {
   return (
     <section className="w-full bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-2xl mt-6">
       {/* Franja superior */}
-     <div className="bg-[var(--color-brand)] py-3 px-4 font-[var(--font-heading)] text-[var(--color-text-primary)] text-[var(--text-large)] border-b-2 border-[var(--color-brand-hover)]">
-  Exquisitez en Cada Bocado.
-</div>
+     <div className="bg-[var(--color-brand)] py-3 px-4 font-[var(--font-heading)] text-black  text-[var(--text-large)] border-b-2 border-[var(--color-brand-hover)]">
+        Exquisitez en Cada Bocado.
+     </div>
 
 
 
