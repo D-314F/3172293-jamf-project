@@ -10,6 +10,8 @@ showUserErrorAlert
 import bf1 from "@/assets/images/bf-1.png";
 import logo from "@/assets/images/1-logo.png";
 
+import { login } from "@/features/auth/services/authService";
+
 export default function LoginForm() {
 const navigate = useNavigate(); 
 const [errors, setErrors] = useState({});
@@ -57,20 +59,26 @@ if (!result.success) {
 setErrors({});
 
 try {
-    await showSuccessAlert({
+  // Llamamos al backend con los datos ya validados por Zod
+const data = await login(result.data);
+
+  // Guardamos el token para usarlo en las siguientes peticiones
+sessionStorage.setItem("token", data.token);
+
+await showSuccessAlert({
     title: "¡Bienvenido!",
     text: "Has ingresado correctamente a la plataforma.",
     timer: 2000,
-    });
+});
 
-    navigate("/dashboard/home"); 
+    navigate("/dashboard/home");
 } catch (error) {
-    console.error("Error al iniciar sesión:", error);
-    setErrors({ submit: "Error al iniciar sesión" });
+    console.error("Error al iniciar sesión:", error.message);
 
-    await showUserErrorAlert({
+  // Muestra el mensaje real del backend ("Credenciales inválidas" o "Usuario inactivo")
+await showUserErrorAlert({
     title: "Error de autenticación",
-    text: "El correo o la contraseña son incorrectos.",
+    text: error.message,
     });
 }
 };
