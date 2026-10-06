@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Input, Select, Checkbox, Button, FileInput } from "@/shared";
 import { getDocumentTypes, getUserTypes } from "@/services/selectService";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; 
 import { userSchema } from "../schemas/userSchema";
 import { 
   showSuccessAlert, 
@@ -11,9 +11,11 @@ import {
 } from "@/shared/services/alertService";
 import bf1 from "@/assets/images/bf-2.png";
 
+import { createUser } from "../services/userServices";
+
 export default function UserRegisterForm() {
   const navigate = useNavigate();
-  const [errors, setErrors] = useState({});
+  const location = useLocation();
 
   const [formData, setFormData] = useState({
     userDocumentTypes: "",
@@ -22,6 +24,7 @@ export default function UserRegisterForm() {
     userType: "",
     userBusinessEmail: "",
     userEmail: "",
+    userPassword: "",
     userPhone: "",
     userAddress: "",
     userStartDate: "",
@@ -32,6 +35,8 @@ export default function UserRegisterForm() {
 
   const [documentTypes, setDocumentTypes] = useState([]);
   const [userTypes, setUserTypes] = useState([]);
+  const isPublicRegister = location.pathname === "/register";
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     getDocumentTypes().then(setDocumentTypes);
@@ -46,7 +51,7 @@ export default function UserRegisterForm() {
     }));
   };
 
-  // FIX 1: Marcamos handleSubmit como async para permitir 'await'
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -71,25 +76,24 @@ export default function UserRegisterForm() {
 
     setErrors({});
 
-    try {
-      // FIX 2: Se corrigió la sintaxis de los comentarios de prueba
-      // const response = await createUser(result.data);
-      // console.log("Usuario Creado:", response);
+  try {
+  const response = await createUser(result.data);
+  console.log("Usuario creado:", response);
 
-      // Feedback básico al usuario 
-      await showSuccessAlert({
-        title: "Usuario creado",
-        text: "El usuario se ha creado correctamente",
-        timer: 2000,
-      });
+  await showSuccessAlert({
+    title: "Usuario creado",
+    text: "El usuario se ha creado correctamente",
+    timer: 2000,
+  });
 
-      // Navegamos a la vista anterior
-      navigate(-1);
-      
-    } catch (error) {
-      console.error("Error al crear el usuario", error);
-      setErrors({ submit: "Error al crear el usuario" });
-    }
+  navigate(isPublicRegister ? "/login" : "/dashboard/userList");
+} catch (error) {
+  console.error("Error al crear el usuario", error);
+  await showUserErrorAlert({
+    title: "No se pudo crear el usuario",
+    text: error.message,
+  });
+}
 
     
   };
@@ -103,7 +107,7 @@ export default function UserRegisterForm() {
     
         if (result.isConfirmed) {
             // Navegamos a la vista anterior
-            navigate(-1);
+            navigate(isPublicRegister ? "/login" : "/dashboard/userList");
         }
     };
 
@@ -119,11 +123,11 @@ export default function UserRegisterForm() {
         
         {/* Header superior alineado */}
         <div className="flex items-center justify-between gap-4 mb-6">
-          <Button
+            <Button
             variant="secondary"
             size="sm"
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(isPublicRegister ? "/login" : "/dashboard/userList")}
           >
             ← Atrás
           </Button>
@@ -173,6 +177,15 @@ export default function UserRegisterForm() {
                   options={userTypes}
                   onChange={handleChange}
                   error={errors.userType}
+                />
+                <Input
+                  label="Contraseña"
+                  name="userPassword"
+                  type="password"
+                  value={formData.userPassword}
+                  placeholder="Contraseña"
+                  onChange={handleChange}
+                  error={errors.userPassword}
                 />
                 
                 <div className="pt-2">
@@ -226,12 +239,11 @@ export default function UserRegisterForm() {
                   error={errors.userAddress}
                 />
                 
-                {/* Entradas de Fechas como Texto */}
+                {/* Entradas de fechas */}
                 <Input
                   label="Fecha inicio laboral"
                   name="userStartDate"
-                  type="text"
-                  placeholder="dd/mm/aaaa"
+                  type="date"
                   value={formData.userStartDate}
                   onChange={handleChange}
                   error={errors.userStartDate}
@@ -239,8 +251,7 @@ export default function UserRegisterForm() {
                 <Input
                   label="Fecha fin laboral"
                   name="userEndDate"
-                  type="text"
-                  placeholder="dd/mm/aaaa"
+                  type="date"
                   value={formData.userEndDate}
                   onChange={handleChange}
                   error={errors.userEndDate}

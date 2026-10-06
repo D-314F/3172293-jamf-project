@@ -30,12 +30,11 @@ export const userSchema = z.object({
         .max(100, "La dirección es demasiado larga"),
 
     userStartDate: z
-        .string()
-        .min(1, "La fecha de inicio laboral es requerida"), // Para inputs type="date"
+    .string()
+    .min(1, "La fecha de inicio laboral es requerida"),
 
-    userEndDate: z
-        .string()
-        .min(1, "La fecha de fin laboral es requerida"),
+    // Opcional: un contrato vigente no tiene fecha de fin
+    userEndDate: z.string().optional(),
         
     userDocumentTypes: z.string().min(1, "El tipo de documento es requerido"),
     userType: z.string().min(1, "El tipo de usuario es requerido"),
@@ -45,13 +44,13 @@ export const userSchema = z.object({
         .min(5, "Numero de documento inválido")
         .max(20, "Número de documento demasiado largo"),
 
-    // userPassword: z
-    //     .string()
-    //     .min(8, "Contraseña debe tener mínimo 8 caracteres")
-    //     .regex(/[A-Z]/, "Debe contener al menos una mayúscula")
-    //     .regex(/[a-z]/, "Debe contener al menos una minúscula")
-    //     .regex(/[0-9]/, "Debe contener al menos un número")
-    //     .regex(/[^A-Za-z0-9]/, "Debe contener al menos un carácter especial"),
+    userPassword: z
+        .string()
+        .min(8, "Contraseña debe tener mínimo 8 caracteres")
+        .regex(/[A-Z]/, "Debe contener al menos una mayúscula")
+        .regex(/[a-z]/, "Debe contener al menos una minúscula")
+        .regex(/[0-9]/, "Debe contener al menos un número")
+        .regex(/[^A-Za-z0-9]/, "Debe contener al menos un carácter especial"),
 
     // isStaff: z.boolean(),
     isActive: z.boolean(),
