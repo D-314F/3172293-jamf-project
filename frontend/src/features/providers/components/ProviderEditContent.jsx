@@ -1,21 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { Select, Input, Button, Checkbox, FileInput } from "@/shared";
 import documentTypes from "../../../data/selects/documentsTypes.json";
 import productCategories from "../../../data/selects/productCategories.json";
 import { providerSchema } from "../schemas/providerSchema";
-import { showSuccessAlert, showCancelAlert } from "@/shared/services/alertService"; 
-
+import { showSuccessAlert, showCancelAlert } from "@/shared/services/alertService";
 
 export default function ProviderEditContent({
   formData = {},
   setFormData,
-  // onSubmit,
 }) {
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
 
-  // Manejo de cambios
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
     setFormData((prev) => ({
@@ -24,81 +22,76 @@ export default function ProviderEditContent({
     }));
   };
 
-  // Validación con Zod
   const handleSubmit = async (e) => {
-      e.preventDefault();
-  
-      const result = providerSchema.safeParse(formData);
-  
-      if (!result.success) {
-        console.log("Errores de Zod:", result.error.issues);
-        const fieldErrors = {};
-        result.error.issues.forEach((issue) => {
-          fieldErrors[issue.path[0]] = issue.message;
-        });
-        setErrors(fieldErrors);
-        return;
-      }
-  
-      setErrors({});
-  
-      try {
-        // FIX 2: Se corrigió la sintaxis de los comentarios de prueba
-        // const response = await createUser(result.data);
-        // console.log("Proveedor editado:", response);
-  
-        // Feedback básico al Proveedor 
-        await showSuccessAlert({
-          title: "Proveedor editado",
-          text: "El Proveedor se ha editado correctamente",
-          timer: 2000,
-        });
-  
-        // Navegamos a la vista anterior
-        navigate(-1);
-        
-      } catch (error) {
-        console.error("Error al editar el Proveedor", error);
-        setErrors({ submit: "Error al editar el Proveedor" });
-      }
-  
-      
-    };
-        const handleCancel = async () => {
-          // Desplegamos la alerta de confirmación
-          const result = await showCancelAlert({
-              title: "Cancelado",
-              text: "Los cambios no guardados se perderán.",
-              timer: 3000,
-          });
-      
-          if (result.isConfirmed) {
-              // Navegamos a la vista anterior
-              navigate(-1);
-          }
-      };
+    e.preventDefault();
+
+    const result = providerSchema.safeParse(formData);
+
+    if (!result.success) {
+      console.log("Errores de Zod:", result.error.issues);
+      const fieldErrors = {};
+      result.error.issues.forEach((issue) => {
+        fieldErrors[issue.path[0]] = issue.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setErrors({});
+
+    try {
+      await showSuccessAlert({
+        title: "Proveedor editado",
+        text: "El Proveedor se ha editado correctamente",
+        timer: 2000,
+      });
+
+      navigate(-1);
+    } catch (error) {
+      console.error("Error al editar el Proveedor", error);
+      setErrors({ submit: "Error al editar el Proveedor" });
+    }
+  };
+
+  const handleCancel = async () => {
+    const result = await showCancelAlert({
+      title: "Cancelado",
+      text: "Los cambios no guardados se perderán.",
+      timer: 3000,
+    });
+
+    if (result.isConfirmed) {
+      navigate(-1);
+    }
+  };
 
   return (
-    <div className="p-8">
-      {/* Botón Volver */}
-      <Button variant="secondary"
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 bg-[var(--color-secondary-950)] text-[var(--color-text-white)] px-4 py-2 rounded-md mb-6 hover:bg-[var(--color-secondary-950)] transition"
-      >
-      Atrás
-      </Button>
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 flex flex-col gap-4">
+      
+      <div className="flex justify-start">
+        <Button
+          variant="secondary"
+          size="sm"
+          type="button"
+          onClick={() => navigate(-1)}
+          className="!w-auto flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Atrás
+        </Button>
+      </div>
 
       {/* Formulario */}
       <form onSubmit={handleSubmit}>
-        <div className="bg-[var(--color-background-inverse)] text-[var(--color-black)] rounded-3xl p-10 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-center border border-[var(--color-brand)]">
-          <div className="col-span-3 flex items-center gap-3 mb-4">
-            <span className="text-[var(--text-display)] font-[var(--font-heading)]">
+        <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-center border border-[var(--color-brand)]">
+          <div className="col-span-1 md:col-span-2 lg:col-span-3 flex items-center gap-3">
+            <h1 className="text-xl sm:text-2xl font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)]">
               Editar Proveedor
-            </span>
+            </h1>
           </div>
 
           {/* Campos de Entrada */}
-          <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
             <Select
               label="Tipo de documento"
               name="providerDocumentType"
@@ -184,8 +177,8 @@ export default function ProviderEditContent({
             />
           </div>
 
-          {/* Panel lateral */}
-          <div className="flex flex-col items-center justify-center gap-4">
+         
+          <div className="flex flex-col items-center justify-center gap-4 w-full">
             <FileInput
               value={formData.providerImage}
               onChange={(files) =>
@@ -194,29 +187,37 @@ export default function ProviderEditContent({
               multiple={false}
             />
             {errors.providerImage && (
-              <span className="text-red-400 text-xs">{errors.providerImage}</span>
+              <span className="text-[var(--color-error)] text-xs">
+                {errors.providerImage}
+              </span>
             )}
 
-            <Checkbox
-              id="providerStatus"
-              name="providerStatus"
-              label="Estado del proveedor"
-              checked={Boolean(formData?.providerStatus)}
-              onChange={handleChange}
-            />
+            <div className="w-full pt-2">
+              <Checkbox
+                id="providerStatus"
+                name="providerStatus"
+                label="Estado del proveedor"
+                checked={Boolean(formData?.providerStatus)}
+                onChange={handleChange}
+              />
+            </div>
 
-            
             <div className="flex flex-col gap-3 w-full pt-4">
               <Button 
-                    type="button" 
-                    variant="secondary"
-                    size="md" 
-                    className="w-full"
-                    onClick={handleCancel}
-                  >
-                    Cancelar
-                  </Button>
-              <Button type="submit" variant="primary">
+                type="button" 
+                variant="secondary"
+                size="md" 
+                className="w-full"
+                onClick={handleCancel}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                type="submit" 
+                variant="primary"
+                size="md"
+                className="w-full"
+              >
                 Editar proveedor
               </Button>
             </div>

@@ -1,106 +1,86 @@
 // src/features/orders/components/OrderDetail.jsx
 
-import Button from "@/shared/components/Button";
-import Input from "@/shared/components/Input";
+import { Button, Input } from "@/shared";
 
 export default function OrderDetail({ order, onEdit, onBack }) {
   if (!order) return null;
 
+  const formattedDate = order.fecha
+    ? new Date(order.fecha).toLocaleString("es-CO")
+    : "Reciente";
+
   return (
-    <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 max-w-6xl mx-auto grid grid-cols-1 gap-8 border border-[var(--color-brand)] shadow-2xl">
+    <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 w-full grid grid-cols-1 gap-8 border border-[var(--color-brand)] shadow-2xl">
       
-      {/* Título de la orden dentro de la Card y Estado */}
-      <div className="flex items-center justify-between pb-2">
-
-        <h3>
-            visualizar orden
-        </h3>
-
-
-        <h2 className="text-[var(--text-display)] font-[var(--font-heading)] text-[var(--color-text-inverse)]">
+      
+      <div className="flex items-center justify-between pb-2 border-b border-[var(--color-brand)]/30">
+        <h2 className="text-xl sm:text-2xl font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)]">
           Detalle de la Orden #{order.id || "ORD-012"}
         </h2>
-
-        {/* Estado en texto simple */}
-        {/* <div className="flex items-center gap-2">
-          <span className="text-[var(--text-small)] font-medium text-[var(--color-text-inverse)]">
-            Estado: {order.estado}
-          </span>
-        </div> */}
       </div>
 
-      {/* Datos de la orden en formato de Inputs */}
+      {/* Datos de la orden */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-        <div>
-          <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
-            Mesa asignada
-          </label>
-          <Input
-            type="text"
-            value={`Mesa ${order.mesa}`}
-            readOnly
-            className="w-full bg-transparent border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-muted)]"
-          />
-        </div>
+        <Input
+          label="Mesa asignada"
+          type="text"
+          value={`Mesa ${order.mesa ?? ""}`}
+          readOnly
+        />
 
-        <div>
-          <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
-            Mesero responsable
-          </label>
-          <Input
-            type="text"
-            value={order.mesero}
-            readOnly
-            className="w-full bg-transparent border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-muted)]"
-          />
-        </div>
+        <Input
+          label="Mesero responsable"
+          type="text"
+          value={order.mesero || ""}
+          readOnly
+        />
 
-        <div>
-          <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
-            Fecha y hora de registro
-          </label>
-          <Input
-            type="text"
-            value={order.fecha ? new Date(order.fecha).toLocaleString("es-CO") : "Reciente"}
-            readOnly
-            className="w-full bg-transparent border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-muted)]"
-          />
-        </div>
+        <Input
+          label="Fecha y hora de registro"
+          type="text"
+          value={formattedDate}
+          readOnly
+        />
 
-        <div>
-          <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
-            Estado de la orden
-          </label>
-          <Input
-            type="text"
-            value={order.estado}
-            readOnly
-            className="w-full bg-transparent border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-muted)]"
-          />
-        </div>
+        <Input
+          label="Estado de la orden"
+          type="text"
+          value={order.estado || ""}
+          readOnly
+        />
 
-        <div className="sm:col-span-2">
-          <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
+        <div className="sm:col-span-2 flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-[var(--color-text-inverse)] font-[var(--font-label)]">
             Detalles de la orden / Platillos solicitados
           </label>
           <textarea
-            value={order.detalles}
+            value={order.detalles || ""}
             readOnly
             rows={3}
-            className="w-full bg-transparent border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-muted)] resize-none"
+            className="w-full bg-transparent border border-[var(--color-brand)]/40 rounded-xl px-4 py-3 text-[var(--color-text-inverse)] resize-none focus:outline-none"
           />
         </div>
       </div>
 
-      {/* Botones de Acción */}
-      <div className="flex justify-end gap-3 pt-2">
+   
+      <div className="flex flex-col sm:flex-row justify-end gap-3 pt-2">
         {onBack && (
-          <Button variant="secondary" type="button" onClick={onBack}>
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={onBack}
+            className="w-full sm:w-auto"
+          >
             Volver a la lista
           </Button>
         )}
         {onEdit && (
-          <Button variant="primary" type="button" onClick={onEdit}>
+          <Button
+            variant="primary"
+            type="button"
+            onClick={onEdit}
+            className="w-full sm:w-auto"
+          >
             Editar Orden
           </Button>
         )}

@@ -1,6 +1,7 @@
 import ProviderDetailForm from "../components/ProviderDetailForm";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared";
+import { ArrowLeft } from "lucide-react";
 
 export default function ProviderDetailPage() {
   const navigate = useNavigate();
@@ -17,20 +18,22 @@ export default function ProviderDetailPage() {
   };
 
   return (
-    <section className="p-8 space-y-6">
-      {/*Botón de retroceso */}
-      <div className="w-fit mb-6">
+    <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 flex flex-col gap-4">
+      
+      <div className="flex justify-start">
         <Button
+          type="button"
           variant="secondary"
           size="sm"
-          type="button"
           onClick={() => navigate(-1)}
+          className="!w-auto flex items-center gap-2"
         >
-          ← Atrás
+          <ArrowLeft className="w-4 h-4" />
+          Atrás
         </Button>
       </div>
 
-      {/*Detalle del proveedor */}
+      {/* Detalle del proveedor */}
       <ProviderDetailForm provider={provider} />
     </section>
   );

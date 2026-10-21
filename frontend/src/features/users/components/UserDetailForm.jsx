@@ -1,149 +1,94 @@
-
-
-
 import userProfile from "@/assets/images/user-profile.png";
 import Input from "@/shared/components/Input";
 
 export default function UserDetailForm({ user }) {
   return (
-    <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 items-center border border-[var(--color-brand)]">
+    <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8 items-center border border-[var(--color-brand)]">
       
       {/* Título */}
       <div className="lg:col-span-3 flex items-center gap-3">
-        <span className="text-[var(--text-display)] font-[var(--font-heading)]">
+        <h1 className="text-[var(--text-display)] font-[var(--font-heading)]">
           Visualizar usuarios
-        </span>
+        </h1>
       </div>
 
-      {/* Imagen y estado (En móvil va arriba para mejor lectura) */}
+      {/* Imagen y estado */}
       <div className="flex flex-col items-center justify-center gap-4 lg:order-last">
         <img
           src={userProfile}
-          alt={user.fullName}
+          alt={user?.fullName || "Foto de usuario"}
           className="w-36 h-36 sm:w-48 sm:h-48 object-cover rounded-xl border-4 border-[var(--color-brand-hover)]"
         />
 
         <div className="flex items-center gap-2">
-          <span className="text-[var(--text-small)]">Estado del usuario:</span>
+          <span className="text-[var(--text-small)] font-[var(--font-label)]">
+            Estado del usuario:
+          </span>
           <span
             className={`w-3 h-3 rounded-full ${
-              user.active
+              user?.active
                 ? "bg-[var(--color-success)]"
                 : "bg-[var(--color-error)]"
             }`}
-          ></span>
+          />
         </div>
       </div>
 
-      {/* Datos del usuario (1 col en móvil, 2 cols en pantallas medianas+) */}
-      <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-        <div>
-          <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
-            Tipo de documento
-          </label>
-          <Input
-            type="text"
-            value={user.documentType}
-            readOnly
-            className="w-full bg-transparent border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-muted)]"
-          />
-        </div>
+      
+      <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Input
+          label="Tipo de documento"
+          value={user?.documentType || ""}
+          readOnly
+        />
 
-        <div>
-          <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
-            Correo electrónico
-          </label>
-          <Input
-            type="text"
-            value={user.email}
-            readOnly
-            className="w-full bg-transparent border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-muted)]"
-          />
-        </div>
+        <Input
+          label="Correo electrónico"
+          value={user?.email || ""}
+          readOnly
+        />
 
-        <div>
-          <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
-            Número de documento
-          </label>
-          <Input
-            type="text"
-            value={user.documentNumber}
-            readOnly
-            className="w-full bg-transparent border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-muted)]"
-          />
-        </div>
+        <Input
+          label="Número de documento"
+          value={user?.documentNumber || ""}
+          readOnly
+        />
 
-        <div>
-          <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
-            Número telefónico
-          </label>
-          <Input
-            type="text"
-            value={user.phone}
-            readOnly
-            className="w-full bg-transparent border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-muted)]"
-          />
-        </div>
+        <Input
+          label="Número telefónico"
+          value={user?.phone || ""}
+          readOnly
+        />
 
-        <div>
-          <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
-            Nombre completo
-          </label>
-          <Input
-            type="text"
-            value={user.fullName}
-            readOnly
-            className="w-full bg-transparent border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-muted)]"
-          />
-        </div>
+        <Input
+          label="Nombre completo"
+          value={user?.fullName || ""}
+          readOnly
+        />
 
-        <div>
-          <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
-            Dirección residencial
-          </label>
-          <Input
-            type="text"
-            value={user.address}
-            readOnly
-            className="w-full bg-transparent border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-muted)]"
-          />
-        </div>
+        <Input
+          label="Dirección residencial"
+          value={user?.address || ""}
+          readOnly
+        />
 
-        <div>
-          <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
-            Tipo de usuario
-          </label>
-          <Input
-            type="text"
-            value={user.userType}
-            readOnly
-            className="w-full bg-transparent border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-muted)]"
-          />
-        </div>
+        <Input
+          label="Tipo de usuario"
+          value={user?.userType || ""}
+          readOnly
+        />
 
-        <div>
-          <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
-            Fecha inicio laboral
-          </label>
-          <Input
-            type="text"
-            value={user.startDate}
-            readOnly
-            className="w-full bg-transparent border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-muted)]"
-          />
-        </div>
+        <Input
+          label="Fecha inicio laboral"
+          value={user?.startDate || ""}
+          readOnly
+        />
 
-        <div>
-          <label className="block text-[var(--text-small)] font-[var(--font-label)] mb-1">
-            Fecha fin laboral
-          </label>
-          <Input
-            type="text"
-            value={user.endDate}
-            readOnly
-            className="w-full bg-transparent border border-[var(--color-border)] rounded-md px-3 py-2 text-[var(--color-text-muted)]"
-          />
-        </div>
+        <Input
+          label="Fecha fin laboral"
+          value={user?.endDate || ""}
+          readOnly
+        />
       </div>
 
     </div>

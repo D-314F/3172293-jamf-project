@@ -1,6 +1,7 @@
 // UserRegisterForm componente para registrar un usuario
 import { useState, useEffect } from "react";
 import { Input, Select, Checkbox, Button, FileInput } from "@/shared";
+import { ArrowLeft } from "lucide-react";
 import { getDocumentTypes, getUserTypes } from "@/services/selectService";
 import { useNavigate, useLocation } from "react-router-dom"; 
 import { userSchema } from "../schemas/userSchema";
@@ -51,7 +52,6 @@ export default function UserRegisterForm() {
     }));
   };
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -65,7 +65,6 @@ export default function UserRegisterForm() {
       });
       setErrors(fieldErrors);
 
-      // ALERTA DE ERROR
       await showUserErrorAlert({
         title: "Campos inválidos",
         text: "Por favor, completa correctamente todos los campos obligatorios.",
@@ -76,73 +75,73 @@ export default function UserRegisterForm() {
 
     setErrors({});
 
-  try {
-  const response = await createUser(result.data);
-  console.log("Usuario creado:", response);
+    try {
+      const response = await createUser(result.data);
+      console.log("Usuario creado:", response);
 
-  await showSuccessAlert({
-    title: "Usuario creado",
-    text: "El usuario se ha creado correctamente",
-    timer: 2000,
-  });
+      await showSuccessAlert({
+        title: "Usuario creado",
+        text: "El usuario se ha creado correctamente",
+        timer: 2000,
+      });
 
-  navigate(isPublicRegister ? "/login" : "/dashboard/userList");
-} catch (error) {
-  console.error("Error al crear el usuario", error);
-  await showUserErrorAlert({
-    title: "No se pudo crear el usuario",
-    text: error.message,
-  });
-}
-
-    
+      navigate(isPublicRegister ? "/login" : "/dashboard/userList");
+    } catch (error) {
+      console.error("Error al crear el usuario", error);
+      await showUserErrorAlert({
+        title: "No se pudo crear el usuario",
+        text: error.message,
+      });
+    }
   };
-      const handleCancel = async () => {
-        // Desplegamos la alerta de confirmación
-        const result = await showCancelAlert({
-            title: "Cancelado",
-            text: "Los cambios no guardados se perderán.",
-            timer: 3000,
-        });
-    
-        if (result.isConfirmed) {
-            // Navegamos a la vista anterior
-            navigate(isPublicRegister ? "/login" : "/dashboard/userList");
-        }
-    };
+
+  const handleCancel = async () => {
+    const result = await showCancelAlert({
+      title: "Cancelado",
+      text: "Los cambios no guardados se perderán.",
+      timer: 3000,
+    });
+
+    if (result.isConfirmed) {
+      navigate(isPublicRegister ? "/login" : "/dashboard/userList");
+    }
+  };
 
   return (
     <div 
       className="min-h-screen w-full flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat relative"
       style={{ backgroundImage: `url(${bf1})` }}
     >
-      {/* Capa oscura para resaltar el formulario */}
+      
       <div className="absolute inset-0 bg-black/50 z-0"></div>
 
-      <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 relative z-10">
+      <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 relative z-10 flex flex-col gap-4">
         
-        {/* Header superior alineado */}
-        <div className="flex items-center justify-between gap-4 mb-6">
-            <Button
+      
+        <div className="flex items-center justify-between gap-4 mb-2">
+          <Button
             variant="secondary"
             size="sm"
             type="button"
             onClick={() => navigate(isPublicRegister ? "/login" : "/dashboard/userList")}
+            className="!w-auto flex items-center gap-2"
           >
-            ← Atrás
+            <ArrowLeft className="w-4 h-4" />
+            Atrás
           </Button>
-          <h1 className="text-xl sm:text-2xl font-bold text-[var(--color-text-inverse)] text-right">
+
+          <h1 className="text-xl sm:text-2xl font-bold text-[var(--color-text-inverse)] font-[var(--font-heading)] text-right">
             Registrar usuarios
           </h1>
         </div>
 
-        {/* Contenedor principal con tarjeta oscura */}
+        {/* Contenedor principal*/}
         <div className="rounded-2xl md:rounded-3xl border border-[var(--color-brand)] bg-[var(--color-background-inverse)] p-5 sm:p-8 md:p-10 shadow-2xl">
           
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               
-              {/* COLUMNA 1 */}
+              
               <div className="flex flex-col gap-4">
                 <Select
                   label="Tipo de documento"
@@ -200,7 +199,7 @@ export default function UserRegisterForm() {
                 </div>
               </div>
 
-              {/* COLUMNA 2 */}
+             
               <div className="flex flex-col gap-4">
                 <Input
                   label="Correo empresarial"
@@ -239,7 +238,7 @@ export default function UserRegisterForm() {
                   error={errors.userAddress}
                 />
                 
-                {/* Entradas de fechas */}
+               
                 <Input
                   label="Fecha inicio laboral"
                   name="userStartDate"
@@ -258,7 +257,7 @@ export default function UserRegisterForm() {
                 />
               </div>
 
-              {/* COLUMNA 3 */}
+            
               <div className="flex flex-col justify-between gap-6 md:col-span-2 lg:col-span-1">
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col items-start gap-2 w-full">
@@ -273,7 +272,7 @@ export default function UserRegisterForm() {
                       multiple={true}
                     />
                     {errors.userImage && (
-                      <span className="text-red-400 text-xs">
+                      <span className="text-[var(--color-error)] text-xs">
                         {errors.userImage}
                       </span>
                     )}
@@ -299,7 +298,7 @@ export default function UserRegisterForm() {
                   </Button>
                 </div>
 
-                {/* Botones de acción principales */}
+                
                 <div className="flex flex-col gap-3 w-full pt-4">
                   <Button 
                     type="button" 
