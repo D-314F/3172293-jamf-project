@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { Input, Select, Checkbox, Button, FileInput } from "@/shared";
 import { providerSchema } from "../schemas/providerSchema";
-import { documentTypes, providerProducts } from "../data/providersValue"; // Importación limpia
+import { documentTypes, providerProducts } from "../data/providersValue";
 import { 
   showSuccessAlert, 
   showUserErrorAlert, 
   showCancelAlert 
 } from "@/shared/services/alertService";
-
 
 export default function ProviderCreateForm() {
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ export default function ProviderCreateForm() {
     }));
   };
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const result = providerSchema.safeParse(formData);
@@ -59,16 +59,13 @@ const handleSubmit = async (e) => {
     setErrors({});
 
     try {
-      // Feedback al usuario
       await showSuccessAlert({
         title: "Proveedor creado",
         text: "El Proveedor se ha creado correctamente",
         timer: 2000,
       });
 
-      // Navegamos a la vista anterior
       navigate(-1);
-      
     } catch (error) {
       console.error("Error al crear el Proveedor", error);
       setErrors({ submit: "Error al crear el Proveedor" });
@@ -91,20 +88,23 @@ const handleSubmit = async (e) => {
       navigate(-1);
     }
   };
+
   return (
     <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10">
       
-      {/* Header superior alineado con título visible */}
+      
       <div className="flex items-center justify-between gap-4 mb-6">
         <Button
           variant="secondary"
           size="sm"
           type="button"
           onClick={() => navigate(-1)}
+          className="!w-auto flex items-center gap-2"
         >
+          <ArrowLeft className="w-4 h-4" />
           Atrás
         </Button>
-        <h1 className="text-xl sm:text-2xl font-bold text-[var(--color-text-inverse)] text-right">
+        <h1 className="text-xl sm:text-2xl font-[var(--font-heading)] font-bold text-[var(--color-text-inverse)] text-right">
           Registrar proveedores
         </h1>
       </div>
@@ -116,7 +116,7 @@ const handleSubmit = async (e) => {
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
         >
-          {/* Bloque 1 */}
+          
           <div className="flex flex-col gap-4">
             <Select
               label="Tipo de documento"
@@ -164,7 +164,7 @@ const handleSubmit = async (e) => {
             />
           </div>
 
-          {/* Bloque 2 */}
+        
           <div className="flex flex-col gap-4">
             <Input
               label="Número de contacto"
@@ -192,19 +192,9 @@ const handleSubmit = async (e) => {
               placeholder="Dirección"
               error={errors.providerAddress}
             />
-
-            <div className="pt-2">
-              <Checkbox
-                id="providerStatus"
-                name="providerStatus"
-                label="Estado del proveedor"
-                checked={formData.providerStatus}
-                onChange={handleChange}
-              />
-            </div>
           </div>
 
-          {/* Bloque 3 */}
+          
           <div className="flex flex-col justify-between gap-6 md:col-span-2 lg:col-span-1">
             <div className="flex flex-col items-start gap-3 w-full">
               <span className="text-[var(--color-text-inverse)] text-sm font-medium">
@@ -219,23 +209,37 @@ const handleSubmit = async (e) => {
                 multiple={true}
               />
               {errors.userImage && (
-                <span className="text-red-400 text-xs">
+                <span className="text-[var(--color-error)] text-xs">
                   {errors.userImage}
                 </span>
               )}
             </div>
+            <div className="pt-2">
+              <Checkbox
+                id="providerStatus"
+                name="providerStatus"
+                label="Estado del proveedor"
+                checked={formData.providerStatus}
+                onChange={handleChange}
+              />
+            </div>
 
             <div className="flex flex-col gap-3 w-full pt-4">
               <Button 
-                    type="button" 
-                    variant="secondary"
-                    size="md" 
-                    className="w-full"
-                    onClick={handleCancel}
-                  >
-                    Cancelar
-                  </Button>
-              <Button type="submit" variant="primary">
+                type="button" 
+                variant="secondary"
+                size="md" 
+                className="w-full"
+                onClick={handleCancel}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                type="submit" 
+                variant="primary"
+                size="md"
+                className="w-full"
+              >
                 Crear proveedor
               </Button>
             </div>

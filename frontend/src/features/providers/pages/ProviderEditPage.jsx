@@ -16,10 +16,12 @@ export default function ProviderEditPage({ provider = {} }) {
   });
 
   return (
-    <ProviderEditContent
-      formData={formData}
-      setFormData={setFormData}
-      provider={provider}
-    />
+    <section className="w-full">
+      <ProviderEditContent
+        formData={formData}
+        setFormData={setFormData}
+        provider={provider}
+      />
+    </section>
   );
 }

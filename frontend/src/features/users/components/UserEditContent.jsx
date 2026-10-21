@@ -2,6 +2,7 @@ import { useState } from "react";
 import userProfile from "@/assets/images/user-profile.png";
 import { useNavigate } from "react-router-dom";
 import { Select, Input, Button, Checkbox } from "@/shared";
+import { ArrowLeft } from "lucide-react";
 import documentTypes from "../../../data/selects/documentsTypes.json";
 import userTypes from "../../../data/selects/userTypes.json";
 import { userSchema } from "../schemas/userSchema";
@@ -24,7 +25,6 @@ export default function UserEditContent({
     }));
   };
 
-  // 2. HACEMOS ASYNC EL SUBMIT Y AÑADIMOS LA ALERTA DE ÉXITO
   const handleSubmit = async (e) => {
     e.preventDefault();
     const result = userSchema.safeParse(formData);
@@ -72,31 +72,36 @@ export default function UserEditContent({
   };
 
   return (
-    <div className="p-8">
-      {/* Botón Volver */}
-      <Button
-        variant="secondary"
-        type="button"
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 bg-[var(--color-secondary-950)] text-[var(--color-text-inverse)] px-4 py-2 rounded-md mb-6 hover:bg-[var(--color-error-hover)] transition"
-      >
-      Atrás
-      </Button>
+    <div className="p-4 sm:p-8 max-w-6xl mx-auto flex flex-col gap-4">
+      
+      <div className="flex justify-start">
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="!w-auto flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Atrás
+        </Button>
+      </div>
 
       {/* Formulario */}
       <form onSubmit={handleSubmit}>
-        <div className="bg-[var(--color-background-inverse)] text-[var(--color-black)] rounded-3xl p-10 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-center border border-[var(--color-brand)]">
-          <div className="col-span-3 flex items-center gap-3 mb-4">
-            <span className="text-[var(--text-display)] font-[var(--font-heading)]">
+        <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-center border border-[var(--color-brand)]">
+          
+          {/* Título */}
+          <div className="col-span-1 md:col-span-2 lg:col-span-3 flex items-center gap-3 mb-2">
+            <h1 className="text-[var(--text-display)] font-[var(--font-heading)]">
               Editar Usuario
-            </span>
+            </h1>
           </div>
 
-          {/* Campos de Entrada */}
-          <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
             <Select
               label="Tipo de documento"
-              labelClassName="text-[var(--color-text-inverse)]"
               name="userDocumentTypes"
               value={formData?.userDocumentTypes || ""}
               options={documentTypes.map((doc) => ({
@@ -109,7 +114,6 @@ export default function UserEditContent({
 
             <Input
               label="Correo empresarial"
-              labelClassName="text-[var(--color-text-inverse)]"
               type="text"
               name="userBusinessEmail"
               value={formData?.userBusinessEmail || ""}
@@ -120,7 +124,6 @@ export default function UserEditContent({
 
             <Input
               label="Número de documento"
-              labelClassName="text-[var(--color-text-inverse)]"
               type="text"
               name="userDocumentNumber"
               value={formData?.userDocumentNumber || ""}
@@ -131,7 +134,6 @@ export default function UserEditContent({
 
             <Input
               label="Correo electrónico"
-              labelClassName="text-[var(--color-text-inverse)]"
               type="text"
               name="userEmail"
               value={formData?.userEmail || ""}
@@ -142,7 +144,6 @@ export default function UserEditContent({
 
             <Input
               label="Nombre completo"
-              labelClassName="text-[var(--color-text-inverse)]"
               type="text"
               name="userName"
               value={formData?.userName || ""}
@@ -153,7 +154,6 @@ export default function UserEditContent({
 
             <Input
               label="Número telefónico"
-              labelClassName="text-[var(--color-text-inverse)]"
               type="text"
               name="userPhone"
               value={formData?.userPhone || ""}
@@ -164,7 +164,6 @@ export default function UserEditContent({
 
             <Select
               label="Tipo de usuario"
-              labelClassName="text-[var(--color-text-inverse)]"
               name="userType"
               value={formData?.userType || ""}
               options={userTypes.map((type) => ({
@@ -177,7 +176,6 @@ export default function UserEditContent({
 
             <Input
               label="Dirección residencial"
-              labelClassName="text-[var(--color-text-inverse)]"
               type="text"
               name="userAddress"
               value={formData?.userAddress || ""}
@@ -188,7 +186,6 @@ export default function UserEditContent({
 
             <Input
               label="Fecha inicio laboral"
-              labelClassName="text-[var(--color-text-inverse)]"
               type="text"
               name="userStartDate"
               value={formData?.userStartDate || ""}
@@ -199,7 +196,6 @@ export default function UserEditContent({
 
             <Input
               label="Fecha fin laboral"
-              labelClassName="text-[var(--color-text-inverse)]"
               type="text"
               name="userEndDate"
               value={formData?.userEndDate || ""}
@@ -210,14 +206,16 @@ export default function UserEditContent({
 
             <Button
               type="button"
-              className="bg-[var(--color-brand)] text-[var(--color-text-primary)] font-[var(--font-heading)] px-4 py-2 rounded-md hover:bg-[var(--color-brand-hover)] transition w-full"
+              variant="primary"
+              size="md"
+              className="w-full md:col-span-2 mt-2"
             >
               Agregar grupo
             </Button>
           </div>
 
-          {/* Panel lateral */}
-          <div className="flex flex-col items-center justify-center gap-4">
+          
+          <div className="flex flex-col items-center justify-center gap-4 lg:order-last">
             <img
               src={userProfile}
               alt={user?.userName || 'Foto de usuario'}
@@ -236,26 +234,33 @@ export default function UserEditContent({
 
             <Button
               type="button"
-              className="bg-[var(--color-brand-hover)] text-[var(--color-text-primary)] px-4 py-2 rounded-md hover:bg-[var(--color-brand-active)] transition w-full"
+              variant="primary"
+              size="md"
+              className="w-full"
             >
               Agregar Teléfono Secundario
             </Button>
             
             <Button
-              variant="secondary"
               type="button"
+              variant="secondary"
+              size="md"
               onClick={handleCancel}
-              className="bg-[var(--color-error)] text-[var(--color-text-inverse)] px-4 py-2 rounded-md hover:bg-[var(--color-error-hover)] transition w-full"
+              className="w-full"
             >
               Cancelar
             </Button>
+
             <Button
               type="submit"
-              className="bg-[var(--color-success)] text-[var(--color-text-inverse)] px-4 py-2 rounded-md hover:bg-[var(--color-success-hover)] transition w-full"
+              variant="primary"
+              size="md"
+              className="w-full"
             >
               Aplicar Cambios
             </Button>
           </div>
+
         </div>
       </form>
     </div>

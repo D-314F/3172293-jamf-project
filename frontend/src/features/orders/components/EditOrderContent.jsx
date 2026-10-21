@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { Select, Input, Button, Checkbox } from "@/shared";
 import { MESEROS, ESTADOS_ORDEN } from "../data/ordersData";
 import { orderSchema } from "../schemas/orderSchema";
@@ -69,32 +70,35 @@ export default function EditOrderContent({
   };
 
   return (
-    <div className="p-4 sm:p-8">
-      {/* Botón Volver */}
-      <Button
-        variant="secondary"
-        type="button"
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 bg-[var(--color-secondary-950)] text-[var(--color-text-inverse)] px-4 py-2 rounded-md mb-6 hover:bg-[var(--color-error-hover)] transition"
-      >
-        Atrás
-      </Button>
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 flex flex-col gap-4">
+      
+      <div className="flex justify-start">
+        <Button
+          variant="secondary"
+          size="sm"
+          type="button"
+          onClick={() => navigate(-1)}
+          className="!w-auto flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Atrás
+        </Button>
+      </div>
 
       {/* Formulario */}
       <form onSubmit={handleSubmit}>
-        <div className="bg-[var(--color-background-inverse)] text-[var(--color-black)] rounded-3xl p-6 sm:p-10 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-start border border-[var(--color-brand)]">
+        <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-start border border-[var(--color-brand)]">
 
-          <div className="col-span-1 md:col-span-2 flex items-center gap-3 mb-2">
-            <span className="font-[var(--font-heading)] text-[var(--color-text-inverse)]">
+          <div className="col-span-1 md:col-span-2 flex items-center gap-3">
+            <h1 className="text-xl sm:text-2xl font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)]">
               Editar Orden
-            </span>
+            </h1>
           </div>
 
-          {/* Campos de Entrada */}
+        
           <div className="col-span-1 md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
             <Input
               label="Número de mesa"
-              labelClassName="text-[var(--color-text-inverse)]"
               type="text"
               name="tableNumber"
               value={formData?.tableNumber || ""}
@@ -105,7 +109,6 @@ export default function EditOrderContent({
 
             <Select
               label="Mesero responsable"
-              labelClassName="text-[var(--color-text-inverse)]"
               name="waiterId"
               value={formData?.waiterId || ""}
               onChange={handleChange}
@@ -118,7 +121,6 @@ export default function EditOrderContent({
 
             <Select
               label="Estado de la Orden"
-              labelClassName="text-[var(--color-text-inverse)]"
               name="estado"
               value={formData?.estado || ""}
               onChange={handleChange}
@@ -142,7 +144,6 @@ export default function EditOrderContent({
             <div className="sm:col-span-2">
               <Input
                 label="Observaciones"
-                labelClassName="text-[var(--color-text-inverse)]"
                 type="text"
                 name="observations"
                 value={formData?.observations || ""}
@@ -153,19 +154,22 @@ export default function EditOrderContent({
             </div>
           </div>
 
-          {/* Botones de Acción */}
+         
           <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row gap-4 pt-4">
             <Button
               variant="secondary"
               type="button"
+              size="md"
               onClick={handleCancel}
-              className="bg-[var(--color-error)] text-[var(--color-text-inverse)] px-4 py-2 rounded-md hover:bg-[var(--color-error-hover)] transition w-full"
+              className="w-full"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
-              className="bg-[var(--color-success)] text-[var(--color-text-inverse)] px-4 py-2 rounded-md hover:bg-[var(--color-success-hover)] transition w-full"
+              variant="primary"
+              size="md"
+              className="w-full"
             >
               Aplicar Cambios
             </Button>

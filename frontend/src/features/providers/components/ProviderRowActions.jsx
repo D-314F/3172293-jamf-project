@@ -1,7 +1,6 @@
 import { Pencil, Trash2, Eye } from "lucide-react";
 import { IconButton } from "@/shared";
 import { useNavigate } from "react-router-dom";
-
 import Swal from "sweetalert2";
 import {
   showConfirmDeleteAlert,
@@ -53,32 +52,29 @@ export default function ProviderRowActions({ provider, onDeleteSuccess }) {
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex items-center gap-2">
       {/* Botón ver */}
       <IconButton
         onClick={handleView}
-        title="Ver proveedor"
-        className="bg-[var(--color-brand)] text-[var(--color-text-primary)] hover:bg-[var(--color-brand-hover)] transition"
+        variant="primary"
       >
-        <Eye size={16} />
+        <Eye className="w-4 h-4" />
       </IconButton>
 
       {/* Botón editar */}
       <IconButton
         onClick={handleEdit}
-        title="Editar proveedor"
-        className="bg-[var(--color-brand)] text-[var(--color-text-primary)] hover:bg-[var(--color-brand-hover)] transition"
+        variant="primary"
       >
-        <Pencil size={16} />
+        <Pencil className="w-4 h-4" />
       </IconButton>
 
       {/* Botón eliminar */}
       <IconButton
         onClick={handleDelete}
-        title="Eliminar proveedor"
-        className="bg-[var(--color-error)] text-[var(--color-text-inverse)] hover:bg-[var(--color-error-hover)] transition"
+        variant="danger"
       >
-        <Trash2 size={16} />
+        <Trash2 className="w-4 h-4" />
       </IconButton>
     </div>
   );

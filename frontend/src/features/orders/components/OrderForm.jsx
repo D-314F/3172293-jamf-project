@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { Input, Select, Checkbox, Button } from "@/shared";
 import { orderSchema } from "../schemas/orderSchema";
 import { MESEROS, PLATILLOS } from "../data/ordersData";
@@ -65,7 +66,6 @@ export default function OrderForm() {
         timer: 2000,
       });
 
-      // Limpia los campos
       setFormData({
         tableNumber: "",
         isActive: true,
@@ -75,7 +75,6 @@ export default function OrderForm() {
         observations: "",
       });
 
-      // Redirige al listado de órdenes
       navigate("/dashboard/orderList");
     } catch (error) {
       console.error(error);
@@ -86,7 +85,6 @@ export default function OrderForm() {
     }
   };
 
-  // Función para cancelar o regresar con alerta de confirmación
   const handleCancel = async () => {
     const result = await showCancelAlert({
       title: "¿Deseas cancelar?",
@@ -99,28 +97,30 @@ export default function OrderForm() {
   };
 
   return (
-    <section className="w-full max-w-5xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10">
-      
-      {/* Header con botón Atrás */}
-      <div className="flex items-center justify-between gap-4 mb-6">
+    <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 flex flex-col gap-6">
+     
+      <div className="flex items-center justify-between gap-4">
         <Button
           variant="secondary"
           size="sm"
           type="button"
           onClick={() => navigate(-1)}
+          className="!w-auto flex items-center gap-2"
         >
-          ← Atrás
+          <ArrowLeft className="w-4 h-4" />
+          Atrás
         </Button>
-        <h1 className="text-xl sm:text-2xl font-bold text-white text-right">
+
+        <h1 className="text-xl sm:text-2xl font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)] text-right">
           Agregar Orden
         </h1>
       </div>
 
-      {/* Contenedor del Formulario */}
-      <div className="bg-[var(--color-background-inverse)] rounded-2xl md:rounded-3xl border border-[var(--color-brand)] shadow-2xl p-5 sm:p-8 md:p-10">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      {/*Formulario */}
+      <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 w-full border border-[var(--color-brand)] shadow-2xl">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
             <Input
               label="Número de mesa"
               name="tableNumber"
@@ -128,17 +128,8 @@ export default function OrderForm() {
               value={formData.tableNumber}
               onChange={handleChange}
               error={errors.tableNumber}
+              placeholder="Ej. 5"
             />
-
-            <div className="flex items-center md:pt-6">
-              <Checkbox
-                label="Estado"
-                name="isActive"
-                checked={formData.isActive}
-                onChange={handleChange}
-                text={formData.isActive ? "Activo" : "Inactivo"}
-              />
-            </div>
 
             <Select
               label="Mesero Responsable"
@@ -167,28 +158,42 @@ export default function OrderForm() {
               error={errors.quantity}
             />
 
-            <Input
-              label="Observaciones"
-              name="observations"
-              value={formData.observations}
-              onChange={handleChange}
-              error={errors.observations}
-              placeholder="Ej: Sin cebolla, término medio..."
-            />
+            <div className="flex items-center pt-2 md:pt-6">
+              <Checkbox
+                label="Estado del registro"
+                id="isActive"
+                name="isActive"
+                checked={formData.isActive}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <Input
+                label="Observaciones"
+                name="observations"
+                value={formData.observations}
+                onChange={handleChange}
+                error={errors.observations}
+                placeholder="Ej: Sin cebolla, término medio..."
+              />
+            </div>
           </div>
 
-          {/* Botones de acción al final */}
-          <div className="w-full flex justify-end gap-3 pt-6 border-t border-[var(--color-border)]/20">
+          
+          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-[var(--color-brand)]/30">
             <Button 
               variant="secondary" 
               type="button" 
               onClick={handleCancel}
+              className="w-full sm:w-auto"
             >
               Cancelar
             </Button>
             <Button 
               variant="primary" 
               type="submit"
+              className="w-full sm:w-auto"
             >
               Crear Orden
             </Button>

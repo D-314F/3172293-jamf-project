@@ -1,9 +1,7 @@
-
-
 import UserDetailForm from "../components/UserDetailForm";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared";
-// import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 export default function UserDetailPage() {
   const navigate = useNavigate();
@@ -23,16 +21,18 @@ export default function UserDetailPage() {
   };
 
   return (
-    <section className="p-4 sm:p-8 space-y-6">
-      {/* Botón de retroceso usando la variante del componente */}
-      <div className="w-fit mb-6">
+    <section className="p-4 sm:p-8 max-w-6xl mx-auto flex flex-col gap-4">
+      
+      <div className="flex justify-start">
         <Button
           type="button"
           variant="secondary"
+          size="sm"
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2"
+          className="!w-auto flex items-center gap-2"
         >
-           Atrás
+          <ArrowLeft className="w-4 h-4" />
+          Atrás
         </Button>
       </div>
 

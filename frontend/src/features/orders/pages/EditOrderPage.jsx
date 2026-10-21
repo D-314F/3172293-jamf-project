@@ -8,13 +8,9 @@ export default function EditOrderPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // "order" se calcula directamente en cada render a partir del id de la URL,
-  // no necesita vivir en un useState.
   const order = INITIAL_ORDERS.find((item) => item.id === id) || null;
   const isLocked = order?.estado === "Pagada" || order?.estado === "Cancelada";
 
-  // El useEffect solo se usa para los efectos secundarios reales:
-  // mostrar una alerta y navegar.
   useEffect(() => {
     if (!order) {
       showUserErrorAlert({
@@ -33,27 +29,25 @@ export default function EditOrderPage() {
   }, [id, order, isLocked, navigate]);
 
   const handleSubmit = async (data) => {
-    // Aquí puedes realizar el dispatch a tu store o llamada a la API
     console.log("Orden actualizada con éxito:", data);
   };
 
-  // Mientras se redirige (orden inexistente o bloqueada), no renderizamos nada
   if (!order || isLocked) return null;
 
   return (
-    <EditOrderContent
-      // El key={id} fuerza a React a reiniciar el estado interno del formulario
-      // cada vez que cambias de orden, sin necesidad de sincronizarlo a mano.
-      key={id}
-      initialFormData={{
-        id: order.id || "",
-        tableNumber: order.mesa ?? "",
-        waiterId: order.mesero || "",
-        estado: order.estado || "",
-        isActive: order.isActive ?? true,
-        observations: order.observations || "",
-      }}
-      onSubmit={handleSubmit}
-    />
+    <section className="w-full">
+      <EditOrderContent
+        key={id}
+        initialFormData={{
+          id: order.id || "",
+          tableNumber: order.mesa ?? "",
+          waiterId: order.mesero || "",
+          estado: order.estado || "",
+          isActive: order.isActive ?? true,
+          observations: order.observations || "",
+        }}
+        onSubmit={handleSubmit}
+      />
+    </section>
   );
 }

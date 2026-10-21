@@ -16,7 +16,7 @@ export default function ProviderListPage() {
         </h1>
 
         <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3">
-          <Button variant="secondary" onClick={() => setIsReportModalOpen(true)}>
+          <Button variant="primary" onClick={() => setIsReportModalOpen(true)}>
             Reportar proveedor
           </Button>
 
