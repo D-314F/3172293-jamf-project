@@ -1,8 +1,10 @@
+// src/features/menu/pages/DishEditPage.jsx
+
 import { useState } from "react";
-import DishEditContent from "../components/DishEditContent";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/shared";
 import { ArrowLeft } from "lucide-react";
+import { Button } from "@/shared";
+import DishEditContent from "../components/DishEditContent";
 
 export default function DishEditPage({ dish = {} }) {
   const navigate = useNavigate();
@@ -17,22 +19,27 @@ export default function DishEditPage({ dish = {} }) {
   });
 
   const handleSubmit = async (data) => {
-    // Aquí en el futuro conectarás la llamada a tu API / Backend
     console.log("Guardando cambios en el servidor/estado:", data);
   };
 
   return (
-    <section className="p-4 sm:p-8 space-y-6">
-      {/* Botón Volver */}
-      <div className="w-fit mb-6">
+    <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 flex flex-col gap-6">
+      {/* Header superior totalmente alineado con la tarjeta */}
+      <div className="flex items-center justify-between gap-4">
         <Button
           type="button"
           variant="secondary"
+          size="sm"
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2"
+          className="!w-auto flex items-center gap-2"
         >
-          <ArrowLeft size={16} /> Atrás
+          <ArrowLeft className="w-4 h-4" />
+          Atrás
         </Button>
+
+        <h1 className="text-xl sm:text-2xl font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)] text-right">
+          Editar Platillo
+        </h1>
       </div>
 
       {/* Formulario */}

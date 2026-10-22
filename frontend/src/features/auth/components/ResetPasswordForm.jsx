@@ -1,5 +1,8 @@
+// src/features/auth/components/ResetPasswordForm.jsx
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { Input, Button } from "@/shared";
 import { resetPasswordSchema } from "../schemas/resetPasswordSchema";
 import { 
@@ -30,7 +33,6 @@ export default function ResetPasswordForm() {
     const result = resetPasswordSchema.safeParse(formData);
 
     if (!result.success) {
-      console.log("Errores de Zod:", result.error.issues);
       const fieldErrors = {};
       result.error.issues.forEach((issue) => {
         fieldErrors[issue.path[0]] = issue.message;
@@ -67,17 +69,19 @@ export default function ResetPasswordForm() {
   };
 
   return (
-    <div
-      className="min-h-screen w-full flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat relative"
-      style={{ backgroundImage: `url(${bf1})` }}
-    >
-      {/* Overlay oscuro */}
-      <div className="absolute inset-0 bg-black/50 z-0"></div>
+    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
+      {/* Fondo y overlay unificados */}
+      <img
+        src={bf1}
+        alt="Fondo de autenticación"
+        className="absolute inset-0 w-full h-full object-cover z-0"
+      />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-0" />
 
-      
+      {/* Contenedor principal */}
       <div className="w-full max-w-md flex flex-col gap-4 relative z-10">
         
-        
+        {/* Botón Atrás */}
         <div className="flex justify-start">
           <Button
             type="button"
@@ -86,21 +90,22 @@ export default function ResetPasswordForm() {
             onClick={() => navigate(-1)}
             className="!w-auto flex items-center gap-2"
           >
-            ← Atrás
+            <ArrowLeft className="w-4 h-4" />
+            Atrás
           </Button>
         </div>
 
         {/* Tarjeta del Formulario */}
         <form
           onSubmit={handleSubmit}
-          className="w-full p-8 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl shadow-2xl font-[var(--font-body)] flex flex-col gap-5 text-left"
+          className="w-full p-6 sm:p-8 md:p-10 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl shadow-2xl font-[var(--font-body)] flex flex-col gap-5 text-left"
         >
           <div>
-            <h2 className="text-[var(--color-brand)] text-[var(--text-title)] font-[var(--font-heading)] text-center mb-2">
+            <h2 className="text-xl sm:text-2xl font-bold font-[var(--font-heading)] text-[var(--color-brand)] text-center mb-2">
               Restablecer Contraseña
             </h2>
 
-            <p className="text-[var(--color-text-secondary)] text-[var(--text-body)] text-center">
+            <p className="text-[var(--color-text-muted)] text-xs sm:text-sm text-center">
               Ingresa tu nueva contraseña y confírmala para continuar
             </p>
           </div>
@@ -110,7 +115,7 @@ export default function ResetPasswordForm() {
             name="password"
             type="password"
             value={formData.password}
-            placeholder="Ingresa tu nueva contraseña"
+            placeholder="••••••••"
             onChange={handleChange}
             error={errors.password}
           />
@@ -120,7 +125,7 @@ export default function ResetPasswordForm() {
             name="confirmPassword"
             type="password"
             value={formData.confirmPassword}
-            placeholder="Confirma tu nueva contraseña"
+            placeholder="••••••••"
             onChange={handleChange}
             error={errors.confirmPassword}
           />
