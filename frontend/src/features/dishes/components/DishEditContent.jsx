@@ -1,10 +1,15 @@
+// src/features/menu/components/DishEditContent.jsx
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Select, Input, Button, Checkbox, FileInput } from "@/shared";
 import dishCategories from "../../../data/selects/dishCategories.json";
 import { dishSchema } from "../schemas/dishSchema";
-import { showSuccessAlert, showCancelAlert } from "@/shared/services/alertService"; 
-
+import { 
+  showSuccessAlert, 
+  showCancelAlert,
+  showUserErrorAlert 
+} from "@/shared/services/alertService"; 
 
 export default function DishEditContent({
   formData = {},
@@ -21,8 +26,11 @@ export default function DishEditContent({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-  };
 
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,6 +54,11 @@ export default function DishEditContent({
         if (fieldName === "descripcion") fieldErrors.dishDescription = issue.message;
       });
       setErrors(fieldErrors);
+
+      await showUserErrorAlert({
+        title: "Campos inválidos",
+        text: "Por favor, completa correctamente los campos del platillo.",
+      });
       return;
     }
 
@@ -54,8 +67,6 @@ export default function DishEditContent({
     try {
       if (onSubmit) {
         await onSubmit(formData);
-      } else {
-        console.log("Datos del platillo válidos:", formData);
       }
 
       await showSuccessAlert({
@@ -67,11 +78,13 @@ export default function DishEditContent({
       navigate(-1);
     } catch (error) {
       console.error(error);
-      setErrors({ submit: "Error al actualizar el platillo" });
+      await showUserErrorAlert({
+        title: "Error al actualizar",
+        text: "No se pudieron guardar los cambios del platillo.",
+      });
     }
   };
 
-  
   const handleCancel = async () => {
     const result = await showCancelAlert({
       title: "¿Deseas cancelar?",
@@ -85,110 +98,97 @@ export default function DishEditContent({
   };
 
   return (
-    <section className="p-4 sm:p-8 space-y-6">
-      <form onSubmit={handleSubmit}>
-        <div className="bg-[var(--color-background-inverse)] text-[var(--color-black)] rounded-3xl p-6 sm:p-10 max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8 border border-[var(--color-brand)]">
-          
-          {/* Título */}
-          <div className="sm:col-span-2 flex items-center justify-center mb-4">
-            <span
-              className="font-[var(--font-heading)] text-[var(--text-display)]"
-              style={{ color: "var(--color-text-inverse)" }}
-            >
-              Editar platillo
-            </span>
-          </div>
+    <form onSubmit={handleSubmit} className="w-full">
+      <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 w-full grid grid-cols-1 md:grid-cols-2 gap-8 border border-[var(--color-brand)] shadow-2xl">
+        
+        {/* Campos principales */}
+        <div className="flex flex-col gap-4">
+          <Input
+            label="Nombre del platillo"
+            type="text"
+            name="dishName"
+            value={formData?.dishName || ""}
+            onChange={handleChange}
+            placeholder="Ingresa el nombre del platillo"
+            error={errors.dishName}
+          />
 
-          {/* Campos principales */}
-          <div className="flex flex-col gap-4">
-            <Input
-              label="Nombre del platillo"
-              labelClassName="text-[var(--color-text-inverse)]"
-              type="text"
-              name="dishName"
-              value={formData?.dishName || ""}
-              onChange={handleChange}
-              placeholder="Nombre del platillo"
-              error={errors.dishName}
-            />
+          <Input
+            label="Precio"
+            type="text"
+            name="dishPrice"
+            value={formData?.dishPrice || ""}
+            onChange={handleChange}
+            placeholder="Ej. 8.5"
+            error={errors.dishPrice}
+          />
 
-            <Input
-              label="Precio"
-              labelClassName="text-[var(--color-text-inverse)]"
-              type="text"
-              name="dishPrice"
-              value={formData?.dishPrice || ""}
-              onChange={handleChange}
-              placeholder="Ej. 8.5"
-              error={errors.dishPrice}
-            />
+          <Select
+            label="Categoría"
+            name="dishCategory"
+            value={formData?.dishCategory || ""}
+            options={dishCategories.map((cat) => ({
+              value: cat.label,
+              label: cat.label,
+            }))}
+            onChange={handleChange}
+            error={errors.dishCategory}
+          />
 
-            <Select
-              label="Categoría"
-              labelClassName="text-[var(--color-text-inverse)]"
-              name="dishCategory"
-              value={formData?.dishCategory || ""}
-              options={dishCategories.map((cat) => ({
-                value: cat.label,
-                label: cat.label,
-              }))}
-              onChange={handleChange}
-              error={errors.dishCategory}
-            />
+          <Input
+            label="Descripción"
+            type="text"
+            name="dishDescription"
+            value={formData?.dishDescription || ""}
+            onChange={handleChange}
+            placeholder="Ingresa la descripción"
+            error={errors.dishDescription}
+          />
+        </div>
 
-            <Input
-              label="Descripción"
-              labelClassName="text-[var(--color-text-inverse)]"
-              type="text"
-              name="dishDescription"
-              value={formData?.dishDescription || ""}
-              onChange={handleChange}
-              placeholder="Descripción"
-              error={errors.dishDescription}
-            />
-          </div>
+        {/* Imagen y acciones */}
+        <div className="flex flex-col items-center justify-between gap-6">
+          <FileInput
+            label="Imagen del platillo"
+            value={formData.dishImage}
+            onChange={(files) =>
+              setFormData((prev) => ({ ...prev, dishImage: files }))
+            }
+            multiple={false}
+            className="border-[var(--color-brand)]/30 w-full"
+          />
 
-          {/* Imagen y acciones */}
-          <div className="flex flex-col items-center justify-center gap-6">
-            <FileInput
-              label="Imagen del platillo"
-              labelClassName="text-[var(--color-text-inverse)]"
-              value={formData.dishImage}
-              onChange={(files) =>
-                setFormData((prev) => ({ ...prev, dishImage: files }))
-              }
-              multiple={false}
-            />
-
+          <div className="flex items-center gap-2 self-start">
             <Checkbox
               id="isActive"
               name="isActive"
-              label="Estado del platillo"
+              label="Estado del platillo (Activo)"
               checked={Boolean(formData?.isActive)}
               onChange={handleChange}
             />
+          </div>
 
-            <div className="w-full flex flex-col gap-3">
-              <Button
-                variant="secondary"
-                type="button"
-                onClick={handleCancel}
-                className="bg-[var(--color-secondary-950)] text-[var(--color-text-inverse)] font-[var(--font-heading)] px-4 py-2 rounded-md hover:bg-[var(--color-error-hover)] transition w-full"
-              >
-                Cancelar
-              </Button>
-              <Button
-                type="submit"
-                className="bg-[var(--color-brand)] text-[var(--color-text-primary)] font-[var(--font-heading)] px-4 py-2 rounded-md hover:bg-[var(--color-brand-hover)] transition w-full"
-              >
-                Aplicar cambios
-              </Button>
+          {/* Botones de acción */}
+          <div className="w-full flex flex-col gap-3 pt-4">
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={handleCancel}
+              className="w-full"
+            >
+              Cancelar
+            </Button>
 
-              
-            </div>
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-full"
+            >
+              Aplicar cambios
+            </Button>
           </div>
         </div>
-      </form>
-    </section>
+      </div>
+    </form>
   );
 }

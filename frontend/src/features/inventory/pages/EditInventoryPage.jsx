@@ -2,9 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
-import Button from "@/shared/components/Button";
-import Input from "@/shared/components/Input";
-import FileInput from "@/shared/components/FileInput";
+import { Button, Input, FileInput } from "@/shared";
 import InventoryStatusSelect from "../components/InventoryStatusSelect";
 import { inventory } from "../data/inventory";
 
@@ -43,8 +41,11 @@ export default function EditInventoryPage() {
 
   if (!producto) {
     return (
-      <section className="p-10 text-center text-red-500 font-bold">
-        <h1>Producto no encontrado</h1>
+      <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 text-center text-[var(--color-error)] font-bold">
+        <h1 className="text-2xl font-[var(--font-heading)]">Producto no encontrado</h1>
+        <Button variant="secondary" onClick={() => navigate(-1)} className="mt-4">
+          Volver
+        </Button>
       </section>
     );
   }
@@ -78,8 +79,6 @@ export default function EditInventoryPage() {
     const result = editInventorySchema.safeParse(formData);
 
     if (!result.success) {
-      console.log("Errores de Zod:", result.error.format());
-
       const fieldErrors = {};
       result.error.issues.forEach((issue) => {
         fieldErrors[issue.path[0]] = issue.message;
@@ -116,43 +115,45 @@ export default function EditInventoryPage() {
   };
 
   return (
-    <section className="p-8 flex flex-col items-center">
-      {/* Header */}
-      <div className="w-full max-w-6xl">
-        <div className="p-8">
-          <Button
-            variant="secondary"
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 bg-[var(--color-secondary-950)] text-[var(--color-text-white)] px-4 py-2 rounded-md mb-6 hover:bg-[var(--color-secondary-950)] transition"
-          >
-            <ArrowLeft size={16} /> Atrás
-          </Button>
+    <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 flex flex-col gap-6">
+      {/* Header superior */}
+      <div className="flex items-center justify-between gap-4">
+        <Button
+          type="button"
+          onClick={handleCancel}
+          variant="secondary"
+          size="sm"
+          className="!w-auto flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Atrás
+        </Button>
 
-          <h1 className="text-xl sm:text-2xl font-bold text-white">
-            Editar Inventario
-          </h1>
-        </div>
+        <h1 className="text-xl sm:text-2xl font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)] text-right">
+          Editar Inventario
+        </h1>
       </div>
 
       {/* Contenedor principal */}
-      <div className="bg-[var(--color-background-inverse)] rounded-3xl p-10 max-w-6xl w-full border border-[var(--color-brand)] shadow-2xl">
+      <div className="bg-[var(--color-background-inverse)] rounded-3xl p-6 sm:p-10 w-full border border-[var(--color-brand)] shadow-2xl">
         
-        {/* Selector e imagen */}
-        <div className="flex flex-col items-center justify-center gap-4 mb-10">
+        {/* Selector de Imagen y Nombre */}
+        <div className="flex flex-col items-center justify-center gap-4 mb-8">
           <FileInput
             label="Seleccionar imagen del producto"
             value={formData.userImage || []}
             onChange={handleImageChange}
             multiple={false}
             error={errors.userImage}
+            className="border-[var(--color-brand)]/30"
           />
 
-          <span className="text-xl font-bold text-[var(--color-text-inverse)]">
+          <span className="text-xl font-bold font-[var(--font-heading)] text-[var(--color-brand)] text-center">
             {formData.name}
           </span>
         </div>
 
-        {/* Formulario */}
+        {/* Formulario de Campos */}
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Input 
             label="ID (Código único)" 
@@ -162,6 +163,7 @@ export default function EditInventoryPage() {
             disabled 
             error={errors.id}
           />
+
           <Input 
             label="Nombre completo" 
             name="name" 
@@ -169,6 +171,7 @@ export default function EditInventoryPage() {
             onChange={handleChange} 
             error={errors.name}
           />
+
           <Input 
             label="Código de barras" 
             name="barcode" 
@@ -176,6 +179,7 @@ export default function EditInventoryPage() {
             onChange={handleChange} 
             error={errors.barcode}
           />
+
           <Input 
             label="Cantidad existente" 
             name="quantity" 
@@ -183,6 +187,7 @@ export default function EditInventoryPage() {
             onChange={handleChange} 
             error={errors.quantity}
           />
+
           <Input 
             label="Precio unitario" 
             name="unitPrice" 
@@ -190,6 +195,7 @@ export default function EditInventoryPage() {
             onChange={handleChange} 
             error={errors.unitPrice}
           />
+
           <Input 
             label="Marca" 
             name="brand" 
@@ -197,6 +203,7 @@ export default function EditInventoryPage() {
             onChange={handleChange} 
             error={errors.brand}
           />
+
           <Input 
             label="Lote" 
             name="lote" 
@@ -214,27 +221,30 @@ export default function EditInventoryPage() {
           />
 
           {errors.submit && (
-            <div className="col-span-2 text-red-500 font-medium">
+            <div className="col-span-1 md:col-span-2 text-[var(--color-error)] text-sm font-medium">
               {errors.submit}
             </div>
           )}
 
-          {/* Botones */}
-          <div className="col-span-2 flex justify-end gap-3 pt-6 border-t border-[var(--color-border)]/20">
+          {/* Botones de acción */}
+          <div className="col-span-1 md:col-span-2 flex justify-end gap-3 pt-6 border-t border-[var(--color-brand)]/30">
             <Button
               type="button"
               variant="secondary"
               size="md"
               onClick={handleCancel}
               disabled={loading}
+              className="w-full sm:w-auto"
             >
               Cancelar
             </Button>
+
             <Button
               type="submit"
               variant="primary"
               size="md"
               disabled={loading}
+              className="w-full sm:w-auto"
             >
               {loading ? "Guardando..." : "Actualizar"}
             </Button>

@@ -1,11 +1,10 @@
+// src/features/menu/components/DishForm.jsx
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
-import Button from "../../../shared/components/Button";
-import Input from "../../../shared/components/Input";
-import Select from "../../../shared/components/Select";
-import FileInput from "../../../shared/components/FileInput";
-
+import { Button, Input, Select, FileInput } from "@/shared";
 import { getDishCategories } from "../../../services/selectService"; 
 import { dishSchema } from "../schemas/dishSchema"; 
 
@@ -38,10 +37,13 @@ export default function DishForm() {
             ...prev,
             [name]: value,
         }));
+
+        if (errors[name]) {
+            setErrors((prev) => ({ ...prev, [name]: "" }));
+        }
     };
 
-    
-const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const result = dishSchema.safeParse(formData);
@@ -97,25 +99,27 @@ const handleSubmit = async (e) => {
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-12">
+        <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 flex flex-col gap-6">
             
-            {/* Header */}
-            <div className="flex items-center justify-between gap-4 mb-6">
+            {/* Header superior */}
+            <div className="flex items-center justify-between gap-4">
                 <Button
                     variant="secondary"
                     size="sm"
                     type="button"
-                    onClick={() => navigate(-1)}
+                    onClick={handleCancel}
+                    className="!w-auto flex items-center gap-2"
                 >
+                    <ArrowLeft className="w-4 h-4" />
                     Atrás
                 </Button>
-                <h1 className="text-xl sm:text-2xl font-bold text-[var(--color-text-inverse)]">
+                <h1 className="text-xl sm:text-2xl font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)] text-right">
                     Registrar platillo
                 </h1>
             </div>
 
             {/* Tarjeta contenedora */}
-            <div className="bg-[var(--color-background-inverse)] p-5 sm:p-8 md:p-10 rounded-2xl md:rounded-3xl border border-[var(--color-brand)] shadow-lg"> 
+            <div className="bg-[var(--color-background-inverse)] p-6 sm:p-10 rounded-3xl border border-[var(--color-brand)] shadow-2xl"> 
 
                 <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     
@@ -126,7 +130,7 @@ const handleSubmit = async (e) => {
                             name="nombre"
                             type="text"
                             value={formData.nombre}
-                            placeholder="Nombre del platillo"
+                            placeholder="Ingresa el nombre del platillo"
                             onChange={handleChange}
                             error={errors.nombre}
                         />
@@ -135,7 +139,7 @@ const handleSubmit = async (e) => {
                             name="precio"
                             type="text"
                             value={formData.precio}
-                            placeholder="Precio"
+                            placeholder="Ej. 8.5"
                             onChange={handleChange}
                             error={errors.precio}
                         />
@@ -144,7 +148,7 @@ const handleSubmit = async (e) => {
                             name="categoria"
                             value={formData.categoria}
                             options={categories}
-                            placeholder="Seleccione una opción"
+                            placeholder="Selecciona una categoría"
                             onChange={handleChange}
                             error={errors.categoria}
                         />
@@ -153,7 +157,7 @@ const handleSubmit = async (e) => {
                             name="descripcion"
                             type="text"
                             value={formData.descripcion}
-                            placeholder="Descripción"
+                            placeholder="Ingresa una breve descripción"
                             onChange={handleChange}
                             error={errors.descripcion}
                         />
@@ -161,13 +165,13 @@ const handleSubmit = async (e) => {
 
                     {/* Columna 2: Carga de archivo y botones */}
                     <div className="flex flex-col justify-between gap-6">
-                        <div className="flex flex-col items-start md:items-center gap-3 w-full">
-                            <span className="text-[var(--color-text-inverse)] text-sm font-[var(--font-label)]">
+                        <div className="flex flex-col items-start gap-2 w-full">
+                            <span className="text-[var(--color-text-inverse)] text-sm font-medium font-[var(--font-heading)]">
                                 Imagen del platillo
                             </span>
 
                             <FileInput 
-                                className="border-[var(--color-border)] w-full"
+                                className="border-[var(--color-brand)]/30 w-full"
                                 value={formData.userImage}
                                 onChange={(files) => 
                                     setFormData((prev) => ({ ...prev, userImage: files }))
@@ -182,28 +186,31 @@ const handleSubmit = async (e) => {
                             )}
                         </div>
 
-                        {/* Botones */}
-                        <div className="w-full flex flex-col sm:flex-row justify-end gap-3 pt-2">
-                            <div className="w-full sm:w-36">
-                                <Button 
-                                    variant="secondary" 
-                                    type="button" 
-                                    size="md"
-                                    onClick={handleCancel}
-                                >
-                                    Cancelar
-                                </Button>
-                            </div>
-                            <div className="w-full sm:w-48">
-                                <Button variant="primary" type="submit" size="md">
-                                    Agregar
-                                </Button>
-                            </div>
+                        {/* Botones de acción */}
+                        <div className="flex flex-col gap-3 w-full pt-4">
+                            <Button 
+                                variant="secondary" 
+                                type="button" 
+                                size="md"
+                                onClick={handleCancel}
+                                className="w-full"
+                            >
+                                Cancelar
+                            </Button>
+
+                            <Button 
+                                variant="primary" 
+                                type="submit" 
+                                size="md"
+                                className="w-full"
+                            >
+                                Agregar
+                            </Button>
                         </div>
 
                     </div>
                 </form>
             </div>
-        </div>
+        </section>
     );
 }

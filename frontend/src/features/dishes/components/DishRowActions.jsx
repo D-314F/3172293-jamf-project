@@ -1,16 +1,14 @@
-// Iconos usados en los botones de acciones
-import { Pencil, Trash2, Eye } from "lucide-react";
-import { IconButton } from "@/shared";
-import { useNavigate } from "react-router-dom";
+// src/features/menu/components/DishRowActions.jsx
 
-import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+import { Eye, Pencil, Trash2 } from "lucide-react";
+import { IconButton } from "@/shared";
 import {
   showConfirmDeleteAlert,
   showSuccessAlert,
   showCancelAlert,
 } from "@/shared/services/alertService";
 
-// Componente que renderiza las acciones de cada fila de platillo
 export default function DishRowActions({ dish, onDeleteSuccess }) {
   const navigate = useNavigate();
 
@@ -30,22 +28,19 @@ export default function DishRowActions({ dish, onDeleteSuccess }) {
 
     const result = await showConfirmDeleteAlert({
       title: "¿Estás seguro?",
-      text: `¿Deseas eliminar el platillo "${nombrePlatillo}"?. No podrás revertir esto.`,
+      text: `¿Deseas eliminar el platillo "${nombrePlatillo}"? No podrás revertir esta acción.`,
     });
 
     if (result.isConfirmed) {
-      // Si recibes un callback para actualizar la lista local/estado
       if (onDeleteSuccess) {
         await onDeleteSuccess(dish.id);
       }
 
-      // Alerta de éxito al eliminar
       await showSuccessAlert({
         title: "¡Eliminado!",
         text: `El platillo "${nombrePlatillo}" fue eliminado con éxito.`,
       });
-    } else if (result.dismiss === Swal.DismissReason.cancel) {
-      // Alerta al cancelar la eliminación
+    } else if (result.isDismissed) {
       showCancelAlert({
         title: "Cancelado",
         text: `El platillo "${nombrePlatillo}" no sufrió ningún cambio.`,
@@ -54,29 +49,35 @@ export default function DishRowActions({ dish, onDeleteSuccess }) {
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex items-center gap-2">
       {/* Botón ver */}
       <IconButton
         onClick={handleView}
-        className="bg-[var(--color-brand)] text-[var(--color-text-primary)] hover:bg-[var(--color-brand-hover)] transition"
+        title="Ver platillo"
+        variant="primary"
+        size="sm"
       >
-        <Eye size={16} />
+        <Eye className="w-4 h-4" />
       </IconButton>
 
       {/* Botón editar */}
       <IconButton
         onClick={handleEdit}
-        className="bg-[var(--color-brand)] text-[var(--color-text-primary)] hover:bg-[var(--color-brand-hover)] transition"
+        title="Editar platillo"
+        variant="primary"
+        size="sm"
       >
-        <Pencil size={16} />
+        <Pencil className="w-4 h-4" />
       </IconButton>
 
       {/* Botón eliminar */}
       <IconButton
         onClick={handleDelete}
-        className="bg-[var(--color-error)] text-[var(--color-text-inverse)] hover:bg-[var(--color-error-hover)] transition"
+        title="Eliminar platillo"
+        variant="danger"
+        size="sm"
       >
-        <Trash2 size={16} />
+        <Trash2 className="w-4 h-4" />
       </IconButton>
     </div>
   );
