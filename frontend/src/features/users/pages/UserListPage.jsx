@@ -10,7 +10,7 @@ export default function UserListPage() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 flex flex-col gap-4">
+      <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-8 md:pt-10 pb-10 flex flex-col gap-4">
       
       {/* Header Responsivo */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">

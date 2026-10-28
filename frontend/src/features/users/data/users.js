@@ -1,4 +1,10 @@
 // src/data/users.js
+export const user_groups_function = [
+    { value: "administracion", label: "Grupo Administración" },
+    { value: "cocina", label: "Grupo Cocina y Menú" },
+    { value: "meseros", label: "Grupo Meseros y Órdenes" },
+    { value: "bodega", label: "Grupo Inventario y Proveedores" },
+];
 
 export const users = [
     {

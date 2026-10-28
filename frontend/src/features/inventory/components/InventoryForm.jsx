@@ -11,6 +11,8 @@ import {
   showUserErrorAlert 
 } from "@/shared/services/alertService";
 
+import { ArrowLeft } from "lucide-react";
+
 import { MARCAS_OPTIONS, CUENTADANTES_OPTIONS } from "../data/inventory";
 
 export default function InventoryForm() {
@@ -104,7 +106,9 @@ export default function InventoryForm() {
           size="sm"
           type="button"
           onClick={handleCancel}
+          className="w-auto flex items-center gap-2"
         >
+          <ArrowLeft className="w-4 h-4" />
           Atrás
         </Button>
 

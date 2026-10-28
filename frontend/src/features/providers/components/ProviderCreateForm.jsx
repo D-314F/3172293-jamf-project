@@ -102,12 +102,13 @@ export default function ProviderCreateForm() {
           variant="secondary"
           size="sm"
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={handleCancel}
           className="!w-auto flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
           Atrás
         </Button>
+
         <h1 className="text-xl sm:text-2xl font-[var(--font-heading)] font-bold text-[var(--color-text-inverse)] text-right">
           Registrar proveedores
         </h1>

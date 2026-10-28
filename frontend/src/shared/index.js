@@ -20,7 +20,11 @@ export {Dropdown,
 } from "./components/Dropdown";
 export {default as FileInput} from "./components/FileInput";
 export {default as DetailItem} from "./components/DetailItem";
+export {default as Modal} from "./components/Modal";
+export {default as ReportModal} from "./components/ReportModal";
+
 
 
 // layouts components
 export {default as Navbar} from "./layouts/Navbar";
+
