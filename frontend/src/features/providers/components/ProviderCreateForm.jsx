@@ -9,6 +9,7 @@ import {
   showUserErrorAlert, 
   showCancelAlert 
 } from "@/shared/services/alertService";
+import { createProvider } from "../services/providerServices";
 
 export default function ProviderCreateForm() {
   const navigate = useNavigate();
@@ -59,6 +60,9 @@ export default function ProviderCreateForm() {
     setErrors({});
 
     try {
+      const response = await createProvider(result.data);
+      console.log("Proveedor creado:", response);
+
       await showSuccessAlert({
         title: "Proveedor creado",
         text: "El Proveedor se ha creado correctamente",

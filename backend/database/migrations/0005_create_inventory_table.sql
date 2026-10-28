@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS inventory (
+    id SERIAL PRIMARY KEY,
+    marca VARCHAR(100) NOT NULL,
+    codigo VARCHAR(50) UNIQUE NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    codigo_barras VARCHAR(50) NOT NULL,
+    cuentadante VARCHAR(100) NOT NULL,
+    cantidad INTEGER NOT NULL,
+    cantidad_total INTEGER NOT NULL,
+    cantidad_minima INTEGER NOT NULL,
+    valor_unitario NUMERIC(12, 2) NOT NULL,
+    valor_total NUMERIC(12, 2) NOT NULL,
+    lote VARCHAR(50) NOT NULL,
+    ubicacion VARCHAR(100) NOT NULL,
+    fecha_vencimiento DATE NOT NULL,
+    descripcion VARCHAR(255) NOT NULL,
+    comentario_producto VARCHAR(255),
+    product_image_url TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW()
+);

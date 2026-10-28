@@ -9,6 +9,7 @@ import {
   showUserErrorAlert,
   showCancelAlert 
 } from "@/shared/services/alertService";
+import { createOrder } from "../services/orderServices";
 
 export default function OrderForm() {
   const navigate = useNavigate();
@@ -57,13 +58,14 @@ export default function OrderForm() {
 
     setErrors({});
 
-    try {
-      console.log("Orden creada:", result.data);
+      try {
+        const response = await createOrder(result.data);
+        console.log("Orden creada:", response);
 
-      await showSuccessAlert({
-        title: "¡Orden Creada!",
-        text: "La orden se ha generado exitosamente.",
-        timer: 2000,
+        await showSuccessAlert({
+          title: "¡Orden Creada!",
+          text: "La orden se ha generado exitosamente.",
+          timer: 2000,
       });
 
       setFormData({

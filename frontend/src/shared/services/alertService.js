@@ -28,31 +28,28 @@ export function showSuccessAlert({
 }
 
 export function showCancelAlert({
-    // Los valores despues del = son valores por defecto
-    title = "Cancelado",
-    text = "",
-    confirmButtonText = "Aceptar",
-    timer = 2000,
+    title = "¿Deseas cancelar?",
+    text = "Los cambios no guardados se perderán.",
+    confirmButtonText = "Sí, salir",
+    cancelButtonText = "No, seguir aquí",
 }) {
-   // Swal.fire() crea el modal.
-   return Swal.fire({
-    icon: "error",
-    title,
-    text,
-    confirmButtonText,
-    timer,
-    timerProgressBar: true,
-    showConfirmButton: true,
+    return Swal.fire({
+        icon: "warning",
+        title,
+        text,
+        showCancelButton: true,
+        confirmButtonText,
+        cancelButtonText,
+        reverseButtons: true,
 
-    customClass: {
-      popup: "rounded-2xl",
-      title: "!text-red-600",
-      confirmButton: "bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-lg text-text-inverse",
-      timerProgressBar: "!bg-red-600",
-    },
-    buttonsStyling: false,
-  });
-
+        customClass: {
+            popup: "rounded-2xl",
+            title: "!text-red-600 font-bold",
+            confirmButton: "bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-lg ml-2 font-medium",
+            cancelButton: "bg-gray-500 text-white hover:bg-gray-600 px-4 py-2 rounded-lg font-medium",
+        },
+        buttonsStyling: false,
+    });
 }
 // El signo de ! nos sirve para decirle al sistema que es importante
 
