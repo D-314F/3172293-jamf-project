@@ -1,12 +1,10 @@
-
-
-
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import Button from "../../../shared/components/Button";
 import Input from "../../../shared/components/Input";
 import { inventoryDetailsSchema } from "../schemas/inventoryDetailsSchema";
+import { createInventory } from "../services/inventoryServices";
 
 // Servicios de alertas
 import {
@@ -88,12 +86,13 @@ export default function InventoryDetailsForm() {
     try {
       setLoading(true);
 
-      // Aquí se conectará con el API para guardar en BD
-      console.log("Inventario listo para guardar:", dataFinal);
+      // Conecta con el API para guardar en PostgreSQL
+      const response = await createInventory(dataFinal);
+      console.log("Inventario guardado en BD:", response);
 
       await showSuccessAlert({
         title: "¡Producto creado correctamente!",
-        text: "El producto se ha registrado exitosamente.",
+        text: "El producto se ha registrado exitosamente en el inventario.",
         timer: 2000,
       });
 
@@ -127,7 +126,7 @@ export default function InventoryDetailsForm() {
   const handleCancelAll = async () => {
     const result = await showCancelAlert({
       title: "¿Deseas cancelar?",
-      text: "Los cambios no guardados se perderán.",
+      text: "Los cambios no estan guardados.",
       timer: 3000,
     });
 
@@ -138,22 +137,20 @@ export default function InventoryDetailsForm() {
 
   return (
     <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10">
-  {/* Header superior */}
+      {/* Header superior */}
       <div className="flex items-center justify-between gap-4 mb-6">
-    
-            <Button
-              variant="secondary"
-              size="sm"
-              type="button"
-              onClick={handleVolverAtras}
-            >
-              Atrás
-            </Button>
-    
-            <h1 className="text-xl sm:text-2xl font-bold text-white text-right">
-              Crear Inventario - Detalles
-            </h1>
-    
+        <Button
+          variant="secondary"
+          size="sm"
+          type="button"
+          onClick={handleVolverAtras}
+        >
+          Atrás (Paso 1)
+        </Button>
+
+        <h1 className="text-xl sm:text-2xl font-bold text-white text-right">
+          Registrar Producto - Detalles de Lote y Bodega
+        </h1>
       </div>
 
       {/* Tarjeta del formulario */}
@@ -162,17 +159,21 @@ export default function InventoryDetailsForm() {
           {/* Campos del formulario */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
             <Input
-              label="Lote"
+              label="Número de Lote"
               name="lote"
               value={formData.lote}
+              placeholder="Ej. LOTE-01 o 1"
+              className="h-10"
               onChange={handleChange}
               error={errors.lote}
             />
 
             <Input
-              label="Ubicación"
+              label="Ubicación en el restaurante"
               name="ubicacion"
               value={formData.ubicacion}
+              placeholder="Ej. Nevera 2, Alacena seca, Bodega principal"
+              className="h-10"
               onChange={handleChange}
               error={errors.ubicacion}
             />
@@ -182,23 +183,28 @@ export default function InventoryDetailsForm() {
               name="fechaVencimiento"
               type="date"
               value={formData.fechaVencimiento}
+              className="h-10"
               onChange={handleChange}
               error={errors.fechaVencimiento}
             />
 
             <Input
-              label="Descripción"
+              label="Descripción del empaque / producto"
               name="descripcion"
               value={formData.descripcion}
+              placeholder="Ej. Caja por 12 bolsas de 500g"
+              className="h-10"
               onChange={handleChange}
               error={errors.descripcion}
             />
 
             <div className="md:col-span-2">
               <Input
-                label="Comentario del producto (Opcional)"
+                label="Comentario u observación adicional (Opcional)"
                 name="comentarioProducto"
                 value={formData.comentarioProducto}
+                placeholder="Ej. Mantener refrigerado entre 2°C y 4°C"
+                className="h-10"
                 onChange={handleChange}
                 error={errors.comentarioProducto}
               />
@@ -218,14 +224,13 @@ export default function InventoryDetailsForm() {
             </Button>
 
             <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-
               <Button
                 type="submit"
                 variant="primary"
                 disabled={loading}
                 className="w-full sm:w-auto"
               >
-                {loading ? "Creando..." : "Crear Inventario"}
+                {loading ? "Guardando..." : "Guardar en Inventario"}
               </Button>
             </div>
           </div>

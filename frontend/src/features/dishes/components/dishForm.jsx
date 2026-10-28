@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button, Input, Select, FileInput } from "@/shared";
 import { getDishCategories } from "../../../services/selectService"; 
 import { dishSchema } from "../schemas/dishSchema"; 
+import { createDish } from "../services/dishServices";
 
 import { 
   showSuccessAlert, 
@@ -66,7 +67,8 @@ export default function DishForm() {
         setErrors({});
 
         try {
-            console.log("¡Éxito! Platillo creado:", result.data);
+            const response = await createDish(result.data);
+            console.log("¡Éxito! Platillo creado:", response);
 
             await showSuccessAlert({
                 title: "Platillo agregado",

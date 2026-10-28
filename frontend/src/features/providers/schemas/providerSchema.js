@@ -15,7 +15,7 @@ export const providerSchema = z.object({
         .string()
         .min(3, "El nombre debe tener mínimo 3 caracteres")
         .max(100, "Nombre demasiado largo")
-        .regex(/^[a-zA-Z]+$/, "Solo letras, espacios y tildes"),
+        .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, "Solo letras, espacios y tildes"),
 
     providerObservations: z
         .string()

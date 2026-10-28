@@ -9,8 +9,18 @@ export const orderSchema = z.object({
   waiterId: z.string()
     .min(1, "Seleccione el mesero responsable"),
 
+  dishId: z.string()
+    .min(1, "Seleccione un platillo")
+    .optional(),
+
+  quantity: z.coerce.number()
+    .int("Cantidad inválida")
+    .min(1, "Mínimo 1 platillo")
+    .optional(),
+
   estado: z.string()
-    .min(1, "Seleccione el estado de la orden"),
+    .min(1, "Seleccione el estado de la orden")
+    .default("Pendiente"),
 
   isActive: z.boolean().default(true),
 

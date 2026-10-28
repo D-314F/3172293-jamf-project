@@ -64,7 +64,7 @@ export default function InventoryForm() {
       setErrors(fieldErrors);
 
       await showUserErrorAlert({
-        title: "Error al registrar inventario",
+        title: "Error al registrar producto",
         text: "Por favor, completa correctamente todos los campos requeridos.",
       });
 
@@ -84,12 +84,11 @@ export default function InventoryForm() {
   const handleCancel = async () => {
     const result = await showCancelAlert({
       title: "¿Deseas cancelar?",
-      text: "Los cambios no guardados se perderán.",
+      text: "Los cambios no se han guardado.",
       timer: 3000,
     });
 
     if (result.isConfirmed) {
-      // Redirige explícitamente a la lista de inventario
       navigate("/dashboard/inventoryList");
     }
   };
@@ -110,7 +109,7 @@ export default function InventoryForm() {
         </Button>
 
         <h1 className="text-xl sm:text-2xl font-bold text-white text-right">
-          Crear Inventario
+          Registrar Producto en Inventario
         </h1>
 
       </div>
@@ -127,7 +126,7 @@ export default function InventoryForm() {
             <div className="flex flex-col gap-4">
 
               <Select
-                label="Marca"
+                label="Marca del producto"
                 name="marca"
                 value={formData.marca}
                 options={MARCAS_OPTIONS}
@@ -136,17 +135,21 @@ export default function InventoryForm() {
               />
 
               <Input
-                label="ID (Código único)"
+                label="ID (Código único interno)"
                 name="codigo"
                 value={formData.codigo}
+                placeholder="Ej. INV001 o 105"
+                className="h-10"
                 onChange={handleChange}
                 error={errors.codigo}
               />
 
               <Input
-                label="Nombre completo"
+                label="Nombre del producto"
                 name="nombre"
                 value={formData.nombre}
+                placeholder="Ej. Chocolate amargo, Harina de trigo"
+                className="h-10"
                 onChange={handleChange}
                 error={errors.nombre}
               />
@@ -155,12 +158,14 @@ export default function InventoryForm() {
                 label="Código de barras"
                 name="codigoBarras"
                 value={formData.codigoBarras}
+                placeholder="Ej. 7702001054321 (solo números)"
+                className="h-10"
                 onChange={handleChange}
                 error={errors.codigoBarras}
               />
 
               <Select
-                label="Cuentadante"
+                label="Cuentadante (Responsable en bodega)"
                 name="cuentadante"
                 value={formData.cuentadante}
                 options={CUENTADANTES_OPTIONS}
@@ -175,41 +180,51 @@ export default function InventoryForm() {
             <div className="flex flex-col gap-4">
 
               <Input
-                label="Cantidad"
+                label="Cantidad que ingresa (Lote actual)"
                 name="cantidad"
                 value={formData.cantidad}
+                placeholder="Ej. 20"
+                className="h-10"
                 onChange={handleChange}
                 error={errors.cantidad}
               />
 
               <Input
-                label="Cantidad total"
+                label="Cantidad total en bodega"
                 name="cantidadTotal"
                 value={formData.cantidadTotal}
+                placeholder="Ej. 50"
+                className="h-10"
                 onChange={handleChange}
                 error={errors.cantidadTotal}
               />
 
               <Input
-                label="Cantidad mínima"
+                label="Cantidad mínima (Alerta de agotado)"
                 name="cantidadMinima"
                 value={formData.cantidadMinima}
+                placeholder="Ej. 5"
+                className="h-10"
                 onChange={handleChange}
                 error={errors.cantidadMinima}
               />
 
               <Input
-                label="Valor unitario"
+                label="Valor unitario ($)"
                 name="valorUnitario"
                 value={formData.valorUnitario}
+                placeholder="Ej. 15000"
+                className="h-10"
                 onChange={handleChange}
                 error={errors.valorUnitario}
               />
 
               <Input
-                label="Valor total"
+                label="Valor total del lote ($)"
                 name="valorTotal"
                 value={formData.valorTotal}
+                placeholder="Ej. 300000 (Cantidad x Valor unitario)"
+                className="h-10"
                 onChange={handleChange}
                 error={errors.valorTotal}
               />
@@ -267,7 +282,7 @@ export default function InventoryForm() {
                   size="md"
                   className="w-full"
                 >
-                  Siguiente
+                  Siguiente (Paso 2)
                 </Button>
               </div>
             </div>
