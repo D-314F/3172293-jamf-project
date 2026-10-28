@@ -106,7 +106,7 @@ export default function OrderForm() {
           variant="secondary"
           size="sm"
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={handleCancel}
           className="!w-auto flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />

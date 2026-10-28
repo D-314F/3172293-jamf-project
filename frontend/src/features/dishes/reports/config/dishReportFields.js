@@ -6,3 +6,23 @@ export const dishReportFields = [
   { key: "status", label: "Estado", default: false },
   { key: "description", label: "Descripción", default: false },
 ];
+
+export const dishReportFormats = [
+  { label: "PDF (.pdf)", value: "pdf" },
+  { label: "Excel (.xlsx)", value: "excel" },
+  { label: "CSV (.csv)", value: "csv" },
+];
+
+export const dishReportScopes = [
+  { label: "Todos los platillos", value: "all" },
+  { label: "Solo platillos activos", value: "active" },
+  { label: "Filtrar por categoría", value: "category" },
+];
+
+export const dishReportFilters = {
+  category: {
+    label: "Categoría",
+    placeholder: "Ej: Postres, Bebidas...",
+    emptyError: "Por favor ingresa una categoría válida.",
+  },
+};

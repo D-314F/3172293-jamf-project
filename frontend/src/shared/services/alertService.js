@@ -28,25 +28,59 @@ export function showSuccessAlert({
 }
 
 export function showCancelAlert({
-    title = "¿Deseas cancelar?",
-    text = "Los cambios no guardados se perderán.",
-    confirmButtonText = "Sí, salir",
+    title = "Cancelado",
+    text = "",
+    confirmButtonText,
     cancelButtonText = "No, seguir aquí",
+    timer = 2000,
 }) {
+  // Esto es un IF dependiendo de donde se llame la alerta, si es para salir de un formulario o si es para cancelar una eliminación en la tabla.
+
+    // Si es pregunta de salir de un formulario ("¿Deseas cancelar?" o "se perderán"),
+
+    // mostramos los dos botones de decisión
+    const isFormExitQuestion =
+        title.includes("?") ||
+        text.includes("perderán") ||
+        text.includes("guardarán");
+
+    if (isFormExitQuestion) {
+        return Swal.fire({
+            icon: "warning",
+            title,
+            text,
+            showCancelButton: true,
+            confirmButtonText: confirmButtonText || "Sí, salir",
+            cancelButtonText,
+            reverseButtons: true,
+
+            customClass: {
+                popup: "rounded-2xl",
+                title: "!text-red-600 font-bold",
+                confirmButton: "bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-lg ml-2 font-medium",
+                cancelButton: "bg-gray-500 text-white hover:bg-gray-600 px-4 py-2 rounded-lg font-medium",
+            },
+            buttonsStyling: false,
+        });
+    }
+
+    // En cambio si viene de cancelar una eliminación en la tabla ("no sufrió ningún cambio"),
+    
+    // mostramos solo el aviso con su barra de tiempo y el botón "Aceptar"
     return Swal.fire({
-        icon: "warning",
+        icon: "error",
         title,
         text,
-        showCancelButton: true,
-        confirmButtonText,
-        cancelButtonText,
-        reverseButtons: true,
+        confirmButtonText: confirmButtonText || "Aceptar",
+        timer,
+        timerProgressBar: true,
+        showConfirmButton: true,
 
         customClass: {
             popup: "rounded-2xl",
             title: "!text-red-600 font-bold",
-            confirmButton: "bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-lg ml-2 font-medium",
-            cancelButton: "bg-gray-500 text-white hover:bg-gray-600 px-4 py-2 rounded-lg font-medium",
+            confirmButton: "bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-lg font-medium",
+            timerProgressBar: "!bg-red-600",
         },
         buttonsStyling: false,
     });

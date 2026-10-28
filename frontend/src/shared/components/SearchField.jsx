@@ -1,103 +1,35 @@
-import { forwardRef } from "react";
-import { Search, X, LoaderCircle } from "lucide-react";
-import clsx from "clsx";
+// src/shared/components/Modal.jsx
+import { X } from "lucide-react";
+import { IconButton } from "./IconButton";
 
-const baseStyles =
-  "search flex items-center rounded-xl px-3 transition-all border w-full";
+export default function Modal({ isOpen, onClose, title, children }) {
+  if (!isOpen) return null;
 
-const sizeStyles = {
-  sm: "h-9 text-sm",
-  md: "h-11 text-sm",
-  lg: "h-12 text-base",
-};
-
-const variantStyles = {
-  filled:
-    "bg-neutral-100 border-blue-500 hover:border-blue-700 focus-within:bg-white",
-  outlined: "bg-transparent border-black hover:border-white",
-};
-
-const SearchField = forwardRef(
-  (
-    {
-      value = "",
-      placeholder = "Buscar",
-      onChange = () => {},
-      onSubmit,
-      onClear = () => {},
-      size = "md",
-      variant = "filled",
-      disabled = false,
-      loading = false,
-      error = false,
-      name = "search",
-      ariaLabel = "Campo de búsqueda",
-      autoComplete = "off",
-      icon,
-      className,
-    },
-    ref
-  ) => {
-    const SearchIcon = icon || Search;
-
-    const handleClear = () => {
-      onChange("");
-      onClear();
-    };
-
-    const handlesubmit = (e) => {
-      e.preventDefault();
-      if (disabled || loading) return;
-      onSubmit?.(value);
-    };
-
-    return (
-      <form
-        onSubmit={handlesubmit}
-        className={clsx(
-          baseStyles,
-          sizeStyles[size],
-          variantStyles[variant],
-          disabled && "opacity-60 pointer-events-none",
-          error
-            ? "border-red-500 focus-within:ring-2 focus-within:ring-red-500"
-            : "focus-within:ring-2 focus-within:ring-text-primary",
-          className
-        )}
-      >
-        {loading ? (
-          <LoaderCircle className="size-4 shrink-0 animate-spin text-neutral-500" />
-        ) : (
-          <SearchIcon className="size-4 shrink-0 text-neutral-500" />
-        )}
-
-        <input
-          ref={ref}
-          type="search"
-          name={name}
-          value={value}
-          disabled={disabled}
-          placeholder={placeholder}
-          aria-label={ariaLabel}
-          autoComplete={autoComplete}
-          onChange={(e) => onChange(e.target.value)}
-          className="search__input flex-1 w-full min-w-0 bg-transparent px-2 outline-none"
-        />
-
-        {!!value && !disabled && (
-          <button
-            type="button"
-            onClick={handleClear}
-            aria-label="Limpiar búsqueda"
-            className="search__clear shrink-0 rounded-full p-1 hover:bg-neutral-200"
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-[var(--color-background-inverse)]/70 p-4 transition-opacity duration-200">
+      <div className="w-full max-w-md rounded-3xl bg-[var(--color-background-inverse)] border border-[var(--color-brand)] p-6 sm:p-8 shadow-2xl text-[var(--color-text-inverse)] space-y-6">
+        
+        {/* Cabecera del Modal */}
+        <div className="flex items-center justify-between border-b border-[var(--color-brand)]/30 pb-4">
+          <h2 className="text-lg sm:text-xl font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)]">
+            {title}
+          </h2>
+          <IconButton
+            onClick={onClose}
+            variant="primary"
+            size="sm"
+            ariaLabel="Cerrar ventana"
           >
-            <X className="size-4 text-neutral-500" />
-          </button>
-        )}
-      </form>
-    );
-  }
-);
+            <X className="w-4 h-4" />
+          </IconButton>
+        </div>
 
-SearchField.displayName = "SearchField";
-export default SearchField;
+        {/* Contenido dinámico que le pasemos desde cualquier formulario */}
+        <div className="space-y-4">
+          {children}
+        </div>
+
+      </div>
+    </div>
+  );
+}

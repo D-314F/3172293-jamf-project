@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { 
   Menu, 
   Users, 
@@ -9,10 +8,10 @@ import {
   Boxes, 
   LogIn,
   ShieldCheck,
+  ChevronRight,
 } from "lucide-react";
 import {
   IconButton,
-  SearchField,
   Dropdown,
   DropdownTrigger,
   DropdownContent,
@@ -26,18 +25,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { showOpsAlert } from "@/shared/services/alertService";
 
 export default function Navbar() {
-  const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
-  const handleSearch = (value) => {
-    console.log("Buscar:", value);
-  };
-
-  const handleClear = () => {
-    console.log("Campo limpiado");
-  };
-
   const handleLoginRedirect = () => {
+    sessionStorage.removeItem("token");
     navigate("/login"); 
   };
 
@@ -66,31 +57,63 @@ export default function Navbar() {
     });
   };
 
-
   return (
-    <nav className="w-full bg-brand border-b-2 text-black">
+    <nav className="w-full bg-[var(--color-brand)] border-b-2 border-[var(--color-background-inverse)] text-[var(--color-text-primary)]">
       <div className="mx-auto max-w-7xl px-4 py-2">
         
         {/* FILA PRINCIPAL */}
-        <div className="flex items-center justify-between gap-2 h-14 md:h-16">
+        <div className="flex items-center justify-between gap-4 h-14 md:h-16">
 
-          {/* Logos agrupados */}
-          <Link to="/dashboard" className="flex items-center gap-2 sm:gap-4 shrink-0">
-            <img src={logo2} alt="Logo Rico" className="h-7 sm:h-10 object-contain" />
-            <img src={logo} alt="Logo SENA" className="h-7 sm:h-10 object-contain" />
-          </Link>
+          {/* 1. Logos independientes (Izquierda) */}
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Imagen SENA */}
+            <a
+              href="https://senarisaraldadosquebradas.blogspot.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Centro de Formación SENA Dosquebradas"
+              className="inline-flex items-center transition-transform duration-200 hover:scale-110 active:scale-95"
+            >
+              <img
+                src={logo2}
+                alt="Logo SENA"
+                className="h-7 sm:h-10 object-contain"
+              />
+            </a>
 
-          {/* Links de navegación (Solo Desktop) */}
-          <ul className="hidden md:flex items-center gap-6 font-medium">
+            {/* Línea separadora */}
+            <span
+              className="h-7 sm:h-9 w-[2px] bg-[var(--color-background-inverse)] rounded-full"
+            />
+
+            {/* Imagen JAMF */}
+            <Link
+              to="/dashboard/home"
+              title="Ir al Inicio - JAMF"
+              className="inline-flex items-center transition-transform duration-200 hover:scale-110 active:scale-95"
+            >
+              <img
+                src={logo}
+                alt="Logo JAMF"
+                className="h-7 sm:h-10 object-contain"
+              />
+            </Link>
+          </div>
+
+          {/* 2. Links de navegación centrados (Solo Desktop) */}
+          <ul className="hidden md:flex items-center gap-8 font-medium">
             <li>
-              <Link to="/dashboard/home" className="hover:text-primary transition">
+              <Link
+                to="/dashboard/home"
+                className="hover:opacity-75 transition cursor-pointer font-semibold"
+              >
                 Inicio
               </Link>
             </li>
             <li>
               <button 
                 onClick={handleCursosClick} 
-                className="hover:text-primary transition cursor-pointer font-medium"
+                className="hover:opacity-75 transition cursor-pointer font-semibold"
               >
                 Cursos
               </button>
@@ -98,7 +121,7 @@ export default function Navbar() {
             <li>
               <button 
                 onClick={handleMultimediaClick} 
-                className="hover:text-primary transition cursor-pointer font-medium"
+                className="hover:opacity-75 transition cursor-pointer font-semibold"
               >
                 Multimedia
               </button>
@@ -106,125 +129,121 @@ export default function Navbar() {
             <li>
               <button 
                 onClick={handleContactoClick} 
-                className="hover:text-primary transition cursor-pointer font-medium"
+                className="hover:opacity-75 transition cursor-pointer font-semibold"
               >
                 Contacto
               </button>
             </li>
           </ul>
 
-          {/* Buscador Versión DESKTOP */}
-          <div className="hidden md:block w-72 lg:w-80">
-            <SearchField
-              value={search}
-              onChange={setSearch}
-              onSubmit={handleSearch}
-              onClear={handleClear}
-              placeholder="Buscar..."
-              size="md"
-              variant="outlined"
-              className="w-full"
-            />
-          </div>
+          {/* 3. Acciones Derecha: Botones Auth (Estilo Browserbase/Cloudflare) + Menú */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            
+            {/* Botón Iniciar Sesión (Estilo píldora con borde como Cloudflare) */}
+            <Link
+              to="/login"
+              className="inline-flex items-center justify-center px-3.5 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold border border-[var(--color-background-inverse)]/40 text-[var(--color-text-primary)] hover:bg-[var(--color-background-inverse)]/10 transition-all duration-200 active:scale-95"
+            >
+              Iniciar sesión
+            </Link>
 
-          {/* Dropdown Menu Hamburguesa */}
-          <div className="shrink-0 relative">
-            <Dropdown className="z-15">
-              <DropdownTrigger>
-                <IconButton>
-                  <Menu />
-                </IconButton>
-              </DropdownTrigger>
+            {/* Botón Registrarse (Estilo píldora sólida negra con flecha como Browserbase) */}
+            <Link
+              to="/register"
+              className="group inline-flex items-center gap-1 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold bg-[var(--color-background-inverse)] text-[var(--color-brand)] shadow-md hover:scale-105 active:scale-95 transition-all duration-200"
+            >
+              <span>Registrarse</span>
+              <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+            </Link>
 
-              <DropdownContent className="w-56 p-2 bg-black border border-brand rounded-xl">
+            {/* Separador sutil antes del menú */}
+            <span className="hidden sm:inline-block h-6 w-[1.5px] bg-[var(--color-background-inverse)]/25 rounded-full mx-0.5" />
 
-                {/* Ver Menú */}
-                <DropdownItem>
-                  <Link to="/dashboard/menu" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
-                    <BookOpen size={18} className="text-amber-400" />
-                    <span>Ver Menú</span>
-                  </Link>
-                </DropdownItem>
+            {/* Dropdown Menu Hamburguesa */}
+            <div className="relative">
+              <Dropdown className="z-15">
+                <DropdownTrigger>
+                  <IconButton ariaLabel="Abrir menú de administración">
+                    <Menu />
+                  </IconButton>
+                </DropdownTrigger>
 
-                {/* Gestión de Usuarios */}
-                <DropdownItem>
-                  <Link to="/dashboard/userList" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
-                    <Users size={18} className="text-amber-400" />
-                    <span>Gestionar Usuarios</span>
-                  </Link>
-                </DropdownItem>
+                <DropdownContent className="w-56 p-2 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-xl">
 
-                {/* Gestión de Platillos */}
-                <DropdownItem>
-                  <Link to="/dashboard/dishList" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
-                    <UtensilsCrossed size={18} className="text-amber-400" />
-                    <span>Gestionar Platillo</span>
-                  </Link>
-                </DropdownItem>
+                  {/* Ver Menú */}
+                  <DropdownItem>
+                    <Link to="/dashboard/menu" className="flex items-center gap-3 w-full py-1 text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition">
+                      <BookOpen size={18} className="text-[var(--color-brand)]" />
+                      <span>Ver Menú</span>
+                    </Link>
+                  </DropdownItem>
 
-                {/* Gestión de Órdenes */}
-                <DropdownItem>
-                  <Link to="/dashboard/orderList" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
-                  <Logs size={18} className="text-amber-400" />
+                  {/* Gestión de Usuarios */}
+                  <DropdownItem>
+                    <Link to="/dashboard/userList" className="flex items-center gap-3 w-full py-1 text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition">
+                      <Users size={18} className="text-[var(--color-brand)]" />
+                      <span>Gestionar Usuarios</span>
+                    </Link>
+                  </DropdownItem>
+
+                  {/* Gestión de Platillos */}
+                  <DropdownItem>
+                    <Link to="/dashboard/dishList" className="flex items-center gap-3 w-full py-1 text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition">
+                      <UtensilsCrossed size={18} className="text-[var(--color-brand)]" />
+                      <span>Gestionar Platillo</span>
+                    </Link>
+                  </DropdownItem>
+
+                  {/* Gestión de Órdenes */}
+                  <DropdownItem>
+                    <Link to="/dashboard/orderList" className="flex items-center gap-3 w-full py-1 text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition">
+                      <Logs size={18} className="text-[var(--color-brand)]" />
                       <span>Gestionar Órdenes</span>
-                  </Link>
-                </DropdownItem>
+                    </Link>
+                  </DropdownItem>
 
-                {/* Gestión de Proveedores */}
-                <DropdownItem>
-                  <Link to="/dashboard/providerList" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
-                    <Truck size={18} className="text-amber-400" />
-                    <span>Gestionar Proveedores</span>
-                  </Link>
-                </DropdownItem>
+                  {/* Gestión de Proveedores */}
+                  <DropdownItem>
+                    <Link to="/dashboard/providerList" className="flex items-center gap-3 w-full py-1 text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition">
+                      <Truck size={18} className="text-[var(--color-brand)]" />
+                      <span>Gestionar Proveedores</span>
+                    </Link>
+                  </DropdownItem>
 
-                {/* Gestión de Inventario */}
-                <DropdownItem>
-                  <Link to="/dashboard/inventoryList" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
-                    <Boxes size={18} className="text-amber-400" />
-                    <span>Gestionar Inventario</span>
-                  </Link>
-                </DropdownItem>
+                  {/* Gestión de Inventario */}
+                  <DropdownItem>
+                    <Link to="/dashboard/inventoryList" className="flex items-center gap-3 w-full py-1 text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition">
+                      <Boxes size={18} className="text-[var(--color-brand)]" />
+                      <span>Gestionar Inventario</span>
+                    </Link>
+                  </DropdownItem>
 
-                {/* Gestión de Permisos*/}
-                <DropdownItem>
-                  <Link to="/dashboard/permissions" className="flex items-center gap-3 w-full py-1 text-white hover:text-amber-400 transition">
-                    <ShieldCheck size={18} className="text-amber-400" />
-                    <span>Gestionar Permisos</span>
-                  </Link>
-                </DropdownItem>
+                  {/* Gestión de Permisos*/}
+                  <DropdownItem>
+                    <Link to="/dashboard/permissions" className="flex items-center gap-3 w-full py-1 text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition">
+                      <ShieldCheck size={18} className="text-[var(--color-brand)]" />
+                      <span>Gestionar Permisos</span>
+                    </Link>
+                  </DropdownItem>
 
-                {/* Separador visual */}
-                <hr className="border-gray-700 my-2" />
+                  {/* Separador visual */}
+                  <hr className="border-gray-700 my-2" />
 
-                {/* Cerrar sesión */}
-                <DropdownItem>
-                  <button 
-                    onClick={handleLoginRedirect} 
-                    className="flex items-center gap-3 w-full py-1 text-left text-amber-400 hover:text-amber-300 font-medium transition cursor-pointer"
-                  >
-                    <LogIn size={18} />
-                    <span>Cerrar sesión</span>
-                  </button>
-                </DropdownItem>
-              </DropdownContent>
-            </Dropdown>
+                  {/* Cerrar sesión */}
+                  <DropdownItem>
+                    <button 
+                      onClick={handleLoginRedirect} 
+                      className="flex items-center gap-3 w-full py-1 text-left text-[var(--color-brand)] hover:opacity-80 font-medium transition cursor-pointer"
+                    >
+                      <LogIn size={18} />
+                      <span>Cerrar sesión</span>
+                    </button>
+                  </DropdownItem>
+                </DropdownContent>
+              </Dropdown>
+            </div>
           </div>
 
-        </div>
-
-        {/* FILA SECUNDARIA: Buscador MÓVIL */}
-        <div className="block md:hidden pt-1 pb-2 w-full">
-          <SearchField
-            value={search}
-            onChange={setSearch}
-            onSubmit={handleSearch}
-            onClear={handleClear}
-            placeholder="Buscar..."
-            size="md"
-            variant="outlined"
-            className="w-full"
-          />
         </div>
 
       </div>

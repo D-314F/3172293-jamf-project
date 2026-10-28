@@ -3,58 +3,76 @@ import React from "react";
 import clsx from "clsx";
 
 /**
- * IconButton
+ * IconButton estandarizado con Design Tokens (Material Design 3)
  * - Area táctil (hit area): tamaño del botón
  * - Area visible: tamaño del ícono (controlado por wrapper interno)
  */
-
-// React.forwardRef "puente para que el padre controle el DOM interno".
-
 export const IconButton = React.forwardRef(function IconButton(
-  {
-    children,
-    onClick,
-    disabled = false,
-    className = "",
-    variant = "default",
+    {
+        children,
+        onClick,
+        disabled = false,
+        className = "",
+        variant = "default",
+        size = "md",
 
-    // Tamaños
-    hitSize = 48,   // px (área táctil)
-    iconSize = 24,  // px (icono visible)
+        // Tamaños opcionales
+        hitSize,
+        iconSize,
 
-    // Accesibilidad
-    ariaLabel,
+        // Accesibilidad
+        ariaLabel,
 
-    // Estados
-    isActive = false,
+        // Estados
+        isActive = false,
 
-    ...props
-  },
+        ...props
+    },
     ref
 ) {
+    const sizeMap = {
+        sm: { hit: 36, icon: 18 },
+        md: { hit: 42, icon: 20 },
+        lg: { hit: 48, icon: 24 },
+    };
+
+    const resolvedHitSize = hitSize ?? (sizeMap[size]?.hit || 42);
+    const resolvedIconSize = iconSize ?? (sizeMap[size]?.icon || 20);
+
     const baseStyles = `
         inline-flex items-center justify-center
-        rounded-full
-        transition-colors duration-200
+        rounded-full cursor-pointer
+        transition-all duration-200 ease-out
+        hover:scale-110 active:scale-95
         focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
         disabled:opacity-50 disabled:pointer-events-none
     `;
 
+    // Variantes conectadas a los tokens semánticos M3 de global.css
     const variants = {
         default: `
-            text-neutral-700 
-            hover:bg-neutral-100
-            focus-visible:ring-neutral-400
+            text-[var(--color-text-primary)]
+            hover:bg-[var(--color-surface-muted)]
+            focus-visible:ring-[var(--color-focus-ring)]
         `,
         ghost: `
-            text-neutral-600 
-            hover:bg-neutral-100
-            focus-visible:ring-neutral-300
+            text-[var(--color-text-secondary)]
+            hover:bg-[var(--color-surface-muted)]
+            focus-visible:ring-[var(--color-focus-ring)]
         `,
         primary: `
-            text-white bg-blue-600 
-            hover:bg-blue-700
-            focus-visible:ring-blue-500
+            bg-[var(--color-brand)]
+            text-[var(--color-text-primary)]
+            hover:bg-[var(--color-brand-hover)]
+            shadow-sm hover:shadow-md
+            focus-visible:ring-[var(--color-focus-ring)]
+        `,
+        danger: `
+            bg-[var(--color-brand-soft)]/15
+            text-[var(--color-brand-soft-hover)]
+            hover:bg-[var(--color-brand-soft)]
+            hover:text-[var(--color-text-inverse)]
+            focus-visible:ring-[var(--color-brand-soft)]
         `,
     };
 
@@ -65,19 +83,24 @@ export const IconButton = React.forwardRef(function IconButton(
             aria-label={ariaLabel}
             disabled={disabled}
             onClick={onClick}
-            className={clsx(baseStyles, variants[variant], className, {"bg-neutral-300": isActive,
-        })}
-        style={{
-            width: `${hitSize}px`,
-            height: `${hitSize}px`,
-        }}
-        {...props}
+            className={clsx(
+                baseStyles,
+                variants[variant] || variants.default,
+                className,
+                {
+                    "bg-[var(--color-surface-muted)]": isActive,
+                }
+            )}
+            style={{
+                width: `${resolvedHitSize}px`,
+                height: `${resolvedHitSize}px`,
+            }}
+            {...props}
         >
-
             <span
                 style={{
-                    width: `${iconSize}px`,
-                    height: `${iconSize}px`,
+                    width: `${resolvedIconSize}px`,
+                    height: `${resolvedIconSize}px`,
                 }}
                 className="flex items-center justify-center"
             >
@@ -86,4 +109,3 @@ export const IconButton = React.forwardRef(function IconButton(
         </button>
     );
 });
-// export default IconButton;  

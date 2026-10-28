@@ -1,6 +1,6 @@
 // UserRegisterForm componente para registrar un usuario
 import { useState, useEffect } from "react";
-import { Input, Select, Checkbox, Button, FileInput } from "@/shared";
+import { Input, Select, Checkbox, Button, FileInput, Modal } from "@/shared";
 import { ArrowLeft } from "lucide-react";
 import { getDocumentTypes, getUserTypes } from "@/services/selectService";
 import { useNavigate, useLocation } from "react-router-dom"; 
@@ -13,6 +13,8 @@ import {
 import bf1 from "@/assets/images/bf-2.png";
 
 import { createUser } from "../services/userServices";
+import { user_groups_function } from "../data/users";
+
 
 export default function UserRegisterForm() {
   const navigate = useNavigate();
@@ -27,6 +29,8 @@ export default function UserRegisterForm() {
     userEmail: "",
     userPassword: "",
     userPhone: "",
+    userSecondaryPhone: "",
+    userGroup: "",
     userAddress: "",
     userStartDate: "",
     userEndDate: "",
@@ -39,6 +43,13 @@ export default function UserRegisterForm() {
   const isPublicRegister = location.pathname === "/register";
   const [errors, setErrors] = useState({});
 
+  // Estados para los 2 modales reutilizando el mismo componente <Modal />
+  const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
+  const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
+  const [tempGroup, setTempGroup] = useState("");
+  const [tempSecondaryPhone, setTempSecondaryPhone] = useState("");
+  const [modalError, setModalError] = useState("");
+
   useEffect(() => {
     getDocumentTypes().then(setDocumentTypes);
     getUserTypes().then(setUserTypes);
@@ -50,6 +61,28 @@ export default function UserRegisterForm() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+  };
+
+  // Guardar Grupo desde el Modal
+  const handleSaveGroup = () => {
+    if (!tempGroup) {
+      setModalError("Por favor selecciona un grupo para el usuario.");
+      return;
+    }
+    setFormData((prev) => ({ ...prev, userGroup: tempGroup }));
+    setModalError("");
+    setIsGroupModalOpen(false);
+  };
+
+  // Esto sirve para guardar Teléfono Secundario desde el Modal
+  const handleSaveSecondaryPhone = () => {
+    if (!/^[0-9]{7,15}$/.test(tempSecondaryPhone)) {
+      setModalError("Ingresa un número telefónico válido (7 a 15 dígitos numéricos).");
+      return;
+    }
+    setFormData((prev) => ({ ...prev, userSecondaryPhone: tempSecondaryPhone }));
+    setModalError("");
+    setIsPhoneModalOpen(false);
   };
 
   const handleSubmit = async (e) => {
@@ -97,7 +130,7 @@ export default function UserRegisterForm() {
 
   const handleCancel = async () => {
     const result = await showCancelAlert({
-      title: "Cancelado",
+      title: "¿Deseas cancelar?",
       text: "Los cambios no guardados se perderán.",
       timer: 3000,
     });
@@ -117,13 +150,12 @@ export default function UserRegisterForm() {
 
       <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 relative z-10 flex flex-col gap-4">
         
-      
         <div className="flex items-center justify-between gap-4 mb-2">
           <Button
             variant="secondary"
             size="sm"
             type="button"
-            onClick={() => navigate(isPublicRegister ? "/login" : "/dashboard/userList")}
+            onClick={handleCancel}
             className="!w-auto flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -140,7 +172,6 @@ export default function UserRegisterForm() {
           
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              
               
               <div className="flex flex-col gap-4">
                 <Select
@@ -193,13 +224,19 @@ export default function UserRegisterForm() {
                     variant="primary"
                     size="md" 
                     className="w-full"
+                    onClick={() => {
+                      setTempGroup(formData.userGroup);
+                      setModalError("");
+                      setIsGroupModalOpen(true);
+                    }}
                   >
-                    Agregar grupo
+                    {formData.userGroup
+                      ? `Grupo asignado: ${formData.userGroup}`
+                      : "Agregar grupo"}
                   </Button>
                 </div>
               </div>
 
-             
               <div className="flex flex-col gap-4">
                 <Input
                   label="Correo empresarial"
@@ -238,7 +275,6 @@ export default function UserRegisterForm() {
                   error={errors.userAddress}
                 />
                 
-               
                 <Input
                   label="Fecha inicio laboral"
                   name="userStartDate"
@@ -257,7 +293,6 @@ export default function UserRegisterForm() {
                 />
               </div>
 
-            
               <div className="flex flex-col justify-between gap-6 md:col-span-2 lg:col-span-1">
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col items-start gap-2 w-full">
@@ -293,12 +328,18 @@ export default function UserRegisterForm() {
                     variant="primary"
                     size="md" 
                     className="w-full"
+                    onClick={() => {
+                      setTempSecondaryPhone(formData.userSecondaryPhone);
+                      setModalError("");
+                      setIsPhoneModalOpen(true);
+                    }}
                   >
-                    Agregar Teléfono Secundario
+                    {formData.userSecondaryPhone
+                      ? `Tel. Secundario: ${formData.userSecondaryPhone}`
+                      : "Agregar Teléfono Secundario"}
                   </Button>
                 </div>
 
-                
                 <div className="flex flex-col gap-3 w-full pt-4">
                   <Button 
                     type="button" 
@@ -325,6 +366,84 @@ export default function UserRegisterForm() {
           </form>
         </div>
       </section>
+
+      {/* MODAL 1: Agregar Grupo de Permisos (reutilizando <Modal />) */}
+      <Modal
+        isOpen={isGroupModalOpen}
+        onClose={() => setIsGroupModalOpen(false)}
+        title="Asignar Grupo al Usuario"
+      >
+        <Select
+          label="Selecciona el grupo o área de permisos"
+          name="tempGroup"
+          value={tempGroup}
+          options={user_groups_function}
+          onChange={(e) => {
+            setTempGroup(e.target.value);
+            setModalError("");
+          }}
+          error={modalError}
+        />
+
+        <div className="flex justify-end gap-3 pt-4">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => setIsGroupModalOpen(false)}
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            onClick={handleSaveGroup}
+          >
+            Guardar grupo
+          </Button>
+        </div>
+      </Modal>
+
+      {/* MODAL 2: Agregar Teléfono Secundario */}
+      <Modal
+        isOpen={isPhoneModalOpen}
+        onClose={() => setIsPhoneModalOpen(false)}
+        title="Agregar Teléfono Secundario"
+      >
+        <Input
+          label="Segundo número de contacto (Opcional)"
+          name="tempSecondaryPhone"
+          type="tel"
+          value={tempSecondaryPhone}
+          placeholder="Ej. 3109876543"
+          className="h-10"
+          onChange={(e) => {
+            setTempSecondaryPhone(e.target.value);
+            setModalError("");
+          }}
+          error={modalError}
+        />
+
+        <div className="flex justify-end gap-3 pt-4">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => setIsPhoneModalOpen(false)}
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            onClick={handleSaveSecondaryPhone}
+          >
+            Guardar teléfono
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

@@ -1,6 +1,13 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/shared";
 import Select from "@/shared/components/Select";
 import Checkbox from "@/shared/components/Checkbox";
+import {
+  showSuccessAlert,
+  showCancelAlert,
+  showUserErrorAlert,
+} from "@/shared/services/alertService";
 
 const PERMISSION_GROUPS = [
   {
@@ -53,6 +60,8 @@ const PERMISSION_GROUPS = [
 ];
 
 export default function PermissionForm() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     userGroup: "",
     individualUser: "",
@@ -78,8 +87,41 @@ export default function PermissionForm() {
     }));
   };
 
+  const handleCancel = async () => {
+    const result = await showCancelAlert({
+      title: "¿Deseas cancelar?",
+      text: "Los permisos seleccionados no se guardarán.",
+    });
+
+    if (result.isConfirmed) {
+      navigate("/dashboard/home");
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.userGroup && !formData.individualUser) {
+      await showUserErrorAlert({
+        title: "Selección requerida",
+        text: "Debes seleccionar al menos un grupo de usuarios o un usuario individual.",
+      });
+      return;
+    }
+
+    await showSuccessAlert({
+      title: "Permisos actualizados",
+      text: "La configuración de permisos se ha guardado correctamente.",
+    });
+
+    navigate("/dashboard/home");
+  };
+
   return (
-    <div className="flex flex-col lg:flex-row items-start gap-8 w-full">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col lg:flex-row items-start gap-8 w-full"
+    >
       {/* Columna izquierda */}
       <div className="flex flex-col gap-6 w-full lg:w-[35%]">
         <div className="bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl p-6 flex flex-col gap-6 shadow-md">
@@ -92,7 +134,12 @@ export default function PermissionForm() {
               name="userGroup"
               value={formData.userGroup}
               onChange={handleSelectChange}
-              options={[{ value: "admin", label: "Administradores" }]}
+              options={[
+                { value: "admin", label: "Administradores" },
+                { value: "cajero", label: "Cajeros" },
+                { value: "mesero", label: "Meseros" },
+                { value: "cocinero", label: "Cocineros" },
+              ]}
             />
           </div>
 
@@ -105,13 +152,16 @@ export default function PermissionForm() {
               name="individualUser"
               value={formData.individualUser}
               onChange={handleSelectChange}
-              options={[{ value: "may", label: "May" }]}
+              options={[
+                { value: "may", label: "Maycol James Guzman" },
+                { value: "fabian", label: "Fabian" },
+              ]}
             />
           </div>
         </div>
       </div>
 
-      {/* Columna derecha*/}
+      {/* Columna derecha */}
       <div className="flex-1 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl p-6 sm:p-8 shadow-lg space-y-8 text-[var(--color-text-inverse)] w-full">
         {PERMISSION_GROUPS.map((group, index) => (
           <div key={group.id} className="space-y-6">
@@ -126,8 +176,29 @@ export default function PermissionForm() {
             )}
           </div>
         ))}
+
+        {/* Botones de Acción */}
+        <div className="pt-6 border-t border-[var(--color-brand)]/40 flex flex-col-reverse sm:flex-row justify-end gap-4">
+          <Button
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={handleCancel}
+            className="w-full sm:w-40"
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            size="md"
+            className="w-full sm:w-48"
+          >
+            Guardar permisos
+          </Button>
+        </div>
       </div>
-    </div>
+    </form>
   );
 }
 
