@@ -1,9 +1,11 @@
+// src/features/auth/pages/ResetPasswordPage.jsx
+
 import ResetPasswordForm from "../components/ResetPasswordForm";
 
 export default function ResetPasswordPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-900 text-white">
+    <main className="w-full min-h-screen flex items-center justify-center">
       <ResetPasswordForm />
-    </div>
+    </main>
   );
 }

@@ -1,9 +1,12 @@
+// src/features/auth/pages/ForgotPasswordPage.jsx
+
 import ForgotPasswordForm from "../components/ForgotPasswordForm";
 
 export default function ForgotPasswordPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-900 text-white">
+    <main className="w-full min-h-screen flex items-center justify-center">
       <ForgotPasswordForm />
-    </div>
+    </main>
   );
 }
+

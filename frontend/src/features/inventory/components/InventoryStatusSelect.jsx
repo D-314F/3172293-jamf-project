@@ -1,8 +1,9 @@
+// src/features/inventory/components/InventoryStatusSelect.jsx
+
 import { useState, useEffect } from "react";
 import Select from "@/shared/components/Select";
-import  Modal  from "@/shared/components/Modal";
+import Modal from "@/shared/components/Modal";
 import Button from "@/shared/components/Button";
-
 import { showSuccessAlert } from "@/shared/services/alertService";
 
 export default function InventoryStatusSelect({
@@ -13,7 +14,7 @@ export default function InventoryStatusSelect({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingStatus, setPendingStatus] = useState(null);
 
-  // Sincroniza el estado si initialStatus cambia cuando se cargan los datos del backend
+  // Sincroniza el estado si initialStatus cambia cuando se cargan los datos
   useEffect(() => {
     if (initialStatus) {
       setStatus(initialStatus);
@@ -41,7 +42,6 @@ export default function InventoryStatusSelect({
       onStatusChange(pendingStatus);
     }
 
-    // Alerta de éxito con el servicio estandarizado
     await showSuccessAlert({
       title: "Estado actualizado",
       text: `El estado del producto ha cambiado a "${pendingStatus}".`,
@@ -61,9 +61,11 @@ export default function InventoryStatusSelect({
 
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
-          <div className="p-6 text-[var(--color-text-primary)]">
-            <h2 className="text-lg font-bold mb-4 text-amber-50">Confirmar cambio de estado</h2>
-            <p className="text-white text-sm">
+          <div className="p-6 text-[var(--color-text-inverse)]">
+            <h2 className="text-lg font-bold font-[var(--font-heading)] mb-4 text-[var(--color-brand)]">
+              Confirmar cambio de estado
+            </h2>
+            <p className="text-sm text-[var(--color-text-inverse)]">
               ¿Seguro que deseas cambiar el estado del producto a{" "}
               <span className="font-semibold text-[var(--color-brand)] capitalize">
                 {pendingStatus}
