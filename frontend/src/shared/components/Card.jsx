@@ -1,13 +1,17 @@
 // Componente Card (Presentacional, limpio, moderno y reutilizable)
 // src/shared/components/Card.jsx
 
-const Card = ({ product }) => {
+const Card = ({ product, className = "" }) => {
+  // Blindaje por si el producto llega vacío
+  if (!product) return null;
+
   const { title, image, price, description } = product;
 
   return (
     <div
-      className="
-        w-80
+      className={`
+        w-full
+        h-full
         bg-zinc-900
         border-2 border-zinc-800
         hover:border-[var(--color-brand)]
@@ -21,34 +25,36 @@ const Card = ({ product }) => {
         hover:-translate-y-1.5
         flex
         flex-col
-      "
+        ${className}
+      `}
     >
-      {/* Contenedor de la imagen con un fondo sutil para evitar contrastes cortantes */}
-      <div className="relative w-full h-48 bg-zinc-950/50 overflow-hidden">
+
+      <div className="relative w-full h-48 bg-zinc-950/50 overflow-hidden flex-shrink-0">
         <img
           src={image}
-          alt={title}
-          className="w-full h-full"
+          alt={title || "Platillo"}
+          className="w-full h-full object-cover"
         />
       </div>
 
-      {/* Contenido de la card */}
-      <div className="p-5 flex flex-col flex-grow justify-between space-y-3">
+      
+      <div className="p-5 flex flex-col flex-1 justify-between space-y-3">
         <div className="space-y-2">
-          <h2 className="text-xl font-bold text-white">
-            {title}
+          <h2 className="text-xl font-bold text-white truncate">
+            {title || "Sin título"}
           </h2>
 
-          <p className="text-sm text-zinc-400">
-            {description}
+        
+          <p className="text-sm text-zinc-400 line-clamp-2">
+            {description || "Sin descripción"}
           </p>
         </div>
 
-        {/* Precio destacado con el color de marca */}
-        <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
+        
+        <div className="pt-2 border-t border-zinc-800 flex items-center justify-between mt-auto">
           <span className="text-xs uppercase text-zinc-500 font-semibold">Precio</span>
           <p className="text-lg font-extrabold text-[var(--color-brand)]">
-            ${price.toLocaleString()}
+            ${price?.toLocaleString() || "0"}
           </p>
         </div>
       </div>
