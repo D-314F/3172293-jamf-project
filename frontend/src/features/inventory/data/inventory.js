@@ -78,3 +78,9 @@ export const CUENTADANTES_OPTIONS = [
   { value: "karen cardona vicente", label: "Karen Cardona Vicente" },
   { value: "paola garcia", label: "Paola García" },
 ];
+export const INVENTORY_STATUS_OPTIONS = [
+  { value: "Disponible", label: "Disponible" },
+  { value: "Agotado", label: "Agotado" },
+  { value: "Vencido", label: "Vencido" },
+  { value: "Averiado", label: "Averiado" },
+];

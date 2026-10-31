@@ -1,6 +1,6 @@
-// src/features/orders/table/OrderColumns.js
-
+import { Select } from "@/shared";
 import OrderRowActions from "../components/OrderRowActions";
+import { ESTADOS_ORDEN } from "../data/ordersData";
 
 export const OrderColumns = [
   {
@@ -32,11 +32,27 @@ export const OrderColumns = [
   {
     accessorKey: "estado",
     header: "Estado",
-    cell: ({ row }) => (
-      <span className="text-[var(--color-text-primary)] font-medium">
-        {row.original.estado}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const order = row.original;
+
+      const handleStatusChange = (newStatus) => {
+        order.estado = newStatus;
+      };
+
+      return (
+        <div className="min-w-[155px]">
+          <Select
+            value={order.estado}
+            options={ESTADOS_ORDEN}
+            onChange={handleStatusChange}
+            confirmChange={true}
+            hidePlaceholder={true}
+            itemName={`la orden ${order.id}`}
+            className="bg-white text-[var(--color-text-primary)] h-9 text-sm font-medium border-[var(--color-brand)] cursor-pointer"
+          />
+        </div>
+      );
+    },
   },
   {
     id: "actions",

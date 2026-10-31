@@ -1,85 +1,105 @@
 import { useState, useEffect } from "react";
-
-// Iconos usados dentro de switch
 import { Check, X } from "lucide-react";
+import Swal from "sweetalert2";
+import {
+    showConfirmDeleteAlert,
+    showSuccessAlert,
+    showCancelAlert,
+    } from "@/shared/services/alertService";
 
-// componente reutilizable para representar un switch de estado (activo/inactivo)
-export default function StatusSwitch({
-    checked = false, // Valor inicial del switch
-    onChange,        // callback que se ejecuta cuando cambia de estado
-    disabled = false, // permite deshabilitar la interacción
-    size = "md"      // tamaño del switch (sm, md, lg)
-}) {
-
-    // estado interno del componente
+    export default function StatusSwitch({
+    checked = false,
+    onChange,
+    disabled = false,
+    size = "md",
+    itemName = "este registro",
+    }) {
     const [isActive, setIsActive] = useState(checked);
 
-    // estado que sincroniza el estado interno con el valor recibido desde el componente padre
     useEffect(() => {
         setIsActive(checked);
     }, [checked]);
-    
-    // Función que maneja el cambio del switch
-    const handleToggle = () => {
-        // si el switch esta deshabilitado no permite interacción
+
+    const handleToggle = async () => {
         if (disabled) return;
 
-        // calcula el nuevo estado (invierte el valor actual)
         const newValue = !isActive;
+        const actionVerb = newValue ? "activar" : "desactivar";
+        const actionTitle = newValue ? "¡Activado!" : "¡Desactivado!";
+        const actionPast = newValue ? "activado" : "desactivado";
 
-        // Actualiza el estado interno
+        const result = await showConfirmDeleteAlert({
+        title: "¿Estás seguro?",
+        text: `¿Deseas ${actionVerb} ${itemName}?`,
+        confirmButtonText: `Sí, ${actionVerb}`,
+        cancelButtonText: "No, cancelar",
+        });
+
+        if (result.isConfirmed) {
         setIsActive(newValue);
 
-        // si existe un callback onChange, se ejecuta enviando el nuevo valor
         if (onChange) {
-            onChange(newValue);
+            await onChange(newValue);
+        }
+
+        await showSuccessAlert({
+            title: actionTitle,
+            text: `El registro fue ${actionPast} con éxito.`,
+            timer: 1800,
+        });
+        } else if (
+        result.dismiss === Swal.DismissReason.cancel ||
+        result.isDismissed
+        ) {
+        showCancelAlert({
+            title: "Cancelado",
+            text: "El estado no sufrió ningún cambio.",
+            timer: 1800,
+        });
         }
     };
 
-    // Clases del tamaño del contenedor del switch
     const sizes = {
         sm: "h-5 w-9",
         md: "h-6 w-11",
         lg: "h-7 w-14",
     };
 
-    // clases del tamaño del "knob" (el circulo que se mueve)
-    const knobSizes = { 
+    const knobSizes = {
         sm: "h-4 w-4",
         md: "h-5 w-5",
         lg: "h-6 w-6",
     };
 
     return (
-        // Botón que funciona como switch
         <button
-            onClick={handleToggle}
-            disabled={disabled}
+        type="button"
+        onClick={handleToggle}
+        disabled={disabled}
+        title={isActive ? "Activo (clic para desactivar)" : "Inactivo (clic para activar)"}
+        className={`
+            relative inline-flex items-center
+            rounded-full transition-colors duration-200
+            ${sizes[size]}
+            ${isActive ? "bg-green-500" : "bg-gray-400"}
+            ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+        `}
+        >
+        <span
             className={`
-                relative inline-flex items-center
-                rounded-full transition-colors
-                ${sizes[size]}
-                ${isActive ? "bg-green-500" : "bg-gray-300"}
-                ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+            absolute left-0.5 flex items-center justify-center
+            rounded-full bg-white shadow
+            transition-transform duration-200
+            ${knobSizes[size]}
+            ${isActive ? "translate-x-full" : "translate-x-0"}
             `}
         >
-            {/* "Knob" del switch (el círculo que se mueve de izquierda a derecha) */}
-            <span
-                className={`
-                    absolute left-0.5 flex items-center justify-center
-                    rounded-full bg-white shadow
-                    transition-transform
-                    ${knobSizes[size]}
-                    ${isActive ? "translate-x-full" : "translate-x-0"}
-                `}
-            >
-                {/* Icono que cambia dependiendo del estado */}
-                {isActive ? (
-                    <Check size={12} className="text-green-600" />
-                ) : (
-                    <X size={12} className="text-gray-500" />
-                )}
-            </span>
+            {isActive ? (
+            <Check size={12} className="text-green-600" />
+            ) : (
+            <X size={12} className="text-gray-500" />
+            )}
+        </span>
         </button>
     );
 }
