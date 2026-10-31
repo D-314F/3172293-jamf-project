@@ -1,80 +1,36 @@
-// Iconos usados en los botones de acciones
-import { Pencil, Trash2, Eye } from "lucide-react";
-
+import { Pencil, Eye } from "lucide-react";
 import { IconButton } from "@/shared";
-
-// Hook de React Router para navegar programáticamente entre rutas
 import { useNavigate } from "react-router-dom";
 
-import Swal from "sweetalert2";
-import {
-  showConfirmDeleteAlert,
-  showSuccessAlert,
-  showCancelAlert,
-} from "@/shared/services/alertService";
-
-// Componente que renderiza las acciones de cada fila de usuario
-// Recibe como prop el objeto user
 export default function UserRowActions({ user }) {
   const navigate = useNavigate();
 
-  // Acción para editar el usuario
-  const handleEdit = () => {
-    navigate(`/dashboard/userEdit/${user?.id}`);
-  };
-
-  // Acción para eliminar el usuario
-  const handleDelete = async () => {
-    const result = await showConfirmDeleteAlert({
-      title: "¿Estás seguro?",
-      text: `¿Deseas eliminar al usuario ${user?.userName}?. 
-      No podrás revertir esto.`,
-    });
-
-    if (result.isConfirmed) {
-      // Alerta de éxito al eliminar
-      await showSuccessAlert({
-        title: "¡Eliminado!",
-        text: `El usuario ${user?.userName} fue eliminado con éxito.`,
-      });
-    } else if (result.dismiss === Swal.DismissReason.cancel) {
-      // Alerta al cancelar la eliminación
-      showCancelAlert({
-        title: "Cancelado",
-        text: `El usuario ${user?.userName} no sufrió ningún cambio.`,
-      });
-    }
-  };
-
-  // Acción para ver el usuario
   const handleView = () => {
     navigate(`/dashboard/userview/${user?.id}`);
   };
 
+  const handleEdit = () => {
+    navigate(`/dashboard/userEdit/${user?.id}`);
+  };
+
   return (
     <div className="flex items-center gap-2">
-      {/* Botón ver */}
       <IconButton
         onClick={handleView}
+        title="Ver usuario"
         variant="primary"
+        size="sm"
       >
         <Eye className="w-4 h-4" />
       </IconButton>
 
-      {/* Botón editar */}
       <IconButton
         onClick={handleEdit}
+        title="Editar usuario"
         variant="primary"
+        size="sm"
       >
         <Pencil className="w-4 h-4" />
-      </IconButton>
-
-      {/* Botón eliminar */}
-      <IconButton
-        onClick={handleDelete}
-        variant="danger"
-      >
-        <Trash2 className="w-4 h-4" />
       </IconButton>
     </div>
   );
