@@ -35,8 +35,10 @@ export const inventoryRepository = {
             comentarioProducto,
             productImageUrl,
             status,
-            isActive,
         } = inventoryData;
+
+        const statusText = status || "Disponible";
+        const isActive = String(statusText).trim().toLowerCase() === "disponible";
 
         const query = `
             INSERT INTO public.inventory (
@@ -70,35 +72,38 @@ export const inventoryRepository = {
             nombre,
             codigoBarras,
             cuentadante,
-            cantidad,
-            cantidadTotal,
-            cantidadMinima,
-            valorUnitario,
-            valorTotal,
+            Number(cantidad),
+            Number(cantidadTotal),
+            Number(cantidadMinima),
+            Number(valorUnitario),
+            Number(valorTotal),
             lote,
             ubicacion,
             fechaVencimiento,
             descripcion,
             comentarioProducto,
             productImageUrl,
-            status || "Disponible",
-            isActive ?? (status === "Disponible"),
+            statusText,
+            isActive,
         ];
 
         const result = await pool.query(query, values);
         return result.rows[0];
     },
 
-    // 4. Actualizar únicamente el estado del producto (4 opciones)
+    // 4. Actualización limpia y directa de estado (4 opciones)
     async updateStatus(id, statusText) {
+        const statusVal = String(statusText || "Disponible");
+        const isActive = statusVal.trim().toLowerCase() === "disponible";
+
         const query = `
             UPDATE public.inventory 
-            SET status = $1, is_active = ($1 = 'Disponible')
-            WHERE id = $2 
+            SET status = $1, is_active = $2 
+            WHERE id = $3 
             RETURNING id, status, is_active;
         `;
-        const result = await pool.query(query, [statusText, Number(id)]);
-        return result.rows[0] || { id: Number(id), status: statusText };
+        const result = await pool.query(query, [statusVal, isActive, Number(id)]);
+        return result.rows[0] || { id: Number(id), status: statusVal };
     },
 
     // 5. Actualizar producto completo
@@ -123,6 +128,9 @@ export const inventoryRepository = {
             status,
         } = inventoryData;
 
+        const statusVal = String(status || "Disponible");
+        const isActive = statusVal.trim().toLowerCase() === "disponible";
+
         const query = `
             UPDATE public.inventory SET
                 marca = $1,
@@ -142,8 +150,8 @@ export const inventoryRepository = {
                 comentario_producto = $15,
                 product_image_url = $16,
                 status = $17,
-                is_active = ($17 = 'Disponible')
-            WHERE id = $18
+                is_active = $18
+            WHERE id = $19
             RETURNING id, status, is_active;
         `;
 
@@ -153,22 +161,23 @@ export const inventoryRepository = {
             nombre,
             codigoBarras,
             cuentadante,
-            cantidad,
-            cantidadTotal,
-            cantidadMinima,
-            valorUnitario,
-            valorTotal,
+            Number(cantidad),
+            Number(cantidadTotal),
+            Number(cantidadMinima),
+            Number(valorUnitario),
+            Number(valorTotal),
             lote,
             ubicacion,
             fechaVencimiento,
             descripcion,
             comentarioProducto,
             productImageUrl,
-            status || "Disponible",
+            statusVal,
+            isActive,
             Number(id),
         ];
 
         const result = await pool.query(query, values);
-        return result.rows[0] || { id: Number(id), status: status || "Disponible" };
+        return result.rows[0] || { id: Number(id), status: statusVal };
     },
 };
