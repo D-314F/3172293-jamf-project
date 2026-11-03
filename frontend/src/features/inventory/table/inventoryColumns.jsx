@@ -19,6 +19,7 @@ export const inventoryColumns = [
     header: "Estado",
     cell: ({ row }) => {
       const item = row.original;
+      const currentStatus = item.status || (item.isActive ? "Disponible" : "Agotado");
 
       const handleStatusChange = async (newStatus) => {
         const isAvailable = newStatus === "Disponible";
@@ -33,7 +34,7 @@ export const inventoryColumns = [
       return (
         <div className="min-w-[140px]">
           <Select
-            value={item.status || (item.isActive ? "Disponible" : "Agotado")}
+            value={currentStatus}
             options={INVENTORY_STATUS_OPTIONS}
             onChange={handleStatusChange}
             confirmChange={true}

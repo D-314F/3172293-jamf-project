@@ -11,7 +11,7 @@ export const inventoryRepository = {
     // 2. Obtener producto por ID
     async findById(id) {
         const query = "SELECT * FROM public.inventory WHERE id = $1";
-        const result = await pool.query(query, [id]);
+        const result = await pool.query(query, [Number(id)]);
         return result.rows[0];
     },
 
@@ -86,13 +86,16 @@ export const inventoryRepository = {
         return result.rows[0];
     },
 
-    // 4. Actualización rápida de solo estado
+    // 4. Actualización rápida y directa de solo estado
     async updateStatus(id, isActive) {
         const query = `
-            UPDATE inventory SET is_active = $1 WHERE id = $2 RETURNING id;
+            UPDATE public.inventory 
+            SET is_active = $1 
+            WHERE id = $2 
+            RETURNING id, is_active;
         `;
-        const result = await pool.query(query, [isActive, id]);
-        return result.rows[0];
+        const result = await pool.query(query, [Boolean(isActive), Number(id)]);
+        return result.rows[0] || { id: Number(id) };
     },
 
     // 5. Actualizar producto completo en la BD
@@ -118,7 +121,7 @@ export const inventoryRepository = {
         } = inventoryData;
 
         const query = `
-            UPDATE inventory SET
+            UPDATE public.inventory SET
                 marca = $1,
                 codigo = $2,
                 nombre = $3,
@@ -137,7 +140,7 @@ export const inventoryRepository = {
                 product_image_url = $16,
                 is_active = $17
             WHERE id = $18
-            RETURNING id;
+            RETURNING id, is_active;
         `;
 
         const values = [
@@ -158,10 +161,10 @@ export const inventoryRepository = {
             comentarioProducto,
             productImageUrl,
             isActive,
-            id,
+            Number(id),
         ];
 
         const result = await pool.query(query, values);
-        return result.rows[0];
+        return result.rows[0] || { id: Number(id) };
     },
 };

@@ -7,7 +7,21 @@ function formatDate(dateValue) {
     return date.toISOString().split("T")[0];
 }
 
+// Función auxiliar para determinar si un valor representa "Activo / Disponible"
+function parseIsActive(statusValue, isActiveValue, fallback = true) {
+    if (isActiveValue !== undefined) {
+        return Boolean(isActiveValue);
+    }
+    if (statusValue !== undefined && statusValue !== null) {
+        const s = String(statusValue).trim().toLowerCase();
+        return s === "disponible" || s === "activo" || s === "true" || s === "habilitado";
+    }
+    return Boolean(fallback);
+}
+
 function mapInventoryFromDb(item) {
+    const isActivo = Boolean(item.is_active);
+
     return {
         id: item.id,
         codigo: item.codigo,
@@ -31,8 +45,8 @@ function mapInventoryFromDb(item) {
         descripcion: item.descripcion,
         comentarioProducto: item.comentario_producto || "",
         productImageUrl: item.product_image_url || null,
-        isActive: item.is_active,
-        status: item.is_active ? "Disponible" : "Agotado",
+        isActive: isActivo,
+        status: isActivo ? "Disponible" : "Agotado",
     };
 }
 
@@ -62,11 +76,7 @@ export const inventoryService = {
         );
 
         if (hasOnlyStatus && (data.status !== undefined || data.isActive !== undefined)) {
-            const isAvailable =
-                data.isActive !== undefined
-                    ? Boolean(data.isActive)
-                    : data.status === "Disponible" || data.status === "Activo" || data.status === true;
-
+            const isAvailable = parseIsActive(data.status, data.isActive, existing.is_active);
             return await inventoryRepository.updateStatus(id, isAvailable);
         }
 
@@ -85,6 +95,8 @@ export const inventoryService = {
             : existing.fecha_vencimiento
             ? formatDate(existing.fecha_vencimiento)
             : null;
+
+        const isAvailable = parseIsActive(data.status, data.isActive, existing.is_active);
 
         const inventoryData = {
             marca: data.brand ?? data.marca ?? existing.marca,
@@ -117,12 +129,7 @@ export const inventoryService = {
                     : existing.comentario_producto,
             productImageUrl:
                 data.productImageUrl ?? existing.product_image_url,
-            isActive:
-                data.isActive !== undefined
-                    ? Boolean(data.isActive)
-                    : data.status !== undefined
-                    ? data.status === "Disponible" || data.status === "Activo" || data.status === true
-                    : existing.is_active,
+            isActive: isAvailable,
         };
 
         return await inventoryRepository.update(id, inventoryData);
