@@ -1,17 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataTable, Button } from "@/shared";
 import { UserColumns } from "../table/UserColumns";
-import { users } from "../data/users";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
+import { getUsers } from "../services/userServices";
 
 export default function UserListPage() {
   const navigate = useNavigate();
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const data = await getUsers();
+        setUsers(data);
+      } catch (error) {
+        console.error("Error al obtener los usuarios:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   return (
-      <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-8 md:pt-10 pb-10 flex flex-col gap-4">
-      
+    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-8 md:pt-10 pb-10 flex flex-col gap-4">
       {/* Header Responsivo */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
         <h1 className="text-xl sm:text-2xl font-[var(--font-heading)] font-bold text-[var(--color-text-inverse)]">
@@ -19,7 +35,7 @@ export default function UserListPage() {
         </h1>
 
         <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3">
-          <Button 
+          <Button
             variant="primary"
             size="md"
             onClick={() => setIsReportModalOpen(true)}
@@ -27,7 +43,7 @@ export default function UserListPage() {
             Reportar usuario
           </Button>
 
-          <Button 
+          <Button
             variant="primary"
             size="md"
             onClick={() => navigate("/dashboard/userCreate")}
@@ -39,7 +55,13 @@ export default function UserListPage() {
 
       {/* TARJETA CONTENEDORA DE LA TABLA */}
       <div className="bg-[var(--color-background-inverse)] rounded-2xl md:rounded-3xl border border-[var(--color-brand)] shadow-2xl p-4 sm:p-6 md:p-8 overflow-hidden">
-        <DataTable data={users} columns={UserColumns} />
+        {loading ? (
+          <p className="text-[var(--color-text-inverse)] text-center py-8">
+            Cargando usuarios de la base de datos...
+          </p>
+        ) : (
+          <DataTable data={users} columns={UserColumns} />
+        )}
       </div>
 
       {/* Modal de Reporte */}

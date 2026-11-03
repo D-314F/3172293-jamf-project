@@ -1,6 +1,7 @@
 import { Select } from "@/shared";
 import OrderRowActions from "../components/OrderRowActions";
 import { ESTADOS_ORDEN } from "../data/ordersData";
+import { updateOrder } from "../services/orderServices";
 
 export const OrderColumns = [
   {
@@ -35,7 +36,8 @@ export const OrderColumns = [
     cell: ({ row }) => {
       const order = row.original;
 
-      const handleStatusChange = (newStatus) => {
+      const handleStatusChange = async (newStatus) => {
+        await updateOrder(order.id, { estado: newStatus });
         order.estado = newStatus;
       };
 
@@ -47,7 +49,7 @@ export const OrderColumns = [
             onChange={handleStatusChange}
             confirmChange={true}
             hidePlaceholder={true}
-            itemName={`la orden ${order.id}`}
+            itemName={`la orden #${order.id}`}
             className="bg-white text-[var(--color-text-primary)] h-9 text-sm font-medium border-[var(--color-brand)] cursor-pointer"
           />
         </div>

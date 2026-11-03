@@ -59,3 +59,6 @@ export const userSchema = z.object({
     userImage: fileSchema.shape.files.optional()
 
 })
+
+// Este es un esquema parcial para edición de usuario (sin exigir contraseña)
+export const userEditSchema = userSchema.omit({ userPassword: true }).partial();
