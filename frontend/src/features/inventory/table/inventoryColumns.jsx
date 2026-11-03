@@ -1,7 +1,33 @@
+import { useState } from "react";
 import { Select } from "@/shared";
 import InventoryRowActions from "../components/InventoryRowActions";
 import { INVENTORY_STATUS_OPTIONS } from "../data/inventory";
 import { updateInventory } from "../services/inventoryServices";
+
+function InventoryStatusCell({ item }) {
+  const [currentStatus, setCurrentStatus] = useState(item.status || "Disponible");
+
+  const handleStatusChange = async (newStatus) => {
+    setCurrentStatus(newStatus);
+    item.status = newStatus;
+    item.isActive = newStatus === "Disponible";
+    await updateInventory(item.id, { status: newStatus });
+  };
+
+  return (
+    <div className="min-w-[140px]">
+      <Select
+        value={currentStatus}
+        options={INVENTORY_STATUS_OPTIONS}
+        onChange={handleStatusChange}
+        confirmChange={true}
+        hidePlaceholder={true}
+        itemName={`"${item.name}"`}
+        className="bg-white text-[var(--color-text-primary)] h-9 text-sm font-medium border-[var(--color-brand)] cursor-pointer"
+      />
+    </div>
+  );
+}
 
 export const inventoryColumns = [
   { accessorKey: "id", header: "Id" },
@@ -17,34 +43,7 @@ export const inventoryColumns = [
   {
     accessorKey: "status",
     header: "Estado",
-    cell: ({ row }) => {
-      const item = row.original;
-      const currentStatus = item.status || (item.isActive ? "Disponible" : "Agotado");
-
-      const handleStatusChange = async (newStatus) => {
-        const isAvailable = newStatus === "Disponible";
-        await updateInventory(item.id, {
-          status: newStatus,
-          isActive: isAvailable,
-        });
-        item.status = newStatus;
-        item.isActive = isAvailable;
-      };
-
-      return (
-        <div className="min-w-[140px]">
-          <Select
-            value={currentStatus}
-            options={INVENTORY_STATUS_OPTIONS}
-            onChange={handleStatusChange}
-            confirmChange={true}
-            hidePlaceholder={true}
-            itemName={`"${item.name}"`}
-            className="bg-white text-[var(--color-text-primary)] h-9 text-sm font-medium border-[var(--color-brand)] cursor-pointer"
-          />
-        </div>
-      );
-    },
+    cell: ({ row }) => <InventoryStatusCell item={row.original} />,
   },
   {
     id: "actions",

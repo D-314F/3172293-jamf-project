@@ -24,7 +24,6 @@ export default function EditInventoryPage() {
     const loadItem = async () => {
       try {
         const item = await getInventoryById(id);
-        const statusNormalized = (item.status === "Disponible" || item.isActive) ? "Disponible" : "Agotado";
 
         setFormData({
           id: String(item.id || ""),
@@ -34,7 +33,7 @@ export default function EditInventoryPage() {
           unitPrice: String(item.unitPrice ?? item.valorUnitario ?? ""),
           brand: item.brand || item.marca || "",
           lote: String(item.lote || ""),
-          status: statusNormalized,
+          status: item.status || "Disponible",
           userImage: [],
         });
       } catch (error) {
@@ -100,11 +99,7 @@ export default function EditInventoryPage() {
     setLoading(true);
 
     try {
-      const isAvailable = result.data.status === "Disponible";
-      await updateInventory(id, {
-        ...result.data,
-        isActive: isAvailable,
-      });
+      await updateInventory(id, result.data);
 
       await showSuccessAlert({
         title: "Producto actualizado",

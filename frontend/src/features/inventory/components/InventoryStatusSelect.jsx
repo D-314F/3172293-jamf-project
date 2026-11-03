@@ -11,19 +11,13 @@ export default function InventoryStatusSelect({
   initialStatus = "Disponible",
   onStatusChange,
 }) {
-  const [status, setStatus] = useState(initialStatus);
+  const [status, setStatus] = useState(initialStatus || "Disponible");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingStatus, setPendingStatus] = useState(null);
 
-  // Normaliza el estado si viene en minúscula como "activo" o booleano
   useEffect(() => {
     if (initialStatus) {
-      const s = String(initialStatus).toLowerCase();
-      if (s === "activo" || s === "disponible" || s === "true") {
-        setStatus("Disponible");
-      } else {
-        setStatus("Agotado");
-      }
+      setStatus(initialStatus);
     }
   }, [initialStatus]);
 

@@ -1,7 +1,7 @@
 import { pool } from "../../config/db.js";
 
 export const inventoryRepository = {
-    // 1. Obtener todos los productos de inventario
+    // 1. Obtener todos los productos
     async findAll() {
         const query = "SELECT * FROM public.inventory ORDER BY id ASC";
         const result = await pool.query(query);
@@ -34,11 +34,12 @@ export const inventoryRepository = {
             descripcion,
             comentarioProducto,
             productImageUrl,
+            status,
             isActive,
         } = inventoryData;
 
         const query = `
-            INSERT INTO inventory (
+            INSERT INTO public.inventory (
                 marca,
                 codigo,
                 nombre,
@@ -55,9 +56,10 @@ export const inventoryRepository = {
                 descripcion,
                 comentario_producto,
                 product_image_url,
+                status,
                 is_active
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
             )
             RETURNING id;
         `;
@@ -79,26 +81,27 @@ export const inventoryRepository = {
             descripcion,
             comentarioProducto,
             productImageUrl,
-            isActive,
+            status || "Disponible",
+            isActive ?? (status === "Disponible"),
         ];
 
         const result = await pool.query(query, values);
         return result.rows[0];
     },
 
-    // 4. Actualización rápida y directa de solo estado
-    async updateStatus(id, isActive) {
+    // 4. Actualizar únicamente el estado del producto (4 opciones)
+    async updateStatus(id, statusText) {
         const query = `
             UPDATE public.inventory 
-            SET is_active = $1 
+            SET status = $1, is_active = ($1 = 'Disponible')
             WHERE id = $2 
-            RETURNING id, is_active;
+            RETURNING id, status, is_active;
         `;
-        const result = await pool.query(query, [Boolean(isActive), Number(id)]);
-        return result.rows[0] || { id: Number(id) };
+        const result = await pool.query(query, [statusText, Number(id)]);
+        return result.rows[0] || { id: Number(id), status: statusText };
     },
 
-    // 5. Actualizar producto completo en la BD
+    // 5. Actualizar producto completo
     async update(id, inventoryData) {
         const {
             marca,
@@ -117,7 +120,7 @@ export const inventoryRepository = {
             descripcion,
             comentarioProducto,
             productImageUrl,
-            isActive,
+            status,
         } = inventoryData;
 
         const query = `
@@ -138,9 +141,10 @@ export const inventoryRepository = {
                 descripcion = $14,
                 comentario_producto = $15,
                 product_image_url = $16,
-                is_active = $17
+                status = $17,
+                is_active = ($17 = 'Disponible')
             WHERE id = $18
-            RETURNING id, is_active;
+            RETURNING id, status, is_active;
         `;
 
         const values = [
@@ -160,11 +164,11 @@ export const inventoryRepository = {
             descripcion,
             comentarioProducto,
             productImageUrl,
-            isActive,
+            status || "Disponible",
             Number(id),
         ];
 
         const result = await pool.query(query, values);
-        return result.rows[0] || { id: Number(id) };
+        return result.rows[0] || { id: Number(id), status: status || "Disponible" };
     },
 };

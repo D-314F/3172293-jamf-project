@@ -7,20 +7,9 @@ function formatDate(dateValue) {
     return date.toISOString().split("T")[0];
 }
 
-// Función auxiliar para determinar si un valor representa "Activo / Disponible"
-function parseIsActive(statusValue, isActiveValue, fallback = true) {
-    if (isActiveValue !== undefined) {
-        return Boolean(isActiveValue);
-    }
-    if (statusValue !== undefined && statusValue !== null) {
-        const s = String(statusValue).trim().toLowerCase();
-        return s === "disponible" || s === "activo" || s === "true" || s === "habilitado";
-    }
-    return Boolean(fallback);
-}
-
 function mapInventoryFromDb(item) {
-    const isActivo = Boolean(item.is_active);
+    // Si la BD tiene status lo usa, si no, usa el fallback
+    const status = item.status || (item.is_active ? "Disponible" : "Agotado");
 
     return {
         id: item.id,
@@ -45,8 +34,8 @@ function mapInventoryFromDb(item) {
         descripcion: item.descripcion,
         comentarioProducto: item.comentario_producto || "",
         productImageUrl: item.product_image_url || null,
-        isActive: isActivo,
-        status: isActivo ? "Disponible" : "Agotado",
+        status: status,
+        isActive: status === "Disponible",
     };
 }
 
@@ -70,14 +59,13 @@ export const inventoryService = {
             throw new Error("Producto no encontrado en inventario");
         }
 
-        // Si solo se está actualizando el estado desde la tabla
+        // Si solo se está actualizando el estado (ej. desde el Select de la tabla)
         const hasOnlyStatus = Object.keys(data).every((k) =>
             ["status", "isActive"].includes(k)
         );
 
-        if (hasOnlyStatus && (data.status !== undefined || data.isActive !== undefined)) {
-            const isAvailable = parseIsActive(data.status, data.isActive, existing.is_active);
-            return await inventoryRepository.updateStatus(id, isAvailable);
+        if (hasOnlyStatus && data.status !== undefined) {
+            return await inventoryRepository.updateStatus(id, data.status);
         }
 
         const cantidad =
@@ -96,7 +84,7 @@ export const inventoryService = {
             ? formatDate(existing.fecha_vencimiento)
             : null;
 
-        const isAvailable = parseIsActive(data.status, data.isActive, existing.is_active);
+        const statusText = data.status || existing.status || "Disponible";
 
         const inventoryData = {
             marca: data.brand ?? data.marca ?? existing.marca,
@@ -129,7 +117,7 @@ export const inventoryService = {
                     : existing.comentario_producto,
             productImageUrl:
                 data.productImageUrl ?? existing.product_image_url,
-            isActive: isAvailable,
+            status: statusText,
         };
 
         return await inventoryRepository.update(id, inventoryData);
@@ -138,6 +126,7 @@ export const inventoryService = {
     async createInventory(data) {
         const cantidad = Number(data.cantidad);
         const valorUnitario = Number(data.valorUnitario);
+        const statusText = data.status || "Disponible";
 
         const inventoryData = {
             marca: data.marca,
@@ -156,7 +145,8 @@ export const inventoryService = {
             descripcion: data.descripcion,
             comentarioProducto: data.comentarioProducto || null,
             productImageUrl: null,
-            isActive: data.isActive ?? true,
+            status: statusText,
+            isActive: statusText === "Disponible",
         };
 
         return await inventoryRepository.create(inventoryData);

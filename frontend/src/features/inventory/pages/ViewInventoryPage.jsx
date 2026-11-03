@@ -47,7 +47,12 @@ export default function ViewInventoryPage() {
     );
   }
 
-  const isActivo = product.status?.toLowerCase() === "activo" || Boolean(product.isActive);
+  const currentStatus = product.status || "Disponible";
+  const badgeColor = currentStatus === "Disponible" 
+    ? "bg-green-500" 
+    : currentStatus === "Agotado" 
+    ? "bg-red-500" 
+    : "bg-amber-500";
 
   return (
     <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 flex flex-col gap-6">
@@ -147,12 +152,8 @@ export default function ViewInventoryPage() {
               </span>
               <div className="flex items-center gap-3">
                 <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border border-[var(--color-brand)]/30 bg-[var(--color-background-primary)]/40 text-[var(--color-text-inverse)]">
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      isActivo ? "bg-green-500 animate-pulse" : "bg-red-500"
-                    }`}
-                  />
-                  {product.status || (isActivo ? "Activo" : "Inactivo")}
+                  <span className={`w-2.5 h-2.5 rounded-full ${badgeColor} animate-pulse`} />
+                  {currentStatus}
                 </span>
               </div>
             </div>
