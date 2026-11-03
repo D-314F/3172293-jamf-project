@@ -1,25 +1,33 @@
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import ProviderDetailForm from "../components/ProviderDetailForm";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared";
 import { ArrowLeft } from "lucide-react";
+import { getProviderById } from "../services/providerServices";
 
 export default function ProviderDetailPage() {
+  const { id } = useParams();
   const navigate = useNavigate();
+  const [provider, setProvider] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const provider = {
-    companyName: "Julián Ramíros",
-    nit: "900123456-7",
-    email: "Julianramiroz@proveedor.com",
-    phone: "+57 310 1234567",
-    address: "Carrera 10 #20-30",
-    startDate: "01/01/2024",
-    endDate: "01/01/2025",
-    active: true,
-  };
+  useEffect(() => {
+    const loadProvider = async () => {
+      try {
+        const data = await getProviderById(id);
+        setProvider(data);
+      } catch (error) {
+        console.error("Error al cargar proveedor:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProvider();
+  }, [id]);
 
   return (
     <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 flex flex-col gap-4">
-      
       <div className="flex justify-start">
         <Button
           type="button"
@@ -33,8 +41,13 @@ export default function ProviderDetailPage() {
         </Button>
       </div>
 
-      {/* Detalle del proveedor */}
-      <ProviderDetailForm provider={provider} />
+      {loading ? (
+        <div className="p-8 text-center text-[var(--color-text-inverse)]">
+          Cargando datos del proveedor...
+        </div>
+      ) : (
+        <ProviderDetailForm provider={provider || {}} />
+      )}
     </section>
   );
 }

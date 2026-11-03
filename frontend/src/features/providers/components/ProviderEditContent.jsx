@@ -2,17 +2,18 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Select, Input, Button, Checkbox, FileInput } from "@/shared";
-import documentTypes from "../../../data/selects/documentsTypes.json";
-import productCategories from "../../../data/selects/productCategories.json";
+import { documentTypes, providerProducts } from "../data/providersValue";
 import { providerSchema } from "../schemas/providerSchema";
-import { showSuccessAlert, showCancelAlert } from "@/shared/services/alertService";
+import { showSuccessAlert, showCancelAlert, showUserErrorAlert } from "@/shared/services/alertService";
 
 export default function ProviderEditContent({
   formData = {},
   setFormData,
+  onSubmit,
 }) {
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
@@ -34,46 +35,59 @@ export default function ProviderEditContent({
         fieldErrors[issue.path[0]] = issue.message;
       });
       setErrors(fieldErrors);
+      await showUserErrorAlert({
+        title: "Campos inválidos",
+        text: "Por favor revisa los campos señalados.",
+      });
       return;
     }
 
     setErrors({});
+    setLoading(true);
 
     try {
+      if (onSubmit) {
+        await onSubmit(result.data);
+      }
+
       await showSuccessAlert({
         title: "Proveedor editado",
         text: "El Proveedor se ha editado correctamente",
         timer: 2000,
       });
 
-      navigate(-1);
+      navigate("/dashboard/providerList");
     } catch (error) {
       console.error("Error al editar el Proveedor", error);
-      setErrors({ submit: "Error al editar el Proveedor" });
+      await showUserErrorAlert({
+        title: "Error al actualizar",
+        text: error.message || "No se pudo actualizar el proveedor.",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleCancel = async () => {
     const result = await showCancelAlert({
-      title: "Cancelado",
+      title: "¿Deseas cancelar?",
       text: "Los cambios no guardados se perderán.",
       timer: 3000,
     });
 
     if (result.isConfirmed) {
-      navigate(-1);
+      navigate("/dashboard/providerList");
     }
   };
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 flex flex-col gap-4">
-      
       <div className="flex justify-start">
         <Button
           variant="secondary"
           size="sm"
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={handleCancel}
           className="!w-auto flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -81,7 +95,6 @@ export default function ProviderEditContent({
         </Button>
       </div>
 
-      {/* Formulario */}
       <form onSubmit={handleSubmit}>
         <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-center border border-[var(--color-brand)]">
           <div className="col-span-1 md:col-span-2 lg:col-span-3 flex items-center gap-3">
@@ -90,16 +103,12 @@ export default function ProviderEditContent({
             </h1>
           </div>
 
-          {/* Campos de Entrada */}
           <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
             <Select
               label="Tipo de documento"
               name="providerDocumentType"
               value={formData?.providerDocumentType || ""}
-              options={documentTypes.map((doc) => ({
-                value: doc.id,
-                label: doc.label,
-              }))}
+              options={documentTypes}
               onChange={handleChange}
               error={errors.providerDocumentType}
             />
@@ -126,7 +135,7 @@ export default function ProviderEditContent({
 
             <Input
               label="Correo electrónico empresa"
-              type="text"
+              type="email"
               name="providerEmail"
               value={formData?.providerEmail || ""}
               onChange={handleChange}
@@ -148,21 +157,18 @@ export default function ProviderEditContent({
               label="Productos que suministra"
               name="providerProducts"
               value={formData?.providerProducts || ""}
-              options={productCategories.map((prod) => ({
-                value: prod.id,
-                label: prod.label,
-              }))}
+              options={providerProducts}
               onChange={handleChange}
               error={errors.providerProducts}
             />
 
             <Input
-              label="Dirección residencial"
+              label="Dirección"
               type="text"
               name="providerAddress"
               value={formData?.providerAddress || ""}
               onChange={handleChange}
-              placeholder="Dirección residencial"
+              placeholder="Dirección"
               error={errors.providerAddress}
             />
 
@@ -177,20 +183,14 @@ export default function ProviderEditContent({
             />
           </div>
 
-         
           <div className="flex flex-col items-center justify-center gap-4 w-full">
             <FileInput
-              value={formData.providerImage}
+              value={formData.providerImage || []}
               onChange={(files) =>
                 setFormData((prev) => ({ ...prev, providerImage: files }))
               }
               multiple={false}
             />
-            {errors.providerImage && (
-              <span className="text-[var(--color-error)] text-xs">
-                {errors.providerImage}
-              </span>
-            )}
 
             <div className="w-full pt-2">
               <Checkbox
@@ -209,6 +209,7 @@ export default function ProviderEditContent({
                 size="md" 
                 className="w-full"
                 onClick={handleCancel}
+                disabled={loading}
               >
                 Cancelar
               </Button>
@@ -217,8 +218,9 @@ export default function ProviderEditContent({
                 variant="primary"
                 size="md"
                 className="w-full"
+                disabled={loading}
               >
-                Editar proveedor
+                {loading ? "Guardando..." : "Guardar Cambios"}
               </Button>
             </div>
           </div>

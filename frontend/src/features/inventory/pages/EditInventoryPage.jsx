@@ -1,15 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 import { Button, Input, FileInput } from "@/shared";
 import InventoryStatusSelect from "../components/InventoryStatusSelect";
-import { inventory } from "../data/inventory";
-
-// Importamos el esquema exclusivo de edición
 import { editInventorySchema } from "../schemas/editInventorySchema";
-
-// Importamos las alertas estandarizadas
+import { getInventoryById, updateInventory } from "../services/inventoryServices";
 import { 
   showSuccessAlert, 
   showUserErrorAlert 
@@ -20,32 +16,39 @@ export default function EditInventoryPage() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({});
 
-  const producto = inventory.find((item) => item.id.toString() === id);
-
-  // Mapeamos los campos a String para que coincidan con la validación de Zod
-  const [formData, setFormData] = useState(() => {
-    if (!producto) return {};
-    return {
-      ...producto,
-      id: String(producto.id || ""),
-      name: producto.name || producto.nombre || "",
-      barcode: String(producto.barcode || producto.codigoBarras || ""),
-      quantity: String(producto.quantity ?? producto.cantidad ?? ""),
-      unitPrice: String(producto.unitPrice ?? producto.valorUnitario ?? ""),
-      brand: producto.brand || producto.marca || "",
-      lote: String(producto.lote || producto.batch || ""),
+  useEffect(() => {
+    const loadItem = async () => {
+      try {
+        const item = await getInventoryById(id);
+        setFormData({
+          id: String(item.id || ""),
+          name: item.name || item.nombre || "",
+          barcode: String(item.barcode || item.codigoBarras || ""),
+          quantity: String(item.quantity ?? item.cantidad ?? ""),
+          unitPrice: String(item.unitPrice ?? item.valorUnitario ?? ""),
+          brand: item.brand || item.marca || "",
+          lote: String(item.lote || ""),
+          status: item.status || (item.isActive ? "Activo" : "Inactivo"),
+          userImage: [],
+        });
+      } catch (error) {
+        console.error("Error al cargar producto:", error);
+      } finally {
+        setPageLoading(false);
+      }
     };
-  });
 
-  if (!producto) {
+    loadItem();
+  }, [id]);
+
+  if (pageLoading) {
     return (
-      <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 text-center text-[var(--color-error)] font-bold">
-        <h1 className="text-2xl font-[var(--font-heading)]">Producto no encontrado</h1>
-        <Button variant="secondary" onClick={() => navigate(-1)} className="mt-4">
-          Volver
-        </Button>
+      <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 text-center text-[var(--color-text-inverse)]">
+        <p>Cargando datos del producto...</p>
       </section>
     );
   }
@@ -69,13 +72,12 @@ export default function EditInventoryPage() {
   };
 
   const handleCancel = () => {
-    navigate(-1);
+    navigate("/dashboard/inventoryList");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validamos con el esquema de edición
     const result = editInventorySchema.safeParse(formData);
 
     if (!result.success) {
@@ -96,9 +98,11 @@ export default function EditInventoryPage() {
     setLoading(true);
 
     try {
+      await updateInventory(id, result.data);
+
       await showSuccessAlert({
         title: "Producto actualizado",
-        text: "Los cambios del inventario se han guardado correctamente.",
+        text: "Los cambios del inventario se han guardado en la base de datos.",
         timer: 2000,
       });
 
@@ -107,7 +111,7 @@ export default function EditInventoryPage() {
       console.error("Error al actualizar producto", error);
       await showUserErrorAlert({
         title: "Error al guardar",
-        text: "No se pudieron actualizar los datos del producto.",
+        text: error.message || "No se pudieron actualizar los datos del producto.",
       });
     } finally {
       setLoading(false);
@@ -116,7 +120,6 @@ export default function EditInventoryPage() {
 
   return (
     <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 flex flex-col gap-6">
-      {/* Header superior */}
       <div className="flex items-center justify-between gap-4">
         <Button
           type="button"
@@ -134,10 +137,7 @@ export default function EditInventoryPage() {
         </h1>
       </div>
 
-      {/* Contenedor principal */}
       <div className="bg-[var(--color-background-inverse)] rounded-3xl p-6 sm:p-10 w-full border border-[var(--color-brand)] shadow-2xl">
-        
-        {/* Selector de Imagen y Nombre */}
         <div className="flex flex-col items-center justify-center gap-4 mb-8">
           <FileInput
             label="Seleccionar imagen del producto"
@@ -153,7 +153,6 @@ export default function EditInventoryPage() {
           </span>
         </div>
 
-        {/* Formulario de Campos */}
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Input 
             label="ID (Código único)" 
@@ -226,7 +225,6 @@ export default function EditInventoryPage() {
             </div>
           )}
 
-          {/* Botones de acción */}
           <div className="col-span-1 md:col-span-2 flex justify-end gap-3 pt-6 border-t border-[var(--color-brand)]/30">
             <Button
               type="button"

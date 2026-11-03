@@ -1,13 +1,18 @@
 import { Select } from "@/shared";
 import InventoryRowActions from "../components/InventoryRowActions";
 import { INVENTORY_STATUS_OPTIONS } from "../data/inventory";
+import { updateInventory } from "../services/inventoryServices";
 
 export const inventoryColumns = [
   { accessorKey: "id", header: "Id" },
   { accessorKey: "name", header: "Nombre" },
   { accessorKey: "barcode", header: "Código de barras" },
   { accessorKey: "quantity", header: "Cantidad existente" },
-  { accessorKey: "unitPrice", header: "Precio" },
+  { 
+    accessorKey: "unitPrice", 
+    header: "Precio",
+    cell: ({ row }) => `$${row.original.unitPrice ?? 0}`
+  },
   { accessorKey: "brand", header: "Marca" },
   {
     accessorKey: "status",
@@ -15,7 +20,8 @@ export const inventoryColumns = [
     cell: ({ row }) => {
       const item = row.original;
 
-      const handleStatusChange = (newStatus) => {
+      const handleStatusChange = async (newStatus) => {
+        await updateInventory(item.id, { status: newStatus });
         item.status = newStatus;
       };
 
