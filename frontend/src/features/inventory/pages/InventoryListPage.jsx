@@ -1,19 +1,32 @@
-// src/features/inventory/pages/InventoryListPage.jsx
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { DataTable, Button } from "@/shared";
 import { inventoryColumns } from "../table/inventoryColumns";
-import { inventory } from "../data/inventory";
+import { getInventory } from "../services/inventoryServices";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
 
 export default function InventoryListPage() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [inventoryData, setInventoryData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchInventory = async () => {
+      try {
+        const data = await getInventory();
+        setInventoryData(data);
+      } catch (error) {
+        console.error("Error al obtener el inventario:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInventory();
+  }, []);
 
   return (
-      <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-8 md:pt-10 pb-10 flex flex-col gap-6">
-      
-      {/* Header Responsivo */}
+    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-8 md:pt-10 pb-10 flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-xl sm:text-2xl font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)]">
           Listado de Inventario
@@ -35,12 +48,16 @@ export default function InventoryListPage() {
         </div>
       </div>
 
-      {/* Tarjeta contenedora con la tabla */}
       <div className="bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)] shadow-2xl p-4 sm:p-6 md:p-8 overflow-hidden">
-        <DataTable data={inventory} columns={inventoryColumns} />
+        {loading ? (
+          <p className="text-[var(--color-text-inverse)] text-center py-8">
+            Cargando inventario de la base de datos...
+          </p>
+        ) : (
+          <DataTable data={inventoryData} columns={inventoryColumns} />
+        )}
       </div>
 
-      {/* Modal de Configuración de Reportes */}
       <ReportConfigModal
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}

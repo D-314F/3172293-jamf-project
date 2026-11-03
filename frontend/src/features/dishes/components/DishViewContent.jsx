@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Input, Checkbox } from "@/shared";
+import { Input } from "@/shared";
 import userProfile from "@/assets/images/user-profile.png";
 
 export default function DishViewContent({ dish = {} }) {
@@ -11,7 +11,7 @@ export default function DishViewContent({ dish = {} }) {
 
   return (
     <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8 items-center border border-[var(--color-brand)] shadow-2xl">
-      {/* Imagen y estado con Checkbox */}
+      {/* Imagen e Indicador de Estado (Estilo Proveedores) */}
       <div className="flex flex-col items-center justify-center gap-4 lg:order-last">
         <img
           src={imgSrc}
@@ -20,18 +20,18 @@ export default function DishViewContent({ dish = {} }) {
           className="w-36 h-36 sm:w-48 sm:h-48 object-cover rounded-xl border-4 border-[var(--color-brand-hover)] shadow-md"
         />
 
-        <div className="flex items-center justify-center pt-1">
-          <Checkbox
-            id="dishActiveView"
-            name="dishActiveView"
-            label={
-              isDishActive
-                ? "Estado del platillo (Activo)"
-                : "Estado del platillo (Inactivo)"
-            }
-            checked={isDishActive}
-            disabled
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-[var(--font-label)]">
+            Estado del platillo:
+          </span>
+          <span
+            className={`w-3 h-3 rounded-full ${
+              isDishActive ? "bg-green-500" : "bg-red-500"
+            }`}
           />
+          <span className="text-xs font-semibold">
+            {isDishActive ? "Habilitado" : "Deshabilitado"}
+          </span>
         </div>
       </div>
 

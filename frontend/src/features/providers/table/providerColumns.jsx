@@ -1,5 +1,6 @@
 import StatusSwitch from "@/shared/components/StatusSwitch";
 import ProviderRowActions from "../components/ProviderRowActions";
+import { updateProvider } from "../services/providerServices";
 
 export const providerColumns = [
   { accessorKey: "id", header: "Id" },
@@ -8,25 +9,24 @@ export const providerColumns = [
   { accessorKey: "documentType", header: "Tipo de documento" },
   { accessorKey: "email", header: "Correo electrónico" },
 
-  // Columna Estado de cuenta con Switch M3
+  // Columna Estado con Switch conectado a BD
   {
     accessorKey: "accountStatus",
-    header: "Estado de cuenta",
+    header: "Estado",
     cell: ({ row }) => {
       const provider = row.original;
 
-      const handleChange = (value) => {
-        console.log("Actualizar estado proveedor:", provider.id, value);
-        // Aquí se conectará la API o función de actualización
+      const handleChange = async (value) => {
+        await updateProvider(provider.id, { providerStatus: value });
+        provider.providerStatus = value;
+        provider.accountStatus = value ? "Activo" : "Inactivo";
       };
 
       return (
         <StatusSwitch
-          checked={
-            provider.accountStatus === "Activo" ||
-            provider.accountStatus === true
-          }
+          checked={Boolean(provider.providerStatus ?? provider.accountStatus === "Activo")}
           onChange={handleChange}
+          itemName={`al proveedor "${provider.fullName || provider.providerName}"`}
         />
       );
     },

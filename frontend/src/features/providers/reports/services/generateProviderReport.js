@@ -1,53 +1,62 @@
-﻿// Fuente de datos de proveedores
-import { providers } from "../../data/providers";
-
-// Servicios de exportación
+﻿// src/features/providers/reports/services/generateProviderReport.js
+import { getProviders } from "../../services/providerServices";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
 
-// Caso de uso: orquestador de generación de reportes de proveedores
-export function generateProviderReport({
+export async function generateProviderReport({
   format,          // "excel" | "pdf"
-  selectedFields,  // Campos seleccionados por el usuario
-  scope,           // Alcance del reporte
-  documentType,    // Filtro opcional por tipo de documento
+  selectedFields,  // Campos seleccionados
+  scope,           // Alcance
+  documentType,    // Filtro por tipo de documento
 }) {
-  // Filtrar dataset según alcance
-  let filteredData = providers;
-  if (scope === "documentType" && documentType) {
-    filteredData = providers.filter(
-      (provider) => provider.documentType === documentType
+  try {
+    // 1. Obtener datos reales de PostgreSQL
+    const providersData = await getProviders();
+
+    // 2. Filtrar si se solicitó por tipo de documento
+    let filteredData = [...providersData];
+    if (scope === "documentType" && documentType) {
+      const docLower = documentType.toLowerCase().trim();
+      filteredData = filteredData.filter((p) =>
+        (p.documentType && p.documentType.toLowerCase().includes(docLower)) ||
+        (p.providerDocumentType && p.providerDocumentType.toLowerCase().includes(docLower))
+      );
+    }
+
+    if (!filteredData.length) {
+      alert("No hay proveedores que coincidan con el filtro.");
+      return;
+    }
+
+    // 3. Encabezados y Filas
+    const headers = selectedFields.map((f) => f.label);
+    const rows = filteredData.map((provider) =>
+      selectedFields.map((f) => {
+        const val = provider[f.key];
+        if (typeof val === "boolean") return val ? "Activo" : "Inactivo";
+        return val ?? "";
+      })
     );
-  }
 
-  // Construcción del dataset con solo los campos seleccionados
-  const headers = selectedFields.map((f) => f.label);
-  const rows = filteredData.map((provider) =>
-    selectedFields.map((f) => provider[f.key])
-  );
+    const timestamp = new Date().toISOString().slice(0, 10);
 
-  // Validación: evita generar archivos vacíos
-  if (!rows.length) {
-    alert("No hay datos para generar el reporte.");
-    return;
-  }
+    if (format === "excel") {
+      generateExcelReport({
+        headers,
+        rows,
+        fileName: `reporte-proveedores-${timestamp}.xlsx`,
+      });
+    }
 
-  // Generación de timestamp para nombres únicos de archivo
-  const timestamp = new Date().toISOString().slice(0, 10);
-
-  // Selección de estrategia de exportación según formato
-  if (format === "excel") {
-    generateExcelReport({
-      headers,
-      rows,
-      fileName: `providers-report-${timestamp}.xlsx`,
-    });
-  }
-  if (format === "pdf") {
-    generatePdfReport({
-      headers,
-      rows,
-      fileName: `providers-report-${timestamp}.pdf`,
-    });
+    if (format === "pdf") {
+      generatePdfReport({
+        headers,
+        rows,
+        fileName: `reporte-proveedores-${timestamp}.pdf`,
+      });
+    }
+  } catch (error) {
+    console.error("Error al generar reporte de proveedores:", error);
+    alert("Ocurrió un error al obtener los datos de proveedores.");
   }
 }

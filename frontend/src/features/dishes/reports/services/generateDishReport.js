@@ -1,51 +1,62 @@
-﻿// Fuente de datos de platillos
-import { dishes } from "../../data/dishes";
-
-// Servicios de exportación
+﻿// src/features/dishes/reports/services/generateDishReport.js
+import { getDishes } from "../../services/dishServices";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
 
-// Caso de uso: orquestador de generación de reportes de platillos
-export function generateDishReport({
-  format,          // "excel" | "pdf"
-  selectedFields,  // Campos seleccionados por el usuario
-  scope,           // Alcance del reporte
-  category,        // Filtro opcional por categoría
+export async function generateDishReport({
+  format,
+  selectedFields,
+  scope,
+  category,
 }) {
-  // Filtrar dataset según alcance
-  let filteredData = dishes;
-  if (scope === "category" && category) {
-    filteredData = dishes.filter((dish) => dish.category === category);
-  }
+  try {
+    // 1. Obtener platillos de PostgreSQL
+    const dishesData = await getDishes();
 
-  // Construcción del dataset con solo los campos seleccionados
-  const headers = selectedFields.map((f) => f.label);
-  const rows = filteredData.map((dish) =>
-    selectedFields.map((f) => dish[f.key])
-  );
+    // 2. Filtrar por categoría o activos si aplica
+    let filteredData = [...dishesData];
+    if (scope === "category" && category) {
+      const catLower = category.toLowerCase().trim();
+      filteredData = filteredData.filter((dish) =>
+        dish.category && dish.category.toLowerCase().includes(catLower)
+      );
+    } else if (scope === "active") {
+      filteredData = filteredData.filter((dish) => dish.isActive);
+    }
 
-  // Validación: evita generar archivos vacíos
-  if (!rows.length) {
-    alert("No hay datos para generar el reporte.");
-    return;
-  }
+    if (!filteredData.length) {
+      alert("No hay platillos que coincidan con el filtro.");
+      return;
+    }
 
-  // Generación de timestamp para nombres únicos de archivo
-  const timestamp = new Date().toISOString().slice(0, 10);
+    const headers = selectedFields.map((f) => f.label);
+    const rows = filteredData.map((dish) =>
+      selectedFields.map((f) => {
+        const val = dish[f.key];
+        if (typeof val === "boolean") return val ? "Habilitado" : "Deshabilitado";
+        return val ?? "";
+      })
+    );
 
-  // Selección de estrategia de exportación según formato
-  if (format === "excel") {
-    generateExcelReport({
-      headers,
-      rows,
-      fileName: `dishes-report-${timestamp}.xlsx`,
-    });
-  }
-  if (format === "pdf") {
-    generatePdfReport({
-      headers,
-      rows,
-      fileName: `dishes-report-${timestamp}.pdf`,
-    });
+    const timestamp = new Date().toISOString().slice(0, 10);
+
+    if (format === "excel") {
+      generateExcelReport({
+        headers,
+        rows,
+        fileName: `reporte-platillos-${timestamp}.xlsx`,
+      });
+    }
+
+    if (format === "pdf") {
+      generatePdfReport({
+        headers,
+        rows,
+        fileName: `reporte-platillos-${timestamp}.pdf`,
+      });
+    }
+  } catch (error) {
+    console.error("Error al generar reporte de platillos:", error);
+    alert("Ocurrió un error al obtener los platillos de la base de datos.");
   }
 }
