@@ -86,7 +86,16 @@ export const inventoryRepository = {
         return result.rows[0];
     },
 
-    // 4. Actualizar producto en la BD
+    // 4. Actualización rápida de solo estado
+    async updateStatus(id, isActive) {
+        const query = `
+            UPDATE inventory SET is_active = $1 WHERE id = $2 RETURNING id;
+        `;
+        const result = await pool.query(query, [isActive, id]);
+        return result.rows[0];
+    },
+
+    // 5. Actualizar producto completo en la BD
     async update(id, inventoryData) {
         const {
             marca,

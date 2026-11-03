@@ -32,7 +32,7 @@ function mapInventoryFromDb(item) {
         comentarioProducto: item.comentario_producto || "",
         productImageUrl: item.product_image_url || null,
         isActive: item.is_active,
-        status: item.is_active ? "Activo" : "Inactivo",
+        status: item.is_active ? "Disponible" : "Agotado",
     };
 }
 
@@ -56,6 +56,20 @@ export const inventoryService = {
             throw new Error("Producto no encontrado en inventario");
         }
 
+        // Si solo se está actualizando el estado desde la tabla
+        const hasOnlyStatus = Object.keys(data).every((k) =>
+            ["status", "isActive"].includes(k)
+        );
+
+        if (hasOnlyStatus && (data.status !== undefined || data.isActive !== undefined)) {
+            const isAvailable =
+                data.isActive !== undefined
+                    ? Boolean(data.isActive)
+                    : data.status === "Disponible" || data.status === "Activo" || data.status === true;
+
+            return await inventoryRepository.updateStatus(id, isAvailable);
+        }
+
         const cantidad =
             data.quantity !== undefined || data.cantidad !== undefined
                 ? Number(data.quantity ?? data.cantidad)
@@ -65,6 +79,12 @@ export const inventoryService = {
             data.unitPrice !== undefined || data.valorUnitario !== undefined
                 ? Number(data.unitPrice ?? data.valorUnitario)
                 : Number(existing.valor_unitario);
+
+        const fechaVenc = data.fechaVencimiento !== undefined
+            ? (data.fechaVencimiento || null)
+            : existing.fecha_vencimiento
+            ? formatDate(existing.fecha_vencimiento)
+            : null;
 
         const inventoryData = {
             marca: data.brand ?? data.marca ?? existing.marca,
@@ -89,10 +109,7 @@ export const inventoryService = {
                     : cantidad * valorUnitario,
             lote: data.lote ?? existing.lote,
             ubicacion: data.ubicacion ?? existing.ubicacion,
-            fechaVencimiento:
-                data.fechaVencimiento !== undefined
-                    ? data.fechaVencimiento || null
-                    : existing.fecha_vencimiento,
+            fechaVencimiento: fechaVenc,
             descripcion: data.descripcion ?? existing.descripcion,
             comentarioProducto:
                 data.comentarioProducto !== undefined
@@ -104,7 +121,7 @@ export const inventoryService = {
                 data.isActive !== undefined
                     ? Boolean(data.isActive)
                     : data.status !== undefined
-                    ? data.status === "Activo" || data.status === true
+                    ? data.status === "Disponible" || data.status === "Activo" || data.status === true
                     : existing.is_active,
         };
 

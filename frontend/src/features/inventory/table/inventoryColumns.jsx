@@ -21,14 +21,19 @@ export const inventoryColumns = [
       const item = row.original;
 
       const handleStatusChange = async (newStatus) => {
-        await updateInventory(item.id, { status: newStatus });
+        const isAvailable = newStatus === "Disponible";
+        await updateInventory(item.id, {
+          status: newStatus,
+          isActive: isAvailable,
+        });
         item.status = newStatus;
+        item.isActive = isAvailable;
       };
 
       return (
         <div className="min-w-[140px]">
           <Select
-            value={item.status}
+            value={item.status || (item.isActive ? "Disponible" : "Agotado")}
             options={INVENTORY_STATUS_OPTIONS}
             onChange={handleStatusChange}
             confirmChange={true}
