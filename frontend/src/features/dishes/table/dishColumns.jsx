@@ -1,6 +1,7 @@
 import StatusSwitch from "@/shared/components/StatusSwitch";
 import DishRowActions from "@/features/dishes/components/dishRowActions";
-import userProfile from "@/assets/images/user-profile.png"; // 👈 usamos la imagen de usuario
+import userProfile from "@/assets/images/user-profile.png";
+import { updateDish } from "../services/dishServices";
 
 export const dishColumns = [
   {
@@ -10,7 +11,7 @@ export const dishColumns = [
       const dish = row.original;
       return (
         <img
-          src={userProfile} // 👈 temporal, luego será dish.dishImage
+          src={dish.dishImageUrl || userProfile}
           alt={dish.dishName}
           className="w-12 h-12 object-cover rounded-md border border-[var(--color-border)]"
         />
@@ -34,26 +35,28 @@ export const dishColumns = [
     header: "Descripción",
   },
   {
-    accessorKey: "status",
+    accessorKey: "isActive",
     header: "Estado",
     cell: ({ row }) => {
       const dish = row.original;
 
-      const handleChange = (value) => {
-        console.log("Actualizar estado platillo:", dish.id, value);
-        // Aquí normalmente se llamaría una API para actualizar el estado
+      const handleChange = async (value) => {
+        await updateDish(dish.id, { isActive: value });
+        dish.isActive = value;
       };
 
       return (
         <StatusSwitch
-          checked={dish.status === "Habilitado"}
+          checked={Boolean(dish.isActive ?? dish.status === "Habilitado")}
           onChange={handleChange}
+          itemName={`el platillo "${dish.dishName}"`}
         />
       );
     },
   },
   {
     id: "actions",
+    header: "Acciones",
     cell: ({ row }) => <DishRowActions dish={row.original} />,
   },
 ];

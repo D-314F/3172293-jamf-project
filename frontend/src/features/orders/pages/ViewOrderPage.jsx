@@ -1,20 +1,42 @@
-// src/features/orders/pages/ViewOrderPage.jsx
-
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/shared";
 import OrderDetail from "../components/OrderDetail";
-import { INITIAL_ORDERS } from "../data/ordersData";
+import { getOrderById } from "../services/orderServices";
 
 export default function ViewOrderPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const order = INITIAL_ORDERS.find((o) => o.id === id);
+  useEffect(() => {
+    const loadOrder = async () => {
+      try {
+        const data = await getOrderById(id);
+        setOrder(data);
+      } catch (error) {
+        console.error("Error al obtener la orden:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadOrder();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-8 md:pt-10 pb-10 text-center text-[var(--color-text-inverse)]">
+        Cargando información de la orden...
+      </section>
+    );
+  }
 
   if (!order) {
     return (
-      <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 text-center text-[var(--color-text-inverse)]">
+      <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-8 md:pt-10 pb-10 text-center text-[var(--color-text-inverse)]">
         <h2 className="text-xl font-bold mb-4 font-[var(--font-heading)]">
           Orden #{id} no encontrada
         </h2>
@@ -26,8 +48,7 @@ export default function ViewOrderPage() {
   }
 
   return (
-    <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 flex flex-col gap-4">
-     
+    <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-8 md:pt-10 pb-10 flex flex-col gap-4">
       <div className="flex justify-start">
         <Button
           variant="secondary"
@@ -41,7 +62,6 @@ export default function ViewOrderPage() {
         </Button>
       </div>
 
-      {/* Detalle de la orden */}
       <OrderDetail
         order={order}
         onBack={() => navigate("/dashboard/orderList")}

@@ -1,48 +1,75 @@
-import { useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { INITIAL_ORDERS } from "../data/ordersData";
 import { showUserErrorAlert } from "@/shared/services/alertService";
 import EditOrderContent from "../components/EditOrderContent";
+import { getOrderById, updateOrder } from "../services/orderServices";
 
 export default function EditOrderPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const order = INITIAL_ORDERS.find((item) => item.id === id) || null;
-  const isLocked = order?.estado === "Pagada" || order?.estado === "Cancelada";
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const alertShownRef = useRef(false);
 
   useEffect(() => {
-    if (!order) {
-      showUserErrorAlert({
-        title: "Orden no encontrada",
-        text: `La orden ${id} no existe en el sistema.`,
-      }).then(() => navigate("/dashboard/orderList"));
-      return;
-    }
+    const loadOrder = async () => {
+      try {
+        const data = await getOrderById(id);
 
-    if (isLocked) {
-      showUserErrorAlert({
-        title: "Operación no permitida",
-        text: `La orden ${order.id} se encuentra en estado '${order.estado}' y no puede ser modificada.`,
-      }).then(() => navigate(-1));
-    }
-  }, [id, order, isLocked, navigate]);
+        if (data.estado === "Pagada" || data.estado === "Cancelada") {
+          if (!alertShownRef.current) {
+            alertShownRef.current = true;
+            await showUserErrorAlert({
+              title: "Operación no permitida",
+              text: `La orden #${data.id} se encuentra en estado '${data.estado}' y no puede ser modificada.`,
+            });
+            navigate("/dashboard/orderList", { replace: true });
+          }
+          return;
+        }
+
+        setOrder(data);
+      } catch (error) {
+        console.error("Error al cargar la orden:", error);
+        if (!alertShownRef.current) {
+          alertShownRef.current = true;
+          await showUserErrorAlert({
+            title: "Orden no encontrada",
+            text: `La orden #${id} no existe en el sistema.`,
+          });
+          navigate("/dashboard/orderList", { replace: true });
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadOrder();
+  }, [id, navigate]);
 
   const handleSubmit = async (data) => {
-    console.log("Orden actualizada con éxito:", data);
+    await updateOrder(id, data);
   };
 
-  if (!order || isLocked) return null;
+  if (loading) {
+    return (
+      <div className="p-8 text-center text-[var(--color-text-inverse)]">
+        Cargando datos de la orden...
+      </div>
+    );
+  }
+
+  if (!order) return null;
 
   return (
     <section className="w-full">
       <EditOrderContent
-        key={id}
+        key={order.id}
         initialFormData={{
           id: order.id || "",
-          tableNumber: order.mesa ?? "",
+          tableNumber: String(order.mesa ?? ""),
           waiterId: order.mesero || "",
-          estado: order.estado || "",
+          estado: order.estado || "Pendiente",
           isActive: order.isActive ?? true,
           observations: order.observations || "",
         }}

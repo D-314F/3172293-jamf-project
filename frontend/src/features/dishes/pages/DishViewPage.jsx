@@ -1,34 +1,39 @@
-// src/features/menu/pages/DishViewPage.jsx
-
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/shared";
 import DishViewContent from "../components/DishViewContent";
+import { getDishById } from "../services/dishServices";
 
 export default function DishViewPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [dish, setDish] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock temporal de datos del platillo (en el futuro vendrá de API o estado global)
-  const dish = {
-    id,
-    nombre: "Soufflé Grand Marnier",
-    categoria: "Postres",
-    precio: "8.5",
-    descripcion: "Postre ligero con notas cítricas y licor Grand Marnier.",
-    activo: true,
-    imagen: "/ruta/imagen.png",
-  };
+  useEffect(() => {
+    const loadDish = async () => {
+      try {
+        const data = await getDishById(id);
+        setDish(data);
+      } catch (error) {
+        console.error("Error al cargar el platillo:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDish();
+  }, [id]);
 
   return (
-    <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10 flex flex-col gap-6">
-      {/* Header superior alineado con la tarjeta */}
+    <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-8 md:pt-10 pb-10 flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
         <Button
           type="button"
           variant="secondary"
           size="sm"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/dashboard/dishList")}
           className="!w-auto flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -40,8 +45,13 @@ export default function DishViewPage() {
         </h1>
       </div>
 
-      {/* Contenido del Platillo */}
-      <DishViewContent dish={dish} />
+      {loading ? (
+        <div className="p-8 text-center text-[var(--color-text-inverse)]">
+          Cargando información del platillo...
+        </div>
+      ) : (
+        <DishViewContent dish={dish || {}} />
+      )}
     </section>
   );
 }

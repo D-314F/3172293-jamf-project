@@ -5,7 +5,7 @@ import { Select, Input, Button, Checkbox } from "@/shared";
 import { ArrowLeft } from "lucide-react";
 import documentTypes from "../../../data/selects/documentsTypes.json";
 import userTypes from "../../../data/selects/userTypes.json";
-import { userSchema } from "../schemas/userSchema";
+import { userEditSchema } from "../schemas/userSchema";
 import { showSuccessAlert, showCancelAlert } from "@/shared/services/alertService"; 
 
 export default function UserEditContent({
@@ -27,7 +27,7 @@ export default function UserEditContent({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = userSchema.safeParse(formData);
+    const result = userEditSchema.safeParse(formData);
 
     if (!result.success) {
       const fieldErrors = {};
@@ -104,10 +104,10 @@ export default function UserEditContent({
               label="Tipo de documento"
               name="userDocumentTypes"
               value={formData?.userDocumentTypes || ""}
-              options={documentTypes.map((doc) => ({
-                value: doc.id,
-                label: doc.label,
-              }))}
+            options={documentTypes.map((doc) => ({
+              value: doc.label,
+              label: doc.label,
+            }))}
               onChange={handleChange}
               error={errors.userDocumentTypes}
             />
@@ -167,9 +167,9 @@ export default function UserEditContent({
               name="userType"
               value={formData?.userType || ""}
               options={userTypes.map((type) => ({
-                value: type.id,
-                label: type.label,
-              }))}
+              value: type.label,
+              label: type.label,
+            }))}
               onChange={handleChange}
               error={errors.userType}
             />
