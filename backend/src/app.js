@@ -10,6 +10,7 @@ import dishRoutes from "./features/dishes/dish.routes.js";
 import orderRoutes from "./features/orders/order.routes.js";
 import providerRoutes from "./features/providers/provider.routes.js";
 import inventoryRoutes from "./features/inventory/inventory.routes.js";
+import menuRoutes from "./features/menu/menu.routes.js";
 
 // Instancia principal de Express
 const app = express();
@@ -27,6 +28,7 @@ app.use("/api/dishes", dishRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/providers", providerRoutes);
 app.use("/api/inventory", inventoryRoutes);
+app.use("/api/menu", menuRoutes);
 
 // Exportamos la app configurada
 export default app;

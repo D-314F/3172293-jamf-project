@@ -16,7 +16,7 @@ import { InventoryForm, InventoryListPage, InventoryDetailsForm, EditInventoryPa
 import { OrderForm, OrderListPage, EditOrderPage, ViewOrderPage } from "@/features/orders";
 
 import HomePage from "@/features/home/pages/HomePage";
-import MenuPage from "@/features/menu/pages/MenuPage";
+//import MenuPage from "@/features/menu/pages/MenuPage";
 import LoginForm from "@/features/auth/components/LoginForm";
 import { PermissionPage } from "@/features/permissions";
 import ViewMenuPage from "@/features/menu/pages/ViewMenuPage";
@@ -64,10 +64,8 @@ const router = createBrowserRouter([
     children: [
       { index: true },
       { path: "home", element: <HomePage /> },
-      { path: "menu", element: <MenuPage /> },
-      { path: "menu/view/:id", element: <ViewMenuPage /> },
-
-      { path: "userList", element: <UserListPage /> },
+      { path: "menu", element: <ViewMenuPage /> },
+      { path: "menu/view/:id", element: <ViewMenuPage /> },      { path: "userList", element: <UserListPage /> },
       { path: "userCreate", element: <UserRegisterForm /> },
       { path: "userview/:id", element: <UserDetailPage /> },
       { path: "userEdit/:id", element: <UserEditPage /> },
