@@ -21,15 +21,25 @@ import logo from "@/assets/images/1-logo.png";
 import logo2 from "@/assets/images/2-logo.png";
 import { Link, useNavigate } from "react-router-dom";
 
-// Importamos la alerta de error del servicio
-import { showOpsAlert } from "@/shared/services/alertService";
+
+// Importamos las alertas del servicio
+import { showOpsAlert, showConfirmDeleteAlert } from "@/shared/services/alertService";
 
 export default function Navbar() {
   const navigate = useNavigate();
 
-  const handleLoginRedirect = () => {
-    sessionStorage.removeItem("token");
-    navigate("/login"); 
+  const handleLoginRedirect = async () => {
+    const result = await showConfirmDeleteAlert({
+      title: "¿Cerrar sesión?",
+      text: "¿Estás seguro de que deseas cerrar tu sesión actual en el sistema?",
+      confirmButtonText: "Confirmar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (result.isConfirmed) {
+      sessionStorage.removeItem("token");
+      navigate("/login");
+    }
   };
 
   // Handlers para mostrar la alerta de error en las secciones solicitadas
