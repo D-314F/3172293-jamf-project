@@ -38,7 +38,7 @@ export default function Navbar() {
 
     if (result.isConfirmed) {
       sessionStorage.removeItem("token");
-      navigate("/login");
+      navigate("/login", { replace: true });
     }
   };
 
