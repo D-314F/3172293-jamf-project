@@ -168,7 +168,7 @@ export default function LoginForm() {
           Iniciar Sesión
         </h1>
 
-        <p className="text-[var(--color-text-muted)] text-caption font-[var(--font-body)] text-center mb-4 max-w-xs">
+        <p className="text-[var(--color-text-muted)] text-medium font-[var(--font-body)] text-center mb-4 max-w-xs">
           Ingresa tus credenciales para acceder a la plataforma
         </p>
 
@@ -213,7 +213,7 @@ export default function LoginForm() {
           <div className="text-center">
             <Link 
               to="/forgot-password" 
-              className="text-[var(--color-brand)] hover:underline transition-all font-[var(--font-label)] text-caption"
+              className="text-[var(--color-brand)] hover:underline transition-all font-[var(--font-label)] text-medium"
             >
               ¿Olvidaste tu contraseña?
             </Link>
@@ -230,12 +230,12 @@ export default function LoginForm() {
           </Button>
 
           {errors.submit && (
-            <p className="text-[var(--color-brand-soft)] text-caption font-[var(--font-body)] text-center mt-1">
+            <p className="text-[var(--color-brand-soft)] text-medium font-[var(--font-body)] text-center mt-1">
               {errors.submit}
             </p>
           )}
 
-          <div className="text-center text-caption pt-4 border-t border-[var(--color-brand)]/20">
+          <div className="text-center text-medium pt-4 border-t border-[var(--color-brand)]/20">
             <span className="text-[var(--color-text-inverse)]/80 font-[var(--font-body)]">¿No tienes cuenta? </span>
             <Link 
               to="/register" 
