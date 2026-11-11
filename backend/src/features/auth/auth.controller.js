@@ -16,6 +16,8 @@ export const authController = {
                 code: err.code || "AUTH_ERROR",
                 attempts: err.attempts,
                 remaining: err.remaining,
+                secondsLeft: err.secondsLeft,
+                lockedUntil: err.lockedUntil,
             });
         }
     },

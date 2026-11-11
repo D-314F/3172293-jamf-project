@@ -2,7 +2,6 @@ import { API_URL } from "@/features/config";
 
 const AUTH_API_URL = `${API_URL}/auth`;
 
-
 export async function login(userData) {
     const response = await fetch(`${AUTH_API_URL}/login`, {
         method: "POST",
@@ -22,6 +21,8 @@ export async function login(userData) {
         error.code = data.code;
         error.attempts = data.attempts;
         error.remaining = data.remaining;
+        error.secondsLeft = data.secondsLeft;
+        error.lockedUntil = data.lockedUntil;
         throw error;
     }
 

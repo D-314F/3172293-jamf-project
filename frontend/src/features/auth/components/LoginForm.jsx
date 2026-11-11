@@ -1,6 +1,6 @@
 // src/features/auth/components/LoginForm.jsx
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom"; 
 import { Input, Button } from "@/shared";
 import { loginSchema } from "../schemas/loginSchema";
@@ -19,11 +19,40 @@ export default function LoginForm() {
   const [errors, setErrors] = useState({});
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [isLocked, setIsLocked] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
   const [formData, setFormData] = useState({
     userEmail: "",
     userPassword: "",
   });
+
+  // Temporizador para desbloqueo automático a los 10 minutos
+  useEffect(() => {
+    let timer = null;
+    if (isLocked && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            setIsLocked(false);
+            setFailedAttempts(0);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isLocked, countdown]);
+
+  // Formato mm:ss (ej: 10:00, 09:59...)
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  };
 
   const handleChange = (e) => {
     if (isLocked) return;
@@ -45,11 +74,10 @@ export default function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Si ya está bloqueado, no permite enviar
     if (isLocked) {
       await showUserErrorAlert({
         title: "Cuenta bloqueada",
-        text: "La cuenta se encuentra bloqueada tras 3 intentos fallidos consecutivos de autenticación.",
+        text: `La cuenta se encuentra bloqueada por seguridad. Podrás intentar de nuevo en ${formatTime(countdown)}.`,
       });
       return;
     }
@@ -78,6 +106,7 @@ export default function LoginForm() {
 
       setFailedAttempts(0);
       setIsLocked(false);
+      setCountdown(0);
       sessionStorage.setItem("token", data.token);
 
       await showSuccessAlert({
@@ -95,16 +124,19 @@ export default function LoginForm() {
 
       if (error.code === "ACCOUNT_LOCKED" || nextAttempts >= 3) {
         setIsLocked(true);
+        // 10 minutos = 600 segundos
+        const lockSeconds = error.secondsLeft || 600;
+        setCountdown(lockSeconds);
 
         await showUserErrorAlert({
           title: "Cuenta Bloqueada",
-          text: "Cuenta bloqueada después de 3 intentos de autenticación erróneos consecutivos.",
+          text: `Cuenta bloqueada después de 3 intentos de autenticación erróneos consecutivos. Podrás intentar de nuevo en ${formatTime(lockSeconds)}.`,
         });
       } else {
-        const remaining = 3 - nextAttempts;
+        const remaining = error.remaining ?? (3 - nextAttempts);
         await showUserErrorAlert({
           title: "Error de autenticación",
-          text: `${error.message || "Credenciales inválidas"}. Te quedan ${remaining} intento(s) antes del bloqueo.`,
+          text: `Credenciales inválidas. Te quedan ${remaining} intento(s) antes del bloqueo.`,
         });
       }
     }
@@ -112,7 +144,7 @@ export default function LoginForm() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
-      {/* Imagen de fondo con overlay adaptado a tokens */}
+      {/* Fondo con overlay degradado */}
       <img
         src={bf1}
         alt="Fondo de autenticación"
@@ -120,7 +152,7 @@ export default function LoginForm() {
       />
       <div className="absolute inset-0 bg-[var(--color-background-inverse)]/70 backdrop-blur-[2px] z-0" />
 
-      {/* Tarjeta de Login (Material Design 3 Container) */}
+      {/* Tarjeta de Login (MD3 Elevated Container) */}
       <div className="w-full max-w-md p-6 sm:p-8 md:p-10 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl relative z-10 shadow-2xl flex flex-col items-center transition-all duration-300">
 
         {/* Logo */}
@@ -140,7 +172,7 @@ export default function LoginForm() {
           Ingresa tus credenciales para acceder a la plataforma
         </p>
 
-        {/* Banner de Estado Bloqueado (MD3 Error Container con tokens de la marca) */}
+        {/* Banner de Estado Bloqueado con cuenta regresiva en vivo */}
         {isLocked && (
           <div className="w-full mb-4 p-4 rounded-2xl bg-[var(--color-brand-soft)]/20 border border-[var(--color-brand-soft)] text-center flex flex-col items-center gap-1 shadow-lg animate-fade-in">
             <span className="text-body font-[var(--font-heading)] text-[var(--color-brand-soft)] flex items-center justify-center gap-1">
@@ -148,6 +180,9 @@ export default function LoginForm() {
             </span>
             <span className="text-caption font-[var(--font-body)] text-[var(--color-text-inverse)]">
               Cuenta bloqueada después de 3 intentos de autenticación erróneos consecutivos.
+            </span>
+            <span className="text-body font-[var(--font-heading)] text-[var(--color-brand)] mt-1">
+              Disponible de nuevo en: {formatTime(countdown)}
             </span>
           </div>
         )}
@@ -191,7 +226,7 @@ export default function LoginForm() {
             className="w-full mt-2"
             disabled={isLocked}
           >
-            {isLocked ? " Cuenta Bloqueada" : "Iniciar sesión"}
+            {isLocked ? ` Bloqueado (${formatTime(countdown)})` : "Iniciar sesión"}
           </Button>
 
           {errors.submit && (
