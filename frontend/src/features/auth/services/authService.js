@@ -2,24 +2,29 @@ import { API_URL } from "@/features/config";
 
 const AUTH_API_URL = `${API_URL}/auth`;
 
-// Envía las credenciales al backend y devuelve { token, user }
 export async function login(userData) {
     const response = await fetch(`${AUTH_API_URL}/login`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        // El backend espera "email" y "password", no los nombres del formulario
         body: JSON.stringify({
             email: userData.userEmail,
             password: userData.userPassword,
         }),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Error al iniciar sesión");
+        const error = new Error(data.error || "Error al iniciar sesión");
+        error.code = data.code;
+        error.attempts = data.attempts;
+        error.remaining = data.remaining;
+        error.secondsLeft = data.secondsLeft;
+        error.lockedUntil = data.lockedUntil;
+        throw error;
     }
 
-    return response.json();
+    return data;
 }

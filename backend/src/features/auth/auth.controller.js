@@ -10,8 +10,15 @@ export const authController = {
                 ...result,
             });
         } catch (err) {
-            // 401: no autorizado (credenciales inválidas o usuario inactivo)
-            res.status(401).json({ error: err.message });
+            const status = err.statusCode || 401;
+            res.status(status).json({
+                error: err.message,
+                code: err.code || "AUTH_ERROR",
+                attempts: err.attempts,
+                remaining: err.remaining,
+                secondsLeft: err.secondsLeft,
+                lockedUntil: err.lockedUntil,
+            });
         }
     },
 };

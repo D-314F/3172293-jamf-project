@@ -1,11 +1,13 @@
-export default function DetailItem({ label, value }) {
+// src/shared/components/DetailItem.jsx
+
+export default function DetailItem({ label, value, className = "" }) {
   return (
-    <div className="flex justify-between items-center border-b border-gray-200 py-3">
-      <span className="font-semibold text-gray-700">
+    <div className={`flex justify-between items-center border-b border-[var(--color-border)]/40 py-3 ${className}`}>
+      <span className="text-caption font-[var(--font-heading)] text-[var(--color-text-inverse)]">
         {label}
       </span>
 
-      <span className="text-gray-600 text-right">
+      <span className="text-caption font-[var(--font-body)] text-[var(--color-text-muted)] text-right">
         {value}
       </span>
     </div>

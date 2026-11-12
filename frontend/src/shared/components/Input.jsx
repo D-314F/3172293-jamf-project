@@ -1,128 +1,65 @@
+// src/shared/components/Input.jsx
 export default function Input({
-    label,
-    error,
-    htmlFor, //Es para accesibilidad, la persona que tiene una discapacidad va a escuchar el texto que esta ahi con tab
-    type = "text",
-    variant="primary",
-    size = "sm",
-    className = "",
-    ...props
-}){
-    
-    const variants = {
-            //Estos valores deben ser con variables 
-        primary: `
-            border-brand
-            bg-background
-        `, 
-        secondary: `
-            border-red-300
-            bg-gray-300
-        `, 
-        tertiary: `
-            border-green-950
-        `
-    }
-    const sizes = {
-        
-        sm: `
-            h-9
-            
-        `, 
-        md: `
-            h-11
-        `, 
-        lg: `
-            h-14
-        `
-    }
+  label,
+  error,
+  htmlFor,
+  type = "text",
+  size = "md",
+  className = "",
+  disabled = false,
+  ...props
+}) {
+  const sizes = {
+    sm: "h-9 text-medium",
+    md: "h-10 text-body",
+    lg: "h-12 text-body",
+  };
 
+  return (
+    <div className="w-full flex flex-col font-[var(--font-body)]">
+      {label && (
+        <label
+          htmlFor={htmlFor}
+          className={`
+            block text-medium mb-1
+            font-[var(--font-label)]
+            ${error ? "text-[var(--color-brand-soft)]" : "text-[var(--color-text-inverse)]"}
+          `}
+        >
+          {label}
+        </label>
+      )}
 
-    return(
-        <div className="w-full flex flex-col">
-                {/*Label */}
-            <label 
-                // htmlFor con kebab-case
-                htmlFor={htmlFor}
-                className={`
-                    block
-                    text-caption
-                    mb-1
-                    text-secondary
+      <input
+        id={htmlFor}
+        type={type}
+        disabled={disabled}
+        className={`
+          w-full rounded-xl border px-4
+          font-[var(--font-body)]
+          bg-[var(--color-background)]
+          text-[var(--color-text-primary)]
+          placeholder:text-[var(--color-text-muted)]
+          focus:outline-none focus:ring-2
+          focus:ring-[var(--color-focus-ring)]
+          focus:border-[var(--color-focus-border)]
+          disabled:opacity-60 disabled:cursor-not-allowed
+          transition-all
+          ${error
+            ? "border-[var(--color-brand-soft)] ring-1 ring-[var(--color-brand-soft)]"
+            : "border-[var(--color-border)]"
+          }
+          ${sizes[size] || sizes.md}
+          ${className}
+        `}
+        {...props}
+      />
 
-                    text-white
-                    ${
-                        size === "sm"
-                            ? "-mb-2"
-                        : size === "md"
-                            ? "-mb-0"
-                            : "-mb-1"
-                    }
-                    ${error ? "text-red-800" : "text-text-primary"}
-                `}
-            >
-                
-                {label}
-            </label>
-
-                {/* Contenedor del input */}
-                <div 
-
-                    className="
-                        relative
-                       
-                    "
-                >
-                {/* Area interactiva invisible (48px)*/}
-                <div
-                    className="
-                        absolute
-                        inset-0
-                    "
-
-                    onMouseDown={(e) => {
-                        e.preventDefault();
-                        //Mueve el foco al siguiente nodo hermano en el DOM
-                        //nextSibling puede ser texto; si no es elemento valido,
-                        e.currentTarget.nextSibling.focus();
-                    }}
-                />
-
-
-                {/* Input visual */}
-                <input
-                    id={htmlFor}
-                    type={type}
-                    className={`
-                        relative
-                        w-full
-                        rounded-md
-                        border
-                        px-4
-                        text-body
-                        text-gray-900
-                        placeholder:text-gray-400
-                        
-                        
-
-                        focus:outline-none
-                        focus:ring-2
-                        focus:ring-ring
-                        focus:ring-brand
-                        ${variants[variant]}
-                        ${sizes[size]}
-
-                        ${error ? "border-red-800" : "border border-border"}
-
-                        ${className}
-                    `}
-                        {...props}
-                    />
-            </div>
-            {/*Feedback*/}
-            {error && (
-                <p className="text-caption text-red-800 place-self-start">{error}</p>
-            )}
-        </div>
-    );
+      {error && (
+        <p className="text-medium font-[var(--font-body)] text-[var(--color-brand-soft)] mt-1">
+          {error}
+        </p>
+      )}
+    </div>
+  );
 }
