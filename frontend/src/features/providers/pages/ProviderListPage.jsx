@@ -4,17 +4,26 @@ import { providerColumns } from "../table/providerColumns";
 import { getProviders } from "../services/providerServices";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
 import { Link } from "react-router-dom";
+import { hasPermission } from "@/features/permissions/services/permissionServices";
 
 export default function ProviderListPage() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [providers, setProviders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [canCreate, setCanCreate] = useState(false);
+  const [canReport, setCanReport] = useState(false);
 
   useEffect(() => {
     const fetchProviders = async () => {
       try {
-        const data = await getProviders();
+        const [data, createPerm, reportPerm] = await Promise.all([
+          getProviders(),
+          hasPermission("create_providers"),
+          hasPermission("report_providers"),
+        ]);
         setProviders(data);
+        setCanCreate(createPerm);
+        setCanReport(reportPerm);
       } catch (error) {
         console.error("Error al obtener proveedores:", error);
       } finally {
@@ -33,13 +42,17 @@ export default function ProviderListPage() {
         </h1>
 
         <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3">
-          <Button variant="primary" onClick={() => setIsReportModalOpen(true)}>
-            Reportar proveedor
-          </Button>
+          {canReport && (
+            <Button variant="primary" onClick={() => setIsReportModalOpen(true)}>
+              Reportar proveedor
+            </Button>
+          )}
 
-          <Link to="/dashboard/providerCreate">
-            <Button variant="primary">Crear proveedor</Button>
-          </Link>
+          {canCreate && (
+            <Link to="/dashboard/providerCreate">
+              <Button variant="primary">Crear proveedor</Button>
+            </Link>
+          )}
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared";
 import Select from "@/shared/components/Select";
@@ -7,57 +7,17 @@ import {
   showSuccessAlert,
   showCancelAlert,
   showUserErrorAlert,
+  showConfirmDeleteAlert,
 } from "@/shared/services/alertService";
-
-const PERMISSION_GROUPS = [
-  {
-    id: "users",
-    title: "Gestión de usuarios",
-    permissions: [
-      { id: "create_users", label: "Crear usuarios" },
-      { id: "view_users", label: "Visualizar usuarios" },
-      { id: "list_users", label: "Listar usuarios" },
-      { id: "update_users", label: "Actualizar usuarios" },
-      { id: "toggle_users", label: "Activar/Desactivar usuarios" },
-      { id: "report_users", label: "Generar reportes de usuarios" },
-    ],
-  },
-  {
-    id: "dishes",
-    title: "Gestión de platillos",
-    permissions: [
-      { id: "create_dishes", label: "Crear platillos" },
-      { id: "view_dishes", label: "Visualizar platillos" },
-      { id: "list_dishes", label: "Listar platillos" },
-      { id: "update_dishes", label: "Actualizar platillos" },
-      { id: "toggle_dishes", label: "Activar/Desactivar platillos" },
-      { id: "report_dishes", label: "Generar reportes de material de consumo" },
-    ],
-  },
-  {
-    id: "inventory",
-    title: "Gestión de inventario",
-    permissions: [
-      { id: "create_inventory", label: "Crear inventario" },
-      { id: "view_inventory", label: "Visualizar inventario" },
-      { id: "list_inventory", label: "Listar inventario" },
-      { id: "update_inventory", label: "Actualizar inventario" },
-      { id: "toggle_inventory", label: "Activar/Desactivar inventario" },
-      { id: "report_inventory", label: "Generar reportes de inventario" },
-    ],
-  },
-  {
-    id: "orders",
-    title: "Gestión de orden",
-    permissions: [
-      { id: "create_orders", label: "Crear orden" },
-      { id: "view_orders", label: "Visualizar orden" },
-      { id: "list_orders", label: "Listar orden" },
-      { id: "update_orders", label: "Actualizar orden" },
-      { id: "report_orders", label: "Generar reportes de orden" },
-    ],
-  },
-];
+import {
+  getAllPermissions,
+  getGroups,
+  getGroupPermissions,
+  updateGroupPermissions,
+  getUserPermissions,
+  updateUserPermissions,
+} from "../services/permissionServices";
+import { getUsers } from "@/features/users/services/userServices";
 
 export default function PermissionForm() {
   const navigate = useNavigate();
@@ -65,27 +25,133 @@ export default function PermissionForm() {
   const [formData, setFormData] = useState({
     userGroup: "",
     individualUser: "",
-    permissions: {},
   });
+
+  const [groups, setGroups] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [allPermissions, setAllPermissions] = useState([]);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  // 1. Cargar grupos, usuarios y catálogo de permisos desde PostgreSQL
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        setLoading(true);
+        const [permsData, groupsData, usersData] = await Promise.all([
+          getAllPermissions(),
+          getGroups(),
+          getUsers(),
+        ]);
+
+        setAllPermissions(Array.isArray(permsData) ? permsData : []);
+        setGroups(Array.isArray(groupsData) ? groupsData : []);
+        setUsers(Array.isArray(usersData) ? usersData : []);
+
+        // Seleccionar el primer grupo por defecto (ej. Administrador)
+        if (Array.isArray(groupsData) && groupsData.length > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            userGroup: String(groupsData[0].group_id),
+          }));
+        }
+      } catch (error) {
+        console.error("Error al cargar datos de permisos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, []);
+
+  // 2. Cargar permisos asignados cuando cambia el grupo o el usuario seleccionado
+  useEffect(() => {
+    const fetchAssignedPermissions = async () => {
+      try {
+        if (formData.userGroup) {
+          const groupPerms = await getGroupPermissions(formData.userGroup);
+          setSelectedIds(new Set(groupPerms.map((p) => p.permission_id)));
+        } else if (formData.individualUser) {
+          const userPerms = await getUserPermissions(formData.individualUser);
+          setSelectedIds(new Set(userPerms.map((p) => p.permission_id)));
+        } else {
+          setSelectedIds(new Set());
+        }
+      } catch (error) {
+        console.error("Error al obtener permisos asignados:", error);
+      }
+    };
+
+    fetchAssignedPermissions();
+  }, [formData.userGroup, formData.individualUser]);
 
   const handleSelectChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+
+    if (name === "userGroup") {
+      setFormData({
+        userGroup: value,
+        individualUser: "", // Limpiar usuario individual al elegir un grupo
+      });
+      return;
+    }
+
+    if (name === "individualUser") {
+      setFormData({
+        userGroup: "", // Limpiar grupo al elegir un usuario individual
+        individualUser: value,
+      });
+      return;
+    }
   };
 
-  const handleCheckboxChange = (e) => {
-    const { name, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      permissions: {
-        ...prev.permissions,
-        [name]: checked,
-      },
-    }));
+  const handleCheckboxChange = (permissionId) => {
+    setSelectedIds((prev) => {
+      const updated = new Set(prev);
+      if (updated.has(permissionId)) {
+        updated.delete(permissionId);
+      } else {
+        updated.add(permissionId);
+      }
+      return updated;
+    });
   };
+
+  // Agrupar permisos dinámicamente por módulo (display_name de content_type)
+  const groupedPermissions = Object.entries(
+    allPermissions.reduce((acc, perm) => {
+      const moduleTitle = perm.display_name || `${perm.app_label}`;
+      if (!acc[moduleTitle]) acc[moduleTitle] = [];
+      acc[moduleTitle].push(perm);
+      return acc;
+    }, {})
+  ).map(([title, permissions]) => ({
+    title,
+    permissions,
+  }));  const allSelected =
+    allPermissions.length > 0 && selectedIds.size === allPermissions.length;
+
+  const handleToggleAllPermissions = async () => {
+    const result = await showConfirmDeleteAlert({
+      title: allSelected
+        ? "¿Desmarcar todos los permisos?"
+        : "¿Activar todos los permisos?",
+      text: "Recuerda que para aplicar estos cambios debes darle al botón 'Guardar permisos'.",
+      confirmButtonText: allSelected ? "Sí, desmarcar" : "Sí, activar todos",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (result.isConfirmed) {
+      if (allSelected) {
+        setSelectedIds(new Set());
+      } else {
+        setSelectedIds(new Set(allPermissions.map((p) => p.permission_id)));
+      }
+    }
+  };
+  
 
   const handleCancel = async () => {
     const result = await showCancelAlert({
@@ -109,12 +175,31 @@ export default function PermissionForm() {
       return;
     }
 
-    await showSuccessAlert({
-      title: "Permisos actualizados",
-      text: "La configuración de permisos se ha guardado correctamente.",
-    });
+    try {
+      setSaving(true);
+      const permissionIds = Array.from(selectedIds);
 
-    navigate("/dashboard/home");
+      if (formData.userGroup) {
+        await updateGroupPermissions(formData.userGroup, permissionIds);
+      } else if (formData.individualUser) {
+        await updateUserPermissions(formData.individualUser, permissionIds);
+      }
+
+      await showSuccessAlert({
+        title: "Permisos actualizados",
+        text: "La configuración de permisos se ha guardado correctamente.",
+      });
+
+      navigate("/dashboard/home");
+    } catch (error) {
+      console.error("Error guardando permisos:", error);
+      await showUserErrorAlert({
+        title: "Error al guardar",
+        text: "No se pudieron guardar los permisos. Intenta nuevamente.",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -134,12 +219,11 @@ export default function PermissionForm() {
               name="userGroup"
               value={formData.userGroup}
               onChange={handleSelectChange}
-              options={[
-                { value: "admin", label: "Administradores" },
-                { value: "cajero", label: "Cajeros" },
-                { value: "mesero", label: "Meseros" },
-                { value: "cocinero", label: "Cocineros" },
-              ]}
+              disabled={loading}
+              options={groups.map((g) => ({
+                value: String(g.group_id),
+                label: g.group_name,
+              }))}
             />
           </div>
 
@@ -152,10 +236,11 @@ export default function PermissionForm() {
               name="individualUser"
               value={formData.individualUser}
               onChange={handleSelectChange}
-              options={[
-                { value: "may", label: "Maycol James Guzman" },
-                { value: "fabian", label: "Fabian" },
-              ]}
+              disabled={loading}
+              options={users.map((u) => ({
+                value: String(u.id),
+                label: `${u.userName || u.user_name || u.userEmail} (${u.userRole || u.user_type || "Usuario"})`,
+              }))}
             />
           </div>
         </div>
@@ -163,22 +248,38 @@ export default function PermissionForm() {
 
       {/* Columna derecha */}
       <div className="flex-1 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl p-6 sm:p-8 shadow-lg space-y-8 text-[var(--color-text-inverse)] w-full">
-        {PERMISSION_GROUPS.map((group, index) => (
-          <div key={group.id} className="space-y-6">
-            <PermissionGroup
-              title={group.title}
-              permissions={group.permissions}
-              formData={formData}
-              handleChange={handleCheckboxChange}
-            />
-            {index < PERMISSION_GROUPS.length - 1 && (
-              <div className="border-t border-[var(--color-brand)]/40 my-6" />
-            )}
-          </div>
-        ))}
+        {loading ? (
+          <p className="text-center py-8 opacity-80">
+            Cargando catálogo de permisos...
+          </p>
+        ) : (
+          groupedPermissions.map((group, index) => (
+            <div key={group.title} className="space-y-6">
+              <PermissionGroup
+                title={group.title}
+                permissions={group.permissions}
+                selectedIds={selectedIds}
+                onToggle={handleCheckboxChange}
+              />
+              {index < groupedPermissions.length - 1 && (
+                <div className="border-t border-[var(--color-brand)]/40 my-6" />
+              )}
+            </div>
+          ))
+        )}
 
         {/* Botones de Acción */}
         <div className="pt-6 border-t border-[var(--color-brand)]/40 flex flex-col-reverse sm:flex-row justify-end gap-4">
+          <Button
+            type="button"
+            variant="secondary"
+            size="md"
+            disabled={loading || saving}
+            onClick={handleToggleAllPermissions}
+            className="w-full sm:w-44"
+          >
+            {allSelected ? "Desmarcar todos" : "Activar todos"}
+          </Button>
           <Button
             type="button"
             variant="secondary"
@@ -192,9 +293,10 @@ export default function PermissionForm() {
             type="submit"
             variant="primary"
             size="md"
+            disabled={saving || loading}
             className="w-full sm:w-48"
           >
-            Guardar permisos
+            {saving ? "Guardando..." : "Guardar permisos"}
           </Button>
         </div>
       </div>
@@ -202,7 +304,7 @@ export default function PermissionForm() {
   );
 }
 
-function PermissionGroup({ title, permissions, formData, handleChange }) {
+function PermissionGroup({ title, permissions, selectedIds, onToggle }) {
   return (
     <div>
       <h3 className="text-[var(--color-brand)] text-lg font-semibold font-[var(--font-heading)] mb-4">
@@ -211,12 +313,12 @@ function PermissionGroup({ title, permissions, formData, handleChange }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {permissions.map((perm) => (
           <Checkbox
-            key={perm.id}
-            id={perm.id}
-            name={perm.id}
-            label={perm.label}
-            checked={Boolean(formData.permissions[perm.id])}
-            onChange={handleChange}
+            key={perm.permission_id}
+            id={perm.permission_codename}
+            name={perm.permission_codename}
+            label={perm.permission_name}
+            checked={selectedIds.has(perm.permission_id)}
+            onChange={() => onToggle(perm.permission_id)}
           />
         ))}
       </div>

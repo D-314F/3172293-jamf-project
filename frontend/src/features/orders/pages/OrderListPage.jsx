@@ -4,18 +4,27 @@ import { DataTable, Button } from "@/shared";
 import { OrderColumns } from "../table/OrderColumns";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
 import { getOrders } from "../services/orderServices";
+import { hasPermission } from "@/features/permissions/services/permissionServices";
 
 export default function OrderListPage() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [canCreate, setCanCreate] = useState(false);
+  const [canReport, setCanReport] = useState(false);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const data = await getOrders();
+        const [data, createPerm, reportPerm] = await Promise.all([
+          getOrders(),
+          hasPermission("create_orders"),
+          hasPermission("report_orders"),
+        ]);
         setOrders(data);
+        setCanCreate(createPerm);
+        setCanReport(reportPerm);
       } catch (error) {
         console.error("Error al obtener las órdenes:", error);
       } finally {
@@ -36,23 +45,26 @@ export default function OrderListPage() {
         </div>
 
         <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3">
-          <Button
-            variant="primary"
-            onClick={() => setIsReportModalOpen(true)}
-          >
-            Generar reporte
-          </Button>
+          {canReport && (
+            <Button
+              variant="primary"
+              onClick={() => setIsReportModalOpen(true)}
+            >
+              Generar reporte
+            </Button>
+          )}
 
-          <Button
-            variant="primary"
-            onClick={() => navigate("/dashboard/orders/create")}
-          >
-            Agregar orden
-          </Button>
+          {canCreate && (
+            <Button
+              variant="primary"
+              onClick={() => navigate("/dashboard/orders/create")}
+            >
+              Agregar orden
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Tarjeta contenedora con la tabla de datos */}
       <div className="bg-[var(--color-background-inverse)] rounded-2xl md:rounded-3xl border border-[var(--color-brand)] shadow-2xl p-4 sm:p-6 md:p-8 overflow-hidden">
         {loading ? (
           <p className="text-[var(--color-text-inverse)] text-center py-8">
@@ -63,7 +75,6 @@ export default function OrderListPage() {
         )}
       </div>
 
-      {/* Modal de Configuración de Reportes */}
       <ReportConfigModal
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
