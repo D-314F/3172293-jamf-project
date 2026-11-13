@@ -4,17 +4,26 @@ import { DataTable, Button } from "@/shared";
 import { inventoryColumns } from "../table/inventoryColumns";
 import { getInventory } from "../services/inventoryServices";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
+import { hasPermission } from "@/features/permissions/services/permissionServices";
 
 export default function InventoryListPage() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [inventoryData, setInventoryData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [canCreate, setCanCreate] = useState(false);
+  const [canReport, setCanReport] = useState(false);
 
   useEffect(() => {
     const fetchInventory = async () => {
       try {
-        const data = await getInventory();
+        const [data, createPerm, reportPerm] = await Promise.all([
+          getInventory(),
+          hasPermission("create_inventory"),
+          hasPermission("report_inventory"),
+        ]);
         setInventoryData(data);
+        setCanCreate(createPerm);
+        setCanReport(reportPerm);
       } catch (error) {
         console.error("Error al obtener el inventario:", error);
       } finally {
@@ -33,18 +42,22 @@ export default function InventoryListPage() {
         </h1>
 
         <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3">
-          <Button 
-            variant="primary" 
-            onClick={() => setIsReportModalOpen(true)}
-          >
-            Reportar inventario
-          </Button>
-
-          <Link to="/dashboard/createInventory">
-            <Button variant="primary">
-              Crear inventario
+          {canReport && (
+            <Button 
+              variant="primary" 
+              onClick={() => setIsReportModalOpen(true)}
+            >
+              Reportar inventario
             </Button>
-          </Link>
+          )}
+
+          {canCreate && (
+            <Link to="/dashboard/createInventory">
+              <Button variant="primary">
+                Crear inventario
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 

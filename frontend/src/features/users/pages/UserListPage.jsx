@@ -4,18 +4,27 @@ import { DataTable, Button } from "@/shared";
 import { UserColumns } from "../table/UserColumns";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
 import { getUsers } from "../services/userServices";
+import { hasPermission } from "@/features/permissions/services/permissionServices";
 
 export default function UserListPage() {
   const navigate = useNavigate();
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [canCreate, setCanCreate] = useState(false);
+  const [canReport, setCanReport] = useState(false);
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchUsersAndPerms = async () => {
       try {
-        const data = await getUsers();
+        const [data, createPerm, reportPerm] = await Promise.all([
+          getUsers(),
+          hasPermission("create_users"),
+          hasPermission("report_users"),
+        ]);
         setUsers(data);
+        setCanCreate(createPerm);
+        setCanReport(reportPerm);
       } catch (error) {
         console.error("Error al obtener los usuarios:", error);
       } finally {
@@ -23,7 +32,7 @@ export default function UserListPage() {
       }
     };
 
-    fetchUsers();
+    fetchUsersAndPerms();
   }, []);
 
   return (
@@ -35,21 +44,25 @@ export default function UserListPage() {
         </h1>
 
         <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3">
-          <Button
-            variant="primary"
-            size="md"
-            onClick={() => setIsReportModalOpen(true)}
-          >
-            Reportar usuario
-          </Button>
+          {canReport && (
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => setIsReportModalOpen(true)}
+            >
+              Reportar usuario
+            </Button>
+          )}
 
-          <Button
-            variant="primary"
-            size="md"
-            onClick={() => navigate("/dashboard/userCreate")}
-          >
-            Crear usuario
-          </Button>
+          {canCreate && (
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => navigate("/dashboard/userCreate")}
+            >
+              Crear usuario
+            </Button>
+          )}
         </div>
       </div>
 

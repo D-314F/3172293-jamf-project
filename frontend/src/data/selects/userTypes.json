@@ -1,14 +1,22 @@
 [
   {
-    "id": "admin",
+    "id": "Administrador",
+    "value": "Administrador",
     "label": "Administrador"
   },
   {
-    "id": "empleado",
-    "label": "Empleado"
+    "id": "Cajero",
+    "value": "Cajero",
+    "label": "Cajero"
   },
   {
-    "id": "supervisor",
-    "label": "Supervisor"
+    "id": "Mesero",
+    "value": "Mesero",
+    "label": "Mesero"
+  },
+  {
+    "id": "Cocinero",
+    "value": "Cocinero",
+    "label": "Cocinero"
   }
 ]
