@@ -1,64 +1,48 @@
 :root {
-    /* ======================= LIGHT THEME =========================== */
-    
-    /* ============BRAND=========== */
-    --semantic-brand: var(--color-primary-400);        /* #FFCA28 Dorado */
-    --semantic-brand-hover: var(--color-primary-500);  /* #FFC107 */
-    --semantic-brand-soft: var(--color-secondary-400); /* Tu secondary de tokens */
+    /* ============ BRAND ============ */
+    --semantic-brand: var(--color-primary-400);            /* #FFCA28 Dorado */
+    --semantic-brand-hover: var(--color-primary-500);      /* #FFC107 */
+    --semantic-brand-soft: var(--color-secondary-400);     /* #E74C4C Coral */
     --semantic-brand-soft-hover: var(--color-secondary-500);
 
-    /* ==========BACKGROUND======== */
-
-    --semantic-background: var(--color-white); /* Fondo de toda la aplicación*/
-    --semantic-surface: var(--color-gray-400); /* Fondo de modales cards, cards, containers*/
-    --semantic-surface-muted: var(--color-gray-200); /*Zona secundarias, con menos importancia*/
-    --semantic-background-inverse: var(--color-black);
+    /* ========== BACKGROUND & SURFACES M3 ========== */
+    --semantic-background: var(--color-gray-50);           /* Fondo claro suave (#F8F9FB) */
+    --semantic-surface: var(--color-gray-200);             /* Superficie secundaria clara */
+    --semantic-surface-muted: var(--color-gray-100);       /* Zona auxiliar clara */
+    --semantic-background-inverse: var(--color-black);     /* Carbón M3 (#121316) para cards/modales oscuros */
+    --semantic-surface-dark: var(--color-gray-950);        /* Contenedor interno oscuro (#1A1C20) */
 
     /* ============ TEXT ============= */
+    --semantic-text-primary: var(--color-gray-950);        /* Lectura principal sobre claro */
+    --semantic-text-secondary: var(--color-gray-600);      /* Subtítulos sobre claro */
+    --semantic-text-muted: var(--color-gray-400);          /* Texto auxiliar legible tanto en claro como en oscuro */
+    --semantic-text-inverse: var(--color-white);           /* Texto principal sobre fondo oscuro */
 
-    --semantic-text-primary: var(--color-gray-900); /*Color principal de lectura, titulos, texto base del documento*/
-    --semantic-text-secondary: var(--color-gray-700); /*Textos menos dominantes*/
-    --semantic-text-muted: var(--color-gray-500); /*Textoo deshabilitado por ejemplo*/
-    --semantic-text-inverse: var(--color-white); /*Texto invertido*/
+    /* =========== BORDER ========== */
+    --semantic-border: var(--color-gray-700);              /* Borde sutil M3 */
+    --semantic-border-strong: var(--color-gray-600);       /* Borde con mayor énfasis */
 
-    /* =========== BODER ========== */
+    /* =========== FOCUS =========== */
+    --semantic-focus-ring: var(--color-primary-600);
+    --semantic-focus-border: var(--color-primary-400);
 
-    --semantic-border: var(--color-gray-400); /*Borde principal de todos los componentes*/
-    --semantic-border-strong: var(--color-gray-700); /*Border más fuertes */
+    /* =========== STATE (Corregido typo secundary) =========== */
+    --semantic-success: var(--color-status-success);
+    --semantic-warning: var(--color-status-warning);
+    --semantic-error: var(--color-status-error);
 
-    /*======= FOCUS ======*/
+    /* ========= TYPOGRAPHY M3 ========= */
+    --semantic-font-size-display: var(--fs-xxl);   /* 36px */
+    --semantic-font-size-h1: var(--fs-lg);         /* 24px */
+    --semantic-font-size-h2: var(--fs-md);         /* 20px */
+    --semantic-font-size-h3: var(--fs-sm);         /* 18px */
+    --semantic-font-size-body: var(--fs-xs);       /* 16px */
+    --semantic-font-size-medium: var(--fs-xxs);    /* 14px */
+    --semantic-font-size-small: var(--fs-xxxs);    /* 13px */
+    --semantic-font-size-caption: var(--fs-xxxxs); /* 12px */
 
-    --semantic-focus-ring: var(--color-primary-700);
-    --semantic-focus-border: var(--color-primary-500);
-
-    /*======= STATE ======*/
-
-    --semantic-success: var(--color-primary-950);
-    --semantic-warning: var(--color-primary-950);
-    --semantic-error: var(--color-secundary-950);
-
-    /*===== TYPOGRAPHY ====*/
-
-    --semantic-font-size-display: var(--fs-xxl); /* Texto de alto impacto, texto protagonista, hero, números grandes*/
-    --semantic-font-size-h1: var(--fs-lg);
-    --semantic-font-size-h2: var(--fs-md);
-    --semantic-font-size-h3: var(--fs-sm);
-    --semantic-font-size-body: var(--fs-xs);
-    --semantic-font-size-medium: var(--fs-xxs);
-    --semantic-font-size-small: var(--fs-xxxs);
-    --semantic-font-size-caption: var(--fs-xxxxs);  /* Caption es texto auxiliar muy pequeño.*/
-
-    /*======== FONT WEIGHT =======*/
-
+    /* ======== FONT WEIGHT ======== */
     --semantic-font-weight-heading: var(--font-weight-bold);
     --semantic-font-weight-body: var(--font-weight-regular);
-    --semantic-font-weight-label: var(--font-weight-regular);
-
-    
-    /* =====================================*/
-    /* YA NO DEPENDEMOS DE NOBRES DE COLOR,
-    DEPENDEMOS ES DE ITENCIÓN
-    /*========================================*/
-    
-    /*=============== DARK THEME ================*/
+    --semantic-font-weight-label: var(--font-weight-medium);
 }

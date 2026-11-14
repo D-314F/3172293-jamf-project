@@ -4,7 +4,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import { AuthLayout, DashboardLayout } from "@/shared";
 
-import { UserListPage, UserRegisterForm, UserDetailPage, UserEditPage } from "@/features/users";
+import { UserListPage, UserRegisterForm, PublicRegisterForm, UserDetailPage, UserEditPage } from "@/features/users";
 
 import { DishForm, DishListPage, DishViewPage, DishEditPage } from "@/features/dishes";
 
@@ -33,9 +33,9 @@ const router = createBrowserRouter([
     path: "/login",
     element: <LoginForm />,
   },
-  {
+    {
     path: "/register",
-    element: <UserRegisterForm />,
+    element: <PublicRegisterForm />,
   },
   {
     path: "/forgot-password",

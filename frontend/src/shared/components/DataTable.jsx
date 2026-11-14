@@ -7,6 +7,7 @@ import {
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import { useState } from "react";
+import { Search } from "lucide-react";
 import { Button } from "@/shared";
 
 export default function DataTable({ data, columns }) {
@@ -26,41 +27,43 @@ export default function DataTable({ data, columns }) {
 
   return (
     <div className="space-y-4 font-[var(--font-body)]">
-
       {/* TOOLBAR */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        {/* Buscador */}
-        <input
-          type="text"
-          placeholder="Buscar..."
-          value={globalFilter ?? ""}
-          onChange={(e) => setGlobalFilter(e.target.value)}
-          className="
-            bg-[var(--color-background-inverse)]
-            border border-[var(--color-border)]
-            text-[var(--color-text-inverse)]
-            placeholder:text-[var(--color-text-muted)]
-            rounded-xl px-4 py-3
-            w-full sm:w-72
-            text-body
-            font-[var(--font-body)]
-            focus:outline-none focus:ring-2
-            focus:ring-[var(--color-brand)]
-            focus:border-[var(--color-brand)]
-            transition
-          "
-        />
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        {/* Buscador con ícono M3 */}
+        <div className="relative w-full sm:w-80">
+          <Search className="w-4 h-4 text-[var(--color-brand)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Buscar registro..."
+            value={globalFilter ?? ""}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="
+              bg-[var(--color-surface-dark)]
+              border border-[var(--color-border)]
+              text-[var(--color-text-inverse)]
+              placeholder:text-[var(--color-text-muted)]
+              rounded-xl pl-10 pr-4 py-2.5
+              w-full
+              text-medium
+              font-[var(--font-body)]
+              focus:outline-none focus:ring-2
+              focus:ring-[var(--color-brand)]
+              focus:border-[var(--color-brand)]
+              transition
+            "
+          />
+        </div>
 
         {/* Selector de filas */}
         <select
           value={table.getState().pagination.pageSize}
           onChange={(e) => table.setPageSize(Number(e.target.value))}
           className="
-            bg-[var(--color-background-inverse)]
+            bg-[var(--color-surface-dark)]
             border border-[var(--color-border)]
             text-[var(--color-text-inverse)]
-            rounded-xl px-4 py-3
-            text-body
+            rounded-xl px-4 py-2.5
+            text-medium
             font-[var(--font-label)]
             cursor-pointer
             focus:outline-none focus:ring-2
@@ -74,32 +77,35 @@ export default function DataTable({ data, columns }) {
               value={size}
               className="bg-[var(--color-background-inverse)]"
             >
-              {size} filas
+              Mostrar {size} filas
             </option>
           ))}
         </select>
       </div>
 
       {/* TABLA */}
-      <div className="overflow-x-auto border border-[var(--color-border)]/60 rounded-2xl shadow-inner">
+      <div className="overflow-x-auto border border-[var(--color-border)]/60 rounded-2xl bg-[var(--color-surface-dark)]/60">
         <table className="w-full border-collapse">
-          <thead className="bg-[var(--color-surface-muted)]/20 border-b border-[var(--color-border)]">
+          <thead className="bg-[var(--color-surface-dark)] border-b border-[var(--color-border)]">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
                     className="
-                      px-5 py-4
+                      px-5 py-3.5
                       text-left
-                      text-body
+                      text-small
                       font-[var(--font-heading)]
                       text-[var(--color-brand)]
-                      uppercase tracking-wide
+                      uppercase tracking-wider
                       whitespace-nowrap
                     "
                   >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                   </th>
                 ))}
               </tr>
@@ -110,9 +116,9 @@ export default function DataTable({ data, columns }) {
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="px-5 py-10 text-center text-body text-[var(--color-text-muted)] font-[var(--font-body)]"
+                  className="px-5 py-10 text-center text-medium text-[var(--color-text-muted)] font-[var(--font-body)]"
                 >
-                  Sin resultados
+                  Sin resultados encontrados
                 </td>
               </tr>
             ) : (
@@ -120,8 +126,8 @@ export default function DataTable({ data, columns }) {
                 <tr
                   key={row.id}
                   className="
-                    border-b border-[var(--color-border)]/40
-                    hover:bg-[var(--color-brand)]/10
+                    border-b border-[var(--color-border)]/35
+                    hover:bg-[var(--color-brand)]/8
                     text-[var(--color-text-inverse)]
                     transition-colors
                   "
@@ -129,9 +135,12 @@ export default function DataTable({ data, columns }) {
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
-                      className="px-5 py-4 text-body font-[var(--font-body)] whitespace-nowrap"
+                      className="px-5 py-3.5 text-medium font-[var(--font-body)] whitespace-nowrap"
                     >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </td>
                   ))}
                 </tr>
@@ -142,14 +151,12 @@ export default function DataTable({ data, columns }) {
       </div>
 
       {/* FOOTER / PAGINACIÓN */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-2">
-        {/* Total registros */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-1">
         <span className="text-medium text-[var(--color-text-muted)] font-[var(--font-body)] text-center md:text-left">
           Mostrando {table.getRowModel().rows.length} de{" "}
           {table.getFilteredRowModel().rows.length} registros
         </span>
 
-        {/* Botones de página */}
         <div className="flex flex-wrap items-center justify-center gap-2">
           <Button
             size="sm"
@@ -169,7 +176,8 @@ export default function DataTable({ data, columns }) {
           </Button>
 
           <span className="text-medium font-[var(--font-label)] text-[var(--color-text-inverse)] px-2 whitespace-nowrap">
-            Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount() || 1}
+            Página {table.getState().pagination.pageIndex + 1} de{" "}
+            {table.getPageCount() || 1}
           </span>
 
           <Button
@@ -188,7 +196,6 @@ export default function DataTable({ data, columns }) {
           </Button>
         </div>
 
-        {/* Ir a página */}
         <div className="flex items-center gap-2 text-medium text-[var(--color-text-muted)] font-[var(--font-body)]">
           Ir a página:
           <input
@@ -202,10 +209,10 @@ export default function DataTable({ data, columns }) {
             }}
             className="
               w-16
-              bg-[var(--color-background-inverse)]
+              bg-[var(--color-surface-dark)]
               border border-[var(--color-border)]
               text-[var(--color-text-inverse)]
-              rounded-lg px-2 py-1.5
+              rounded-xl px-2 py-1.5
               text-medium text-center
               focus:outline-none focus:ring-2
               focus:ring-[var(--color-brand)]

@@ -4,61 +4,51 @@ import {
   useEffect,
   useRef,
   useState,
-  cloneElement
-} from "react"
+  cloneElement,
+} from "react";
+import { X } from "lucide-react";
 
-export const DropdownContext = createContext(null) //EL PAPÁ
+export const DropdownContext = createContext(null);
 
 export function Dropdown({
   children,
   open: controlledOpen,
   onOpenChange,
-  className = ""
+  className = "",
 }) {
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : uncontrolledOpen;
 
-    //NO CONTROLADO - El dropdown maneja su propio estado de abierto/cerra
-    //MODO CONTROLADO - Tú decides desde afuera si está abierto o cerrado
-    const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
-    const isControlled = controlledOpen !== undefined
-    const open = isControlled ? controlledOpen : uncontrolledOpen
-
-    // Si no se pone el onchange en el controlado se queda ahi. nunca cambia porq ue nadie escucha el evento 
- const setOpen = (value) => {
+  const setOpen = (value) => {
     if (isControlled) {
-      onOpenChange?.(value)  // Le avisa al papa
+      onOpenChange?.(value);
     } else {
-      setUncontrolledOpen(value) // Lo cambia el mismo
+      setUncontrolledOpen(value);
     }
-  }
+  };
 
-  
+  const containerRef = useRef(null);
 
-  const containerRef = useRef(null)
-
-  // Click outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setOpen(false)
+        setOpen(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside) //mousedown escucha todos los clicks
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-
-
-  // Escape key, esto es accesibilidad todos los dropdowns se cierran con Esc
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === "Escape") setOpen(false)
-    }
+      if (e.key === "Escape") setOpen(false);
+    };
 
-    document.addEventListener("keydown", handleEscape)
-    return () => document.removeEventListener("keydown", handleEscape)
-  }, [])
-
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
 
   return (
     <DropdownContext.Provider value={{ open, setOpen }}>
@@ -66,30 +56,24 @@ export function Dropdown({
         {children}
       </div>
     </DropdownContext.Provider>
-  )
+  );
 }
 
-// Trigger (asChild pattern)
 export function DropdownTrigger({ children }) {
-  const { open, setOpen } = useContext(DropdownContext)
+  const { open, setOpen } = useContext(DropdownContext);
 
-  if (!children) return null
-
+  if (!children) return null;
 
   return cloneElement(children, {
     onClick: (e) => {
-      children.props.onClick?.(e)
-      setOpen(!open)
+      children.props.onClick?.(e);
+      setOpen(!open);
     },
-    "aria-expanded": open, // Accesibilidad le dice este boton tiene un menú y ahora esta abierto/cerrado.
-    "aria-haspopup": "menu"
-  })
+    "aria-expanded": open,
+    "aria-haspopup": "menu",
+  });
 }
 
-// Content
-// Esto aparece cuando le das clic
-// Content
-// En Dropdown.jsx -> DropdownContent
 export function DropdownContent({ children, className = "" }) {
   const { open, setOpen } = useContext(DropdownContext);
 
@@ -99,59 +83,61 @@ export function DropdownContent({ children, className = "" }) {
     <div
       role="menu"
       className={`
-        /* Mobile sidebar */
-        fixed top-0 left-0 h-full w-64 rounded-r-2xl
-
-        /* Desktop dropdown (Alineado debajo de la barra y pegado a la derecha) */
-        md:absolute md:top-full md:mt-2.5 md:right-0 md:left-auto md:w-64 md:h-auto md:rounded-xl md:shadow-2xl
-
-        border border-[var(--color-brand)] 
-        bg-[var(--color-background-inverse)]       
-        text-[var(--color-text-inverse)]           
+        absolute right-0 top-full mt-2.5
+        w-64 sm:w-72 h-auto max-h-[82vh] overflow-y-auto
+        rounded-2xl shadow-2xl
+        border border-[var(--color-brand)]/40
+        bg-[var(--color-background-inverse)]
+        text-[var(--color-text-inverse)]
         font-[var(--font-body)]
-        p-4
+        p-2.5
         z-50
         ${className}
       `}
     >
-      <button
-        onClick={() => setOpen(false)}
-        className="mb-4 text-sm text-[var(--color-error)] font-[var(--font-heading)] md:hidden"
-      >
-        ✕ Cerrar
-      </button>
-      {children}
+      {/* Cabecera compacta solo en Mobile */}
+      <div className="flex items-center justify-between px-3 py-2 mb-1.5 border-b border-[var(--color-border)]/15 md:hidden">
+        <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-brand)] font-[var(--font-heading)]">
+          Navegación POS
+        </span>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          aria-label="Cerrar menú"
+          className="w-7 h-7 rounded-full bg-[var(--color-surface-dark)] text-[var(--color-text-muted)] hover:text-[var(--color-brand)] flex items-center justify-center transition-colors cursor-pointer"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="flex flex-col gap-1">{children}</div>
     </div>
   );
 }
 
-
-
-// Item
-export function DropdownItem({
-  children,
-  onClick,
-  className = ""
-}) {
-  const { setOpen } = useContext(DropdownContext)
+export function DropdownItem({ children, onClick, className = "" }) {
+  const { setOpen } = useContext(DropdownContext);
 
   const handleClick = (e) => {
-    onClick?.(e)
-    setOpen(false) // Se cierra solo al darle click
-  }
+    onClick?.(e);
+    setOpen(false);
+  };
 
   return (
     <button
+      type="button"
       role="menuitem"
       onClick={handleClick}
       className={`
-        w-full text-left px-3 py-2 rounded-lg
-        hover:bg-gray-500 focus:bg-gray-100
-        transition-colors
+        w-full text-left px-3 py-2.5 rounded-xl
+        text-sm font-medium
+        hover:bg-[var(--color-surface-dark)]
+        active:scale-[0.99]
+        transition-all cursor-pointer
         ${className}
       `}
     >
       {children}
     </button>
-  )
+  );
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { FileSpreadsheet, UserPlus } from "lucide-react";
 import { DataTable, Button } from "@/shared";
 import { UserColumns } from "../table/UserColumns";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
@@ -36,21 +37,27 @@ export default function UserListPage() {
   }, []);
 
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-8 md:pt-10 pb-10 flex flex-col gap-4">
-      {/* Header Responsivo */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
-        <h1 className="text-xl sm:text-2xl font-[var(--font-heading)] font-bold text-[var(--color-text-inverse)]">
-          Listado de Usuarios
-        </h1>
+    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-10 space-y-6">
+      {/* Header M3 con subtítulo e íconos */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-main font-[var(--font-heading)] text-[var(--color-text-inverse)]">
+            Listado de Usuarios
+          </h1>
+          <p className="text-medium text-[var(--color-text-muted)]">
+            Administración de personal, roles y cuentas registradas
+          </p>
+        </div>
 
         <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3">
           {canReport && (
             <Button
-              variant="primary"
+              variant="secondary"
               size="md"
               onClick={() => setIsReportModalOpen(true)}
             >
-              Reportar usuario
+              <FileSpreadsheet className="w-4 h-4" />
+              Reportar usuarios
             </Button>
           )}
 
@@ -60,16 +67,17 @@ export default function UserListPage() {
               size="md"
               onClick={() => navigate("/dashboard/userCreate")}
             >
+              <UserPlus className="w-4 h-4" />
               Crear usuario
             </Button>
           )}
         </div>
       </div>
 
-      {/* TARJETA CONTENEDORA DE LA TABLA */}
-      <div className="bg-[var(--color-background-inverse)] rounded-2xl md:rounded-3xl border border-[var(--color-brand)] shadow-2xl p-4 sm:p-6 md:p-8 overflow-hidden">
+      {/* Tabla */}
+      <div className="bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)]/50 shadow-2xl p-4 sm:p-6 md:p-8 overflow-hidden">
         {loading ? (
-          <p className="text-[var(--color-text-inverse)] text-center py-8">
+          <p className="text-[var(--color-text-inverse)] text-center py-8 text-body">
             Cargando usuarios de la base de datos...
           </p>
         ) : (
@@ -77,7 +85,6 @@ export default function UserListPage() {
         )}
       </div>
 
-      {/* Modal de Reporte */}
       <ReportConfigModal
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}

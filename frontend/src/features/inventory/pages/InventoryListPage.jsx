@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { FileSpreadsheet, Plus } from "lucide-react";
 import { DataTable, Button } from "@/shared";
 import { inventoryColumns } from "../table/inventoryColumns";
 import { getInventory } from "../services/inventoryServices";
@@ -35,18 +36,24 @@ export default function InventoryListPage() {
   }, []);
 
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-8 md:pt-10 pb-10 flex flex-col gap-6">
+    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-10 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-xl sm:text-2xl font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)]">
-          Listado de Inventario
-        </h1>
+        <div>
+          <h1 className="text-main font-[var(--font-heading)] text-[var(--color-text-inverse)]">
+            Listado de Inventario
+          </h1>
+          <p className="text-medium text-[var(--color-text-muted)]">
+            Control de insumos, existencias y estados de stock
+          </p>
+        </div>
 
         <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3">
           {canReport && (
-            <Button 
-              variant="primary" 
+            <Button
+              variant="secondary"
               onClick={() => setIsReportModalOpen(true)}
             >
+              <FileSpreadsheet className="w-4 h-4" />
               Reportar inventario
             </Button>
           )}
@@ -54,6 +61,7 @@ export default function InventoryListPage() {
           {canCreate && (
             <Link to="/dashboard/createInventory">
               <Button variant="primary">
+                <Plus className="w-4 h-4" />
                 Crear inventario
               </Button>
             </Link>
@@ -61,9 +69,9 @@ export default function InventoryListPage() {
         </div>
       </div>
 
-      <div className="bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)] shadow-2xl p-4 sm:p-6 md:p-8 overflow-hidden">
+      <div className="bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)]/50 shadow-2xl p-4 sm:p-6 md:p-8 overflow-hidden">
         {loading ? (
-          <p className="text-[var(--color-text-inverse)] text-center py-8">
+          <p className="text-[var(--color-text-inverse)] text-center py-8 text-body">
             Cargando inventario de la base de datos...
           </p>
         ) : (
