@@ -45,4 +45,51 @@ export const authRepository = {
 
         await pool.query(query, [userId]);
     },
+
+    // Obtiene el perfil completo del usuario autenticado
+    async findProfileById(userId) {
+        const query = `
+            SELECT
+                u.id,
+                u.user_name,
+                u.user_type,
+                u.user_document_types,
+                u.user_document_number,
+                u.user_business_email,
+                u.user_email,
+                u.user_phone,
+                u.user_address,
+                u.user_start_date,
+                u.user_avatar_url,
+                u.is_active,
+                u.is_staff,
+                u.is_superuser,
+                ARRAY_REMOVE(ARRAY_AGG(DISTINCT g_ug.group_name), NULL) AS user_groups_list,
+                ARRAY_REMOVE(ARRAY_AGG(DISTINCT g_ut.group_name), NULL) AS role_groups_list
+            FROM users u
+            LEFT JOIN user_groups ug ON ug.user_id = u.id
+            LEFT JOIN groups g_ug ON g_ug.group_id = ug.group_id
+            LEFT JOIN groups g_ut ON LOWER(g_ut.group_name) = LOWER(u.user_type)
+            WHERE u.id = $1
+            GROUP BY u.id
+            LIMIT 1;
+        `;
+
+        const result = await pool.query(query, [userId]);
+        return result.rows[0];
+    },
+
+        // Actualiza únicamente los datos de contacto propios del usuario autenticado
+    async updateOwnContact(userId, { userPhone, userAddress }) {
+        const query = `
+            UPDATE users
+            SET user_phone = $1,
+                user_address = $2
+            WHERE id = $3
+            RETURNING id;
+        `;
+
+        const result = await pool.query(query, [userPhone, userAddress, userId]);
+        return result.rows[0];
+    },
 };
