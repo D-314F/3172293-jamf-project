@@ -98,4 +98,72 @@ export const authService = {
             },
         };
     },
+
+        async getProfile(userId) {
+        const user = await authRepository.findProfileById(userId);
+
+        if (!user) {
+            const error = new Error("Usuario no encontrado.");
+            error.statusCode = 404;
+            throw error;
+        }
+
+        const groups =
+            user.user_groups_list?.length > 0
+                ? user.user_groups_list
+                : user.role_groups_list?.length > 0
+                    ? user.role_groups_list
+                    : [user.user_type || "Sin grupo"];
+
+        const startDate = user.user_start_date
+            ? new Date(user.user_start_date).toISOString().split("T")[0]
+            : "";
+
+        return {
+            id: user.id,
+            userName: user.user_name,
+            userEmail: user.user_email,
+            userBusinessEmail: user.user_business_email || "",
+            userType: user.user_type || "Usuario",
+            groups,
+            userDocumentTypes: user.user_document_types || "",
+            userDocumentNumber: user.user_document_number || "",
+            userPhone: user.user_phone || "",
+            userAddress: user.user_address || "",
+            userStartDate: startDate,
+            userAvatarUrl: user.user_avatar_url || null,
+            isActive: user.is_active,
+            isSuperuser: user.is_superuser,
+        };
+    },
+
+        async updateProfile(userId, { userPhone, userAddress }) {
+        const cleanPhone = String(userPhone ?? "").trim();
+        const cleanAddress = String(userAddress ?? "").trim();
+
+        if (!/^[0-9]{10}$/.test(cleanPhone)) {
+            const error = new Error("El teléfono debe tener exactamente 10 dígitos.");
+            error.statusCode = 400;
+            throw error;
+        }
+
+        if (cleanAddress.length < 5 || cleanAddress.length > 100) {
+            const error = new Error("La dirección debe tener entre 5 y 100 caracteres.");
+            error.statusCode = 400;
+            throw error;
+        }
+
+        const updated = await authRepository.updateOwnContact(userId, {
+            userPhone: cleanPhone,
+            userAddress: cleanAddress,
+        });
+
+        if (!updated) {
+            const error = new Error("Usuario no encontrado.");
+            error.statusCode = 404;
+            throw error;
+        }
+
+        return await this.getProfile(userId);
+    },
 };
