@@ -59,7 +59,10 @@ export const dishService = {
                 data.dish_description ??
                 existing.dish_description,
             dishImageUrl:
-                data.dishImageUrl ?? data.dish_image_url ?? existing.dish_image_url,
+                data.dishImageUrl ??
+                data.dish_image_url ??
+                data.imagen ??
+                existing.dish_image_url,
             isActive: data.isActive ?? data.is_active ?? existing.is_active,
         };
 
@@ -72,7 +75,8 @@ export const dishService = {
             dishPrice: Number(data.precio || data.dishPrice),
             dishCategory: data.categoria || data.dishCategory,
             dishDescription: data.descripcion || data.dishDescription,
-            dishImageUrl: null,
+            dishImageUrl:
+                data.dishImageUrl ?? data.dish_image_url ?? data.imagen ?? null,
             isActive: data.isActive ?? true,
         };
 

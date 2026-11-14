@@ -76,28 +76,30 @@ import {
         type="button"
         onClick={handleToggle}
         disabled={disabled}
-        title={isActive ? "Activo (clic para desactivar)" : "Inactivo (clic para activar)"}
+        title={
+            isActive ? "Activo (clic para desactivar)" : "Inactivo (clic para activar)"
+        }
         className={`
             relative inline-flex items-center
             rounded-full transition-colors duration-200
             ${sizes[size]}
-            ${isActive ? "bg-green-500" : "bg-gray-400"}
+            ${isActive ? "bg-[var(--color-success)]" : "bg-[var(--color-border)]"}
             ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
         `}
         >
         <span
             className={`
             absolute left-0.5 flex items-center justify-center
-            rounded-full bg-white shadow
+            rounded-full bg-[var(--color-background)] shadow
             transition-transform duration-200
             ${knobSizes[size]}
             ${isActive ? "translate-x-full" : "translate-x-0"}
             `}
         >
             {isActive ? (
-            <Check size={12} className="text-green-600" />
+            <Check size={12} className="text-[var(--color-success)]" />
             ) : (
-            <X size={12} className="text-gray-500" />
+            <X size={12} className="text-[var(--color-text-secondary)]" />
             )}
         </span>
         </button>

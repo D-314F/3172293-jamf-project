@@ -102,11 +102,14 @@ export default function Select({
         {!hidePlaceholder && (
           <option value="">Seleccione una opción</option>
         )}
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
+        {options.map((opt, index) => {
+          const optValue = opt.value ?? opt.id ?? opt.label;
+          return (
+            <option key={`${optValue}-${index}`} value={optValue}>
+              {opt.label}
+            </option>
+          );
+        })}
       </select>
 
       {error && (

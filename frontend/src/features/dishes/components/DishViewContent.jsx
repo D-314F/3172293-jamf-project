@@ -1,35 +1,34 @@
-import { useState } from "react";
 import { Input } from "@/shared";
-import userProfile from "@/assets/images/user-profile.png";
+import {
+  resolveDishImage,
+  normalizeCategoryLabel,
+  formatCopPrice,
+} from "../utils/dishImages";
 
 export default function DishViewContent({ dish = {} }) {
   const isDishActive = Boolean(dish.isActive ?? dish.activo ?? dish.active ?? true);
-
-  const [imgSrc, setImgSrc] = useState(() => {
-    return dish.dishImageUrl || dish.imagen || dish.image || userProfile;
-  });
+  const imgSrc = resolveDishImage(dish);
 
   return (
-    <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8 items-center border border-[var(--color-brand)] shadow-2xl">
-      {/* Imagen e Indicador de Estado (Estilo Proveedores) */}
+    <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8 items-center border border-[var(--color-brand)]/35 shadow-2xl">
+      {/* Imagen e Indicador de Estado */}
       <div className="flex flex-col items-center justify-center gap-4 lg:order-last">
         <img
           src={imgSrc}
           alt={dish.nombre || dish.dishName || "Platillo"}
-          onError={() => setImgSrc(userProfile)}
-          className="w-36 h-36 sm:w-48 sm:h-48 object-cover rounded-xl border-4 border-[var(--color-brand-hover)] shadow-md"
+          className="w-40 h-40 sm:w-48 sm:h-48 object-cover rounded-2xl border-2 border-[var(--color-brand)] shadow-lg"
         />
 
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-[var(--font-label)]">
-            Estado del platillo:
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--color-surface-dark)] border border-[var(--color-border)]/20">
+          <span className="text-xs text-[var(--color-text-muted)] font-[var(--font-label)]">
+            Estado:
           </span>
           <span
-            className={`w-3 h-3 rounded-full ${
-              isDishActive ? "bg-green-500" : "bg-red-500"
+            className={`w-2.5 h-2.5 rounded-full ${
+              isDishActive ? "bg-[var(--color-success)]" : "bg-[var(--color-error)]"
             }`}
           />
-          <span className="text-xs font-semibold">
+          <span className="text-xs font-semibold text-[var(--color-text-inverse)]">
             {isDishActive ? "Habilitado" : "Deshabilitado"}
           </span>
         </div>
@@ -45,26 +44,25 @@ export default function DishViewContent({ dish = {} }) {
 
         <Input
           label="Categoría"
-          value={dish.categoria || dish.category || ""}
+          value={normalizeCategoryLabel(dish.categoria || dish.category || "")}
           disabled
         />
 
         <Input
           label="Precio"
-          value={`$${dish.precio || dish.price || "0"}`}
+          value={formatCopPrice(dish.precio || dish.price || 0)}
           disabled
         />
 
-        <div className="sm:col-span-2 flex flex-col gap-1">
+        <div className="sm:col-span-2 flex flex-col gap-1.5">
           <label className="text-xs sm:text-sm font-medium text-[var(--color-text-inverse)]">
             Descripción
           </label>
           <textarea
             value={dish.descripcion || dish.description || ""}
-            readOnly
             disabled
             rows={3}
-            className="w-full bg-[var(--color-surface-dark)] text-[var(--color-text-inverse)] border border-[var(--color-border)] rounded-lg p-3 text-sm resize-none opacity-80 cursor-not-allowed"
+            className="w-full rounded-xl bg-[var(--color-surface-dark)] text-[var(--color-text-inverse)] p-3.5 text-sm border border-[var(--color-border)]/20 opacity-90 resize-none focus:outline-none"
           />
         </div>
       </div>
