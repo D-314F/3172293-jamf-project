@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileSpreadsheet, UserPlus } from "lucide-react";
+import { FileSpreadsheet, UserPlus, Filter, RotateCcw } from "lucide-react";
 import { DataTable, Button } from "@/shared";
 import { UserColumns } from "../table/UserColumns";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
@@ -15,6 +15,10 @@ export default function UserListPage() {
   const [canCreate, setCanCreate] = useState(false);
   const [canReport, setCanReport] = useState(false);
 
+  // Filtros requeridos por RFADMIN05 / RFADMIN06
+  const [roleFilter, setRoleFilter] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+
   useEffect(() => {
     const fetchUsersAndPerms = async () => {
       try {
@@ -23,7 +27,7 @@ export default function UserListPage() {
           hasPermission("create_users"),
           hasPermission("report_users"),
         ]);
-        setUsers(data);
+        setUsers(Array.isArray(data) ? data : []);
         setCanCreate(createPerm);
         setCanReport(reportPerm);
       } catch (error) {
@@ -36,6 +40,58 @@ export default function UserListPage() {
     fetchUsersAndPerms();
   }, []);
 
+  // Sincroniza en tiempo real cuando se cambia el switch de un usuario en la tabla
+  useEffect(() => {
+    const handleStatusUpdated = (event) => {
+      const { id, isActive } = event.detail;
+      setUsers((prevUsers) =>
+        prevUsers.map((u) =>
+          u.id === id ? { ...u, isActive, is_active: isActive } : u
+        )
+      );
+    };
+
+    window.addEventListener("jamf:user-status-updated", handleStatusUpdated);
+    return () => {
+      window.removeEventListener("jamf:user-status-updated", handleStatusUpdated);
+    };
+  }, []);
+
+  // Lista única de roles disponibles para el selector de filtro
+  const availableRoles = useMemo(() => {
+    const roles = new Set(
+      users.map((u) => u.userRole).filter((role) => Boolean(role))
+    );
+    return ["Administrador", "Cajero", "Mesero", "Cocinero", "Pendiente", ...roles].filter(
+      (value, index, self) => self.indexOf(value) === index
+    );
+  }, [users]);
+
+  // Filtrado por Rol + Estado y ordenamiento alfabético por Nombre Completo
+  const filteredAndSortedUsers = useMemo(() => {
+    return [...users]
+      .filter((user) => {
+        const matchesRole =
+          roleFilter === "ALL" ||
+          String(user.userRole || "").toLowerCase() === roleFilter.toLowerCase();
+
+        const isUserActive = Boolean(user.isActive ?? user.is_active);
+        const matchesStatus =
+          statusFilter === "ALL" ||
+          (statusFilter === "ACTIVE" && isUserActive) ||
+          (statusFilter === "INACTIVE" && !isUserActive);
+
+        return matchesRole && matchesStatus;
+      })
+      .sort((a, b) =>
+        String(a.userName || "").localeCompare(String(b.userName || ""), "es", {
+          sensitivity: "base",
+        })
+      );
+  }, [users, roleFilter, statusFilter]);
+
+  const hasActiveFilters = roleFilter !== "ALL" || statusFilter !== "ALL";
+
   return (
     <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-10 space-y-6">
       {/* Header M3 con subtítulo e íconos */}
@@ -45,7 +101,7 @@ export default function UserListPage() {
             Listado de Usuarios
           </h1>
           <p className="text-medium text-[var(--color-text-muted)]">
-            Administración de personal, roles y cuentas registradas
+            Administración de personal, roles y cuentas registradas (orden alfabético A–Z)
           </p>
         </div>
 
@@ -74,20 +130,72 @@ export default function UserListPage() {
         </div>
       </div>
 
-      {/* Tabla */}
-      <div className="bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)]/50 shadow-2xl p-4 sm:p-6 md:p-8 overflow-hidden">
+      {/* Contenedor Principal de Filtros + Tabla */}
+      <div className="bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)]/50 shadow-2xl p-4 sm:p-6 md:p-8 space-y-5 overflow-hidden">
+        {/* Barra de Filtros por Rol y Estado */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[var(--color-border)]/60">
+          <div className="flex items-center gap-2 text-small font-[var(--font-label)] text-[var(--color-brand)]">
+            <Filter className="w-4 h-4" />
+            <span>Filtros rápidos (Nombre y Documento en el buscador):</span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Filtro por Rol / Tipo de usuario */}
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              aria-label="Filtrar por rol"
+              className="bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl px-3.5 py-2 text-small font-[var(--font-label)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
+            >
+              <option value="ALL">Rol: Todos</option>
+              {availableRoles.map((role) => (
+                <option key={role} value={role}>
+                  Rol: {role}
+                </option>
+              ))}
+            </select>
+
+            {/* Filtro por Estado */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label="Filtrar por estado"
+              className="bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl px-3.5 py-2 text-small font-[var(--font-label)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
+            >
+              <option value="ALL">Estado: Todos</option>
+              <option value="ACTIVE">Estado: Activo</option>
+              <option value="INACTIVE">Estado: Inactivo</option>
+            </select>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={() => {
+                  setRoleFilter("ALL");
+                  setStatusFilter("ALL");
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-[var(--color-brand)] bg-[var(--color-brand)]/10 hover:bg-[var(--color-brand)]/20 border border-[var(--color-brand)]/30 transition cursor-pointer"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Limpiar filtros
+              </button>
+            )}
+          </div>
+        </div>
+
         {loading ? (
           <p className="text-[var(--color-text-inverse)] text-center py-8 text-body">
             Cargando usuarios de la base de datos...
           </p>
         ) : (
-          <DataTable data={users} columns={UserColumns} />
+          <DataTable data={filteredAndSortedUsers} columns={UserColumns} />
         )}
       </div>
 
       <ReportConfigModal
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
+        users={filteredAndSortedUsers}
       />
     </section>
   );

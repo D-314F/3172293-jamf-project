@@ -22,7 +22,7 @@ export const inventoryReportScopes = [
 export const inventoryReportFilters = {
   category: {
     label: "Marca o categoría",
-    placeholder: "Ej: Jet, Bebidas...",
+    placeholder: "Ej: Frigorífico, Lácteos, Bebidas...",
     emptyError: "Por favor ingresa una categoría o marca válida.",
   },
 };

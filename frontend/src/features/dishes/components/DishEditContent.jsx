@@ -1,24 +1,45 @@
-// src/features/menu/components/DishEditContent.jsx
-
-import { useState } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Select, Input, Button, Checkbox, FileInput } from "@/shared";
+import { Save, Camera } from "lucide-react";
+import { Select, Input, Button, Checkbox } from "@/shared";
 import dishCategories from "../../../data/selects/dishCategories.json";
 import { dishSchema } from "../schemas/dishSchema";
-import { 
-  showSuccessAlert, 
+import { resolveDishImage } from "../utils/dishImages";
+import {
+  showSuccessAlert,
   showCancelAlert,
-  showUserErrorAlert 
-} from "@/shared/services/alertService"; 
+  showUserErrorAlert,
+} from "@/shared/services/alertService";
 
 export default function DishEditContent({
   formData = {},
   setFormData,
-  dish = {},
   onSubmit,
 }) {
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const previewUrl = useMemo(() => {
+    if (
+      Array.isArray(formData.dishImage) &&
+      formData.dishImage.length > 0 &&
+      formData.dishImage[0] instanceof File
+    ) {
+      return URL.createObjectURL(formData.dishImage[0]);
+    }
+    return resolveDishImage({
+      nombre: formData.dishName,
+      categoria: formData.dishCategory,
+      dishImageUrl: formData.dishImageUrl,
+    });
+  }, [
+    formData.dishImage,
+    formData.dishName,
+    formData.dishCategory,
+    formData.dishImageUrl,
+  ]);
 
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
@@ -29,6 +50,13 @@ export default function DishEditContent({
 
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setFormData((prev) => ({ ...prev, dishImage: files }));
     }
   };
 
@@ -51,7 +79,8 @@ export default function DishEditContent({
         if (fieldName === "nombre") fieldErrors.dishName = issue.message;
         if (fieldName === "precio") fieldErrors.dishPrice = issue.message;
         if (fieldName === "categoria") fieldErrors.dishCategory = issue.message;
-        if (fieldName === "descripcion") fieldErrors.dishDescription = issue.message;
+        if (fieldName === "descripcion")
+          fieldErrors.dishDescription = issue.message;
       });
       setErrors(fieldErrors);
 
@@ -63,6 +92,7 @@ export default function DishEditContent({
     }
 
     setErrors({});
+    setLoading(true);
 
     try {
       if (onSubmit) {
@@ -82,6 +112,8 @@ export default function DishEditContent({
         title: "Error al actualizar",
         text: "No se pudieron guardar los cambios del platillo.",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -99,10 +131,19 @@ export default function DishEditContent({
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 w-full grid grid-cols-1 md:grid-cols-2 gap-8 border border-[var(--color-brand)] shadow-2xl">
-        
-        {/* Campos principales */}
-        <div className="flex flex-col gap-4">
+      <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start border border-[var(--color-brand)]/60 shadow-2xl">
+        {/* Encabezado */}
+        <div className="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col gap-1 border-b border-[var(--color-border)] pb-4">
+          <h1 className="text-xl sm:text-2xl font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)]">
+            Editar Platillo del Menú
+          </h1>
+          <p className="text-small text-[var(--color-text-muted)]">
+            Actualiza nombre, categoría gastronómica, precio al público y fotografía
+          </p>
+        </div>
+
+        {/* Columnas 1 y 2: Datos del platillo */}
+        <div className="md:col-span-1 lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-5 bg-[var(--color-surface-dark)]/50 p-6 rounded-2xl border border-[var(--color-border)]/60">
           <Input
             label="Nombre del platillo"
             type="text"
@@ -113,18 +154,8 @@ export default function DishEditContent({
             error={errors.dishName}
           />
 
-          <Input
-            label="Precio"
-            type="text"
-            name="dishPrice"
-            value={formData?.dishPrice || ""}
-            onChange={handleChange}
-            placeholder="Ej. 8.5"
-            error={errors.dishPrice}
-          />
-
           <Select
-            label="Categoría"
+            label="Categoría en el menú"
             name="dishCategory"
             value={formData?.dishCategory || ""}
             options={dishCategories.map((cat) => ({
@@ -136,44 +167,93 @@ export default function DishEditContent({
           />
 
           <Input
-            label="Descripción"
+            label="Precio de venta ($ COP)"
             type="text"
-            name="dishDescription"
-            value={formData?.dishDescription || ""}
+            name="dishPrice"
+            value={formData?.dishPrice || ""}
             onChange={handleChange}
-            placeholder="Ingresa la descripción"
-            error={errors.dishDescription}
+            placeholder="Ej: 38000"
+            error={errors.dishPrice}
           />
+
+          <Input
+            label="Disponibilidad en carta"
+            type="text"
+            value={formData?.isActive ? "Visible en Menú POS" : "Oculto en Menú POS"}
+            disabled
+          />
+
+          <div className="sm:col-span-2">
+            <Input
+              label="Descripción gastronómica e ingredientes principales"
+              type="text"
+              name="dishDescription"
+              value={formData?.dishDescription || ""}
+              onChange={handleChange}
+              placeholder="Describe los ingredientes y preparación del plato"
+              error={errors.dishDescription}
+            />
+          </div>
         </div>
 
-        {/* Imagen y acciones */}
-        <div className="flex flex-col items-center justify-between gap-6">
-          <FileInput
-            label="Imagen del platillo"
-            value={formData.dishImage}
-            onChange={(files) =>
-              setFormData((prev) => ({ ...prev, dishImage: files }))
-            }
-            multiple={false}
-            className="border-[var(--color-brand)]/30 w-full"
-          />
+        {/* Columna 3: Foto Interactiva con Cámara + Estado y Botones */}
+        <div className="flex flex-col items-center justify-between gap-5 bg-[var(--color-surface-dark)]/50 p-6 rounded-2xl border border-[var(--color-border)]/60 w-full h-full">
+          <div className="flex flex-col items-center gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+            />
 
-          <div className="flex items-center gap-2 self-start">
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              title="Haz clic para cambiar la fotografía del platillo"
+              className="relative group cursor-pointer"
+            >
+              <img
+                src={previewUrl}
+                alt={formData?.dishName || "Platillo"}
+                className="w-36 h-36 object-cover rounded-full border-4 border-[var(--color-brand)] shadow-xl group-hover:brightness-75 transition"
+              />
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
+                className="absolute bottom-1 right-1 w-10 h-10 rounded-full bg-[var(--color-brand)] text-[var(--color-background-inverse)] border-2 border-[var(--color-background-inverse)] shadow-lg flex items-center justify-center hover:scale-110 transition cursor-pointer"
+                aria-label="Cambiar fotografía del platillo"
+              >
+                <Camera className="w-5 h-5" />
+              </button>
+            </div>
+
+            <span className="text-xs text-[var(--color-text-muted)]">
+              Toca el ícono de cámara para cambiar foto
+            </span>
+          </div>
+
+          <div className="w-full pt-1">
             <Checkbox
               id="isActive"
               name="isActive"
-              label="Estado del platillo (Activo)"
+              label={`Estado del platillo (${
+                formData?.isActive ? "Activo" : "Inactivo"
+              })`}
               checked={Boolean(formData?.isActive)}
               onChange={handleChange}
             />
           </div>
 
-          {/* Botones de acción */}
-          <div className="w-full flex flex-col gap-3 pt-4">
+          <div className="w-full flex flex-col gap-3 pt-3 border-t border-[var(--color-border)]/60">
             <Button
               variant="secondary"
               type="button"
               onClick={handleCancel}
+              disabled={loading}
               className="w-full"
             >
               Cancelar
@@ -182,9 +262,11 @@ export default function DishEditContent({
             <Button
               type="submit"
               variant="primary"
+              disabled={loading}
               className="w-full"
             >
-              Aplicar cambios
+              <Save className="w-4 h-4" />
+              {loading ? "Guardando..." : "Aplicar Cambios"}
             </Button>
           </div>
         </div>

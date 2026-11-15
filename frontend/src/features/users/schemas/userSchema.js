@@ -1,64 +1,60 @@
-// src/users/schemas/userSchemas.js
-// CORRECCION: agregar campos boolenos
-
+// src/features/users/schemas/userSchema.js
 import { z } from "zod";
 import { fileSchema } from "@/shared/schemas/fileSchema";
 
-
 export const userSchema = z.object({
-    userName: z
+  userName: z
     .string()
     .min(3, "El nombre debe tener mínimo 3 caracteres")
     .max(60, "El nombre es demasiado largo"),
 
-    userEmail: z
-        .string()
-        .email("Debe ingresar un email válido")
-        .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Debe ingresar un email válido"),
-    userPhone: z
-        .string()
-        .regex(/^[0-9]{10}$/, "El teléfono debe tener 10 dígitos"),
-    // ===== CAMPOS NUEVOS =====
-    userBusinessEmail: z
-        .string()
-        .email("Debe ingresar un email empresarial válido")
-        .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Debe ingresar un email empresarial válido"),
+  userEmail: z
+    .string()
+    .email("Debe ingresar un email válido")
+    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Debe ingresar un email válido"),
 
-    userAddress: z
-        .string()
-        .min(5, "La dirección residencial es requerida")
-        .max(100, "La dirección es demasiado larga"),
+  userPhone: z
+    .string()
+    .regex(/^[0-9]{10}$/, "El teléfono debe tener 10 dígitos"),
 
-    userStartDate: z
+  userSecondaryPhone: z.string().optional(),
+  userGroup: z.string().optional(),
+
+  userBusinessEmail: z
+    .string()
+    .email("Debe ingresar un email empresarial válido")
+    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Debe ingresar un email empresarial válido"),
+
+  userAddress: z
+    .string()
+    .min(5, "La dirección residencial es requerida")
+    .max(100, "La dirección es demasiado larga"),
+
+  userStartDate: z
     .string()
     .min(1, "La fecha de inicio laboral es requerida"),
 
-    // Opcional: un contrato vigente no tiene fecha de fin
-    userEndDate: z.string().optional(),
-        
-    userDocumentTypes: z.string().min(1, "El tipo de documento es requerido"),
-    userType: z.string().min(1, "El tipo de usuario es requerido"),
+  userEndDate: z.string().optional(),
 
-    userDocumentNumber: z
-        .string()
-        .min(5, "Numero de documento inválido")
-        .max(20, "Número de documento demasiado largo"),
+  userDocumentTypes: z.string().min(1, "El tipo de documento es requerido"),
+  userType: z.string().min(1, "El tipo de usuario es requerido"),
 
-    userPassword: z
-        .string()
-        .min(8, "Contraseña debe tener mínimo 8 caracteres")
-        .regex(/[A-Z]/, "Debe contener al menos una mayúscula")
-        .regex(/[a-z]/, "Debe contener al menos una minúscula")
-        .regex(/[0-9]/, "Debe contener al menos un número")
-        .regex(/[^A-Za-z0-9]/, "Debe contener al menos un carácter especial"),
+  userDocumentNumber: z
+    .string()
+    .min(5, "Número de documento inválido")
+    .max(20, "Número de documento demasiado largo"),
 
-    // isStaff: z.boolean(),
-    isActive: z.boolean(),
-    // isSuperUser:z.boolean(),
+  userPassword: z
+    .string()
+    .min(8, "Contraseña debe tener mínimo 8 caracteres")
+    .regex(/[A-Z]/, "Debe contener al menos una mayúscula")
+    .regex(/[a-z]/, "Debe contener al menos una minúscula")
+    .regex(/[0-9]/, "Debe contener al menos un número")
+    .regex(/[^A-Za-z0-9]/, "Debe contener al menos un carácter especial"),
 
-    userImage: fileSchema.shape.files.optional()
+  isActive: z.boolean(),
+  userImage: fileSchema.shape.files.optional(),
+});
 
-})
-
-// Este es un esquema parcial para edición de usuario (sin exigir contraseña)
+// Esquema parcial para edición de usuario (sin exigir contraseña)
 export const userEditSchema = userSchema.omit({ userPassword: true }).partial();

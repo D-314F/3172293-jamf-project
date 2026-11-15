@@ -16,12 +16,14 @@ export default function DishEditPage() {
       try {
         const data = await getDishById(id);
         setFormData({
-          dishName: data.dishName || "",
-          dishPrice: String(data.dishPrice || ""),
-          dishCategory: data.dishCategory || "",
-          dishDescription: data.dishDescription || "",
+          id: data.id,
+          dishName: data.dishName || data.nombre || "",
+          dishPrice: String(data.dishPrice ?? data.precio ?? ""),
+          dishCategory: data.dishCategory || data.categoria || "",
+          dishDescription: data.dishDescription || data.descripcion || "",
+          dishImageUrl: data.dishImageUrl || data.imagen || null,
           dishImage: [],
-          isActive: data.isActive ?? true,
+          isActive: Boolean(data.isActive ?? data.activo ?? true),
         });
       } catch (error) {
         console.error("Error al cargar datos del platillo:", error);
@@ -38,8 +40,8 @@ export default function DishEditPage() {
   };
 
   return (
-    <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-8 md:pt-10 pb-10 flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-4">
+    <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-10 flex flex-col gap-4">
+      <div className="flex justify-start">
         <Button
           type="button"
           variant="secondary"
@@ -50,10 +52,6 @@ export default function DishEditPage() {
           <ArrowLeft className="w-4 h-4" />
           Atrás
         </Button>
-
-        <h1 className="text-xl sm:text-2xl font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)] text-right">
-          Editar Platillo
-        </h1>
       </div>
 
       {loading ? (
@@ -64,7 +62,6 @@ export default function DishEditPage() {
         <DishEditContent
           formData={formData}
           setFormData={setFormData}
-          dish={formData}
           onSubmit={handleSubmit}
         />
       )}
