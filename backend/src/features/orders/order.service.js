@@ -1,15 +1,21 @@
 import { orderRepository } from "./order.repository.js";
 
 function mapOrderFromDb(order) {
+    const rawDish = String(order.dish_id || "").trim();
+    const isMultiOrFormatted =
+        /^\d+x\s/i.test(rawDish) || rawDish.includes(",");
+
     return {
         id: order.id,
         mesa: order.table_number,
         tableNumber: String(order.table_number),
         mesero: order.waiter_id,
         waiterId: order.waiter_id,
-        dishId: order.dish_id,
+        dishId: rawDish,
         quantity: order.quantity,
-        detalles: `${order.quantity}x ${order.dish_id}`,
+        detalles: isMultiOrFormatted
+            ? rawDish
+            : `${order.quantity}x ${rawDish}`,
         fecha: order.created_at,
         estado: order.order_status || "Pendiente",
         orderStatus: order.order_status || "Pendiente",

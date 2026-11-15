@@ -96,7 +96,7 @@ export const providerService = {
         const providerData = {
             ...data,
             providerObservations: data.providerObservations || null,
-            providerImageUrl: null,
+            providerImageUrl: data.providerImageUrl || null,
             providerStatus: data.providerStatus ?? true,
         };
 
