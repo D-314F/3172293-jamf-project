@@ -143,8 +143,7 @@ export const inventoryService = {
             ubicacion: data.ubicacion,
             fechaVencimiento: data.fechaVencimiento || null,
             descripcion: data.descripcion,
-            comentarioProducto: data.comentarioProducto || null,
-            productImageUrl: null,
+            comentarioProducto: data.comentarioProducto || null,productImageUrl: data.productImageUrl || null,
             status: statusText,
             isActive: statusText === "Disponible",
         };

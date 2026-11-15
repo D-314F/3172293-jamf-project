@@ -1,22 +1,18 @@
-// Importamos el pool de conexión a PostgreSQL
 import { pool } from "../../config/db.js";
 
 export const userRepository = {
-    // Aqui obetenemos todos los usuarios para la tabla
     async findAll() {
         const query = "SELECT * FROM public.users ORDER BY id ASC";
         const result = await pool.query(query);
         return result.rows;
     },
 
-    // Y Aqui buscamos el usuario por ID (para Ver Detalle y Editar)
     async findById(id) {
         const query = "SELECT * FROM public.users WHERE id = $1";
         const result = await pool.query(query, [id]);
         return result.rows[0];
     },
 
-    // 3. Crear usuario en la BD
     async create(userData) {
         const {
             userName,
@@ -26,6 +22,8 @@ export const userRepository = {
             userBusinessEmail,
             userEmail,
             userPhone,
+            userSecondaryPhone,
+            userGroup,
             userAddress,
             userStartDate,
             userEndDate,
@@ -45,6 +43,8 @@ export const userRepository = {
                 user_business_email,
                 user_email,
                 user_phone,
+                user_secondary_phone,
+                user_group,
                 user_address,
                 user_start_date,
                 user_end_date,
@@ -53,7 +53,7 @@ export const userRepository = {
                 is_staff,
                 is_active,
                 is_superuser
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
             RETURNING id;
         `;
 
@@ -65,6 +65,8 @@ export const userRepository = {
             userBusinessEmail,
             userEmail,
             userPhone,
+            userSecondaryPhone || null,
+            userGroup || null,
             userAddress,
             userStartDate,
             userEndDate,
@@ -79,7 +81,6 @@ export const userRepository = {
         return result.rows[0];
     },
 
-    // Aqui es para actualizar usuario en la BD (para Editar y para el Switch de Estado)
     async update(id, userData) {
         const {
             userName,
@@ -89,6 +90,8 @@ export const userRepository = {
             userBusinessEmail,
             userEmail,
             userPhone,
+            userSecondaryPhone,
+            userGroup,
             userAddress,
             userStartDate,
             userEndDate,
@@ -107,14 +110,16 @@ export const userRepository = {
                 user_business_email = $5,
                 user_email = $6,
                 user_phone = $7,
-                user_address = $8,
-                user_start_date = $9,
-                user_end_date = $10,
-                user_avatar_url = $11,
-                is_active = $12,
-                is_staff = $13,
-                is_superuser = $14
-            WHERE id = $15
+                user_secondary_phone = $8,
+                user_group = $9,
+                user_address = $10,
+                user_start_date = $11,
+                user_end_date = $12,
+                user_avatar_url = $13,
+                is_active = $14,
+                is_staff = $15,
+                is_superuser = $16
+            WHERE id = $17
             RETURNING id;
         `;
 
@@ -126,6 +131,8 @@ export const userRepository = {
             userBusinessEmail,
             userEmail,
             userPhone,
+            userSecondaryPhone || null,
+            userGroup || null,
             userAddress,
             userStartDate,
             userEndDate,

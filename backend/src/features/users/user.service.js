@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import { userRepository } from "./user.repository.js";
 
-// Formatea fechas de PostgreSQL a YYYY-MM-DD para los inputs
 function formatDate(dateValue) {
     if (!dateValue) return "";
     const date = new Date(dateValue);
@@ -9,7 +8,6 @@ function formatDate(dateValue) {
     return date.toISOString().split("T")[0];
 }
 
-// Mapea una fila de PostgreSQL a camelCase para el Frontend
 function mapUserFromDb(user) {
     return {
         id: user.id,
@@ -21,6 +19,8 @@ function mapUserFromDb(user) {
         userBusinessEmail: user.user_business_email || "",
         userEmail: user.user_email || "",
         userPhone: user.user_phone || "",
+        userSecondaryPhone: user.user_secondary_phone || "",
+        userGroup: user.user_group || "",
         userAddress: user.user_address || "",
         userStartDate: formatDate(user.user_start_date),
         userEndDate: formatDate(user.user_end_date),
@@ -69,6 +69,14 @@ export const userService = {
                 existing.user_business_email,
             userEmail: data.userEmail ?? data.user_email ?? existing.user_email,
             userPhone: data.userPhone ?? data.user_phone ?? existing.user_phone,
+            userSecondaryPhone:
+                data.userSecondaryPhone !== undefined
+                    ? data.userSecondaryPhone || null
+                    : existing.user_secondary_phone,
+            userGroup:
+                data.userGroup !== undefined
+                    ? data.userGroup || null
+                    : existing.user_group,
             userAddress:
                 data.userAddress ?? data.user_address ?? existing.user_address,
             userStartDate:
@@ -98,9 +106,11 @@ export const userService = {
         const userData = {
             ...data,
             userPassword: hashedPassword,
+            userSecondaryPhone: data.userSecondaryPhone || null,
+            userGroup: data.userGroup || null,
             userStartDate: data.userStartDate || null,
             userEndDate: data.userEndDate || null,
-            userAvatarUrl: null,
+            userAvatarUrl: data.userAvatarUrl || null,
             isStaff: data.isStaff ?? false,
             isActive: data.isActive ?? true,
             isSuperuser: data.isSuperuser ?? false,
