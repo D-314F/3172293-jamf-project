@@ -1,42 +1,57 @@
-import { INITIAL_ORDERS } from "../../data/ordersData";
+// Reemplaza todo: frontend/src/features/orders/reports/services/generateOrderReport.js
+import { getOrders } from "../../services/orderServices";
 import { buildReportDataset } from "../utils/buildReportDataset";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
+import { showUserErrorAlert } from "@/shared/services/alertService";
 
-export function generateOrderReport({
-format,
-selectedFields = [],
-scope,
-filterValue,
+export async function generateOrderReport({
+  format,
+  selectedFields = [],
+  scope,
+  filterValue,
 }) {
-// Construir el dataset pasando los datos al helper utils
-const { headers, rows } = buildReportDataset({
-orders: INITIAL_ORDERS,
-selectedFields,
-scope,
-filterValue,
-});
+  try {
+    const ordersData = await getOrders();
 
-if (!rows || rows.length === 0) {
-alert("No se encontraron órdenes para generar el reporte.");
-return false;
-}
+    const { headers, rows } = buildReportDataset({
+      orders: Array.isArray(ordersData) ? ordersData : [],
+      selectedFields,
+      scope,
+      filterValue,
+    });
 
-const timestamp = new Date().toISOString().slice(0, 10);
+    if (!rows || rows.length === 0) {
+      await showUserErrorAlert({
+        title: "Sin coincidencias",
+        text: "No se encontraron órdenes con el filtro seleccionado.",
+      });
+      return false;
+    }
 
-if (format === "excel") {
-generateExcelReport({
-    headers,
-    rows,
-    fileName: `reporte-ordenes-${timestamp}.xlsx`,
-});
-} else if (format === "pdf") {
-generatePdfReport({
-    headers,
-    rows,
-    fileName: `reporte-ordenes-${timestamp}.pdf`,
-});
-}
+    const timestamp = new Date().toISOString().slice(0, 10);
 
-return true;
+    if (format === "excel") {
+      generateExcelReport({
+        headers,
+        rows,
+        fileName: `reporte-ordenes-${timestamp}.xlsx`,
+      });
+    } else if (format === "pdf") {
+      generatePdfReport({
+        headers,
+        rows,
+        fileName: `reporte-ordenes-${timestamp}.pdf`,
+      });
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error al generar reporte de órdenes:", error);
+    await showUserErrorAlert({
+      title: "Error al generar reporte",
+      text: "No se pudieron obtener las órdenes de la base de datos.",
+    });
+    return false;
+  }
 }

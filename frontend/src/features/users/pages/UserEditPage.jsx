@@ -1,3 +1,4 @@
+// Reemplaza todo: frontend/src/features/users/pages/UserEditPage.jsx
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import UserEditContent from "../components/UserEditContent";
@@ -12,12 +13,15 @@ export default function UserEditPage() {
     userName: "",
     userEmail: "",
     userPhone: "",
+    userSecondaryPhone: "",
+    userGroup: "",
     userBusinessEmail: "",
     userAddress: "",
     userStartDate: "",
     userEndDate: "",
     userDocumentTypes: "",
     userType: "",
+    userRole: "",
     userDocumentNumber: "",
     isActive: true,
   });
@@ -29,25 +33,40 @@ export default function UserEditPage() {
         const data = await getUserById(id);
         setUser(data);
 
-        // Normalizar código (ej. "CC") al label del Select ("Cédula de ciudadania")
         const matchedDoc = documentTypes.find(
-          (d) => d.id === data.userDocumentTypes || d.label === data.userDocumentTypes
+          (d) =>
+            d.id === data.userDocumentTypes || d.label === data.userDocumentTypes
         );
         const matchedType = userTypes.find(
-          (t) => t.id === data.userType || t.label === data.userType
+          (t) =>
+            t.id === data.userType ||
+            t.value === data.userType ||
+            t.label === data.userType
         );
+
+        const resolvedRole = matchedType
+          ? matchedType.value || matchedType.label
+          : data?.userType || data?.userRole || "";
 
         setFormData({
           userName: data?.userName || data?.fullName || "",
           userEmail: data?.userEmail || data?.email || "",
           userPhone: data?.userPhone || data?.phone || "",
+          userSecondaryPhone: data?.userSecondaryPhone || "",
+          userGroup: data?.userGroup || "",
           userBusinessEmail: data?.userBusinessEmail || data?.businessEmail || "",
           userAddress: data?.userAddress || data?.address || "",
           userStartDate: data?.userStartDate || data?.startDate || "",
           userEndDate: data?.userEndDate || data?.endDate || "",
-          userDocumentTypes: matchedDoc ? matchedDoc.label : data?.userDocumentTypes || "",
-          userType: matchedType ? matchedType.label : data?.userType || "",
-          userDocumentNumber: data?.userDocumentNumber || data?.documentNumber || "",
+          userDocumentTypes: matchedDoc
+            ? matchedDoc.id
+            : data?.userDocumentTypes || "",
+          userType: resolvedRole,
+          userRole: resolvedRole,
+          userDocumentNumber:
+            data?.userDocumentNumber || data?.documentNumber || "",
+          userImageUrl: data?.userAvatarUrl || null,
+          userImage: [],
           isActive: data?.isActive ?? true,
         });
       } catch (error) {
@@ -79,6 +98,8 @@ export default function UserEditPage() {
       formData={formData}
       setFormData={setFormData}
       user={user}
+      documentTypes={documentTypes}
+      roles={userTypes}
       onSubmit={handleSubmit}
     />
   );

@@ -1,31 +1,29 @@
+// Reemplaza todo: frontend/src/features/inventory/components/InventoryDetailsForm.jsx
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { ArrowLeft, Save, PackageCheck } from "lucide-react";
 
-import Button from "../../../shared/components/Button";
-import Input from "../../../shared/components/Input";
+import { Button, Input } from "@/shared";
 import { inventoryDetailsSchema } from "../schemas/inventoryDetailsSchema";
 import { createInventory } from "../services/inventoryServices";
-
-// Servicios de alertas
 import {
   showSuccessAlert,
   showCancelAlert,
   showUserErrorAlert,
-} from "../../../shared/services/alertService";
+} from "@/shared/services/alertService";
 
 export default function InventoryDetailsForm() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Datos recibidos del formulario anterior (Paso 1)
   const datosAnteriores = location.state?.formData || {};
 
   const [formData, setFormData] = useState({
-    lote: "",
-    descripcion: "",
-    fechaVencimiento: "",
-    ubicacion: "",
-    comentarioProducto: "",
+    lote: datosAnteriores.lote || "",
+    descripcion: datosAnteriores.descripcion || "",
+    fechaVencimiento: datosAnteriores.fechaVencimiento || "",
+    ubicacion: datosAnteriores.ubicacion || "",
+    comentarioProducto: datosAnteriores.comentarioProducto || "",
   });
 
   const [errors, setErrors] = useState({});
@@ -59,7 +57,6 @@ export default function InventoryDetailsForm() {
 
       setErrors(fieldErrors);
 
-      // Alerta de error si faltan campos obligatorios
       await showUserErrorAlert({
         title: "Error de validación",
         text: "Por favor, completa correctamente todos los campos obligatorios.",
@@ -79,16 +76,21 @@ export default function InventoryDetailsForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const dataFinal = await validateForm();
+    if (!datosAnteriores.nombre || !datosAnteriores.codigo) {
+      await showUserErrorAlert({
+        title: "Faltan datos del Paso 1",
+        text: "Por favor inicia el registro desde el Paso 1 del inventario.",
+      });
+      navigate("/dashboard/createInventory");
+      return;
+    }
 
+    const dataFinal = await validateForm();
     if (!dataFinal) return;
 
     try {
       setLoading(true);
-
-      // Conecta con el API para guardar en PostgreSQL
-      const response = await createInventory(dataFinal);
-      console.log("Inventario guardado en BD:", response);
+      await createInventory(dataFinal);
 
       await showSuccessAlert({
         title: "¡Producto creado correctamente!",
@@ -96,7 +98,6 @@ export default function InventoryDetailsForm() {
         timer: 2000,
       });
 
-      // Redirección explícita a la lista al finalizar
       navigate("/dashboard/inventoryList");
     } catch (error) {
       console.error("Error al registrar el producto:", error);
@@ -110,7 +111,6 @@ export default function InventoryDetailsForm() {
     }
   };
 
-  // Regresar al Paso 1 conservando la información
   const handleVolverAtras = () => {
     navigate("/dashboard/createInventory", {
       state: {
@@ -122,11 +122,10 @@ export default function InventoryDetailsForm() {
     });
   };
 
-  // Cancelar todo el proceso y volver a la lista principal
   const handleCancelAll = async () => {
     const result = await showCancelAlert({
       title: "¿Deseas cancelar?",
-      text: "Los cambios no estan guardados.",
+      text: "Los cambios no están guardados.",
       timer: 3000,
     });
 
@@ -136,34 +135,48 @@ export default function InventoryDetailsForm() {
   };
 
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-10">
-      {/* Header superior */}
-      <div className="flex items-center justify-between gap-4 mb-6">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-10 flex flex-col gap-4">
+      <div className="flex justify-start">
         <Button
           variant="secondary"
           size="sm"
           type="button"
           onClick={handleVolverAtras}
+          className="!w-auto flex items-center gap-2"
         >
+          <ArrowLeft className="w-4 h-4" />
           Atrás (Paso 1)
         </Button>
-
-        <h1 className="text-xl sm:text-2xl font-bold text-white text-right">
-          Registrar Producto - Detalles de Lote y Bodega
-        </h1>
       </div>
 
-      {/* Tarjeta del formulario */}
-      <div className="bg-[var(--color-background-inverse)] rounded-2xl md:rounded-3xl border border-[var(--color-brand)] shadow-2xl p-5 sm:p-8 md:p-10">
+      <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl border border-[var(--color-brand)]/60 shadow-2xl p-6 sm:p-10">
+        {/* Encabezado consistente con Paso 1 */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--color-border)] pb-4 mb-6">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)]">
+              Registrar Producto en Inventario (Paso 2 de 2)
+            </h1>
+            <p className="text-small text-[var(--color-text-muted)]">
+              Completa el lote, fecha de vencimiento, ubicación en bodega y observaciones
+            </p>
+          </div>
+
+          {datosAnteriores.nombre && (
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--color-surface-dark)] border border-[var(--color-brand)]/40 text-xs font-semibold text-[var(--color-brand)] self-start sm:self-auto">
+              <PackageCheck className="w-4 h-4" />
+              {datosAnteriores.codigo ? `${datosAnteriores.codigo} · ` : ""}
+              {datosAnteriores.nombre}
+            </span>
+          )}
+        </div>
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          {/* Campos del formulario */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[var(--color-surface-dark)]/50 p-5 sm:p-6 rounded-2xl border border-[var(--color-border)]/60">
             <Input
               label="Número de Lote"
               name="lote"
               value={formData.lote}
               placeholder="Ej. LOTE-01 o 1"
-              className="h-10"
               onChange={handleChange}
               error={errors.lote}
             />
@@ -172,8 +185,7 @@ export default function InventoryDetailsForm() {
               label="Ubicación en el restaurante"
               name="ubicacion"
               value={formData.ubicacion}
-              placeholder="Ej. Nevera 2, Alacena seca, Bodega principal"
-              className="h-10"
+              placeholder="Ej. Cuarto Frío 2, Alacena seca, Bodega principal"
               onChange={handleChange}
               error={errors.ubicacion}
             />
@@ -183,17 +195,15 @@ export default function InventoryDetailsForm() {
               name="fechaVencimiento"
               type="date"
               value={formData.fechaVencimiento}
-              className="h-10"
               onChange={handleChange}
               error={errors.fechaVencimiento}
             />
 
             <Input
-              label="Descripción del empaque / producto"
+              label="Descripción / Uso en menú"
               name="descripcion"
               value={formData.descripcion}
               placeholder="Ej. Caja por 12 bolsas de 500g"
-              className="h-10"
               onChange={handleChange}
               error={errors.descripcion}
             />
@@ -204,15 +214,13 @@ export default function InventoryDetailsForm() {
                 name="comentarioProducto"
                 value={formData.comentarioProducto}
                 placeholder="Ej. Mantener refrigerado entre 2°C y 4°C"
-                className="h-10"
                 onChange={handleChange}
                 error={errors.comentarioProducto}
               />
             </div>
           </div>
 
-          {/* Botones de acción inferiores */}
-          <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-3 pt-6 border-t border-[var(--color-border)]/20">
+          <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t border-[var(--color-border)]/40">
             <Button
               type="button"
               variant="secondary"
@@ -223,19 +231,18 @@ export default function InventoryDetailsForm() {
               Cancelar
             </Button>
 
-            <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={loading}
-                className="w-full sm:w-auto"
-              >
-                {loading ? "Guardando..." : "Guardar en Inventario"}
-              </Button>
-            </div>
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={loading}
+              className="w-full sm:w-auto"
+            >
+              <Save className="w-4 h-4" />
+              {loading ? "Guardando..." : "Guardar en Inventario"}
+            </Button>
           </div>
         </form>
       </div>
-    </section>
+    </div>
   );
 }

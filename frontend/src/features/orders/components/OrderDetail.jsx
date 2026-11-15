@@ -1,4 +1,4 @@
-// src/features/orders/components/OrderDetail.jsx
+// Reemplaza todo: frontend/src/features/orders/components/OrderDetail.jsx
 import {
   Utensils,
   User,
@@ -7,17 +7,22 @@ import {
   ChefHat,
   Pencil,
   ArrowLeft,
+  MessageSquareText,
+  Lock,
 } from "lucide-react";
 import { Button } from "@/shared";
 
 export default function OrderDetail({ order, onEdit, onBack }) {
   if (!order) return null;
 
+  const isClosedOrder =
+    order.estado === "Pagada" || order.estado === "Cancelada";
+
   const formattedDate = order.fecha
     ? new Date(order.fecha).toLocaleString("es-CO")
     : "Reciente";
 
-  const dishItems = String(order.detalles || "")
+  const dishItems = String(order.detalles || order.dishId || "")
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
@@ -40,7 +45,7 @@ export default function OrderDetail({ order, onEdit, onBack }) {
         </span>
       </div>
 
-      {/* Distribución 2 Columnas estilo Imagen 7 (Kasirin Detail Order) */}
+      {/* Distribución 2 Columnas */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Columna Izquierda: Información de Mesa y Mesero */}
         <div className="md:col-span-5 flex flex-col gap-3 p-5 rounded-2xl bg-[var(--color-surface-dark)] border border-[var(--color-border)]/70">
@@ -89,6 +94,22 @@ export default function OrderDetail({ order, onEdit, onBack }) {
               </p>
             </div>
           </div>
+
+          {order.observations && (
+            <div className="flex items-start gap-3 py-2 pt-3 border-t border-[var(--color-border)]/40">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand)]/15 text-[var(--color-brand)]">
+                <MessageSquareText className="w-5 h-5" />
+              </span>
+              <div>
+                <p className="text-small text-[var(--color-text-muted)]">
+                  Observaciones de cocina / servicio
+                </p>
+                <p className="text-medium font-[var(--font-body)] text-[var(--color-text-inverse)]">
+                  {order.observations}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Columna Derecha: Platillos Solicitados (Comanda) */}
@@ -142,7 +163,7 @@ export default function OrderDetail({ order, onEdit, onBack }) {
       </div>
 
       {/* Acciones */}
-      <div className="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+      <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2">
         {onBack && (
           <Button
             variant="secondary"
@@ -154,16 +175,24 @@ export default function OrderDetail({ order, onEdit, onBack }) {
             Volver a la lista
           </Button>
         )}
-        {onEdit && (
-          <Button
-            variant="primary"
-            type="button"
-            onClick={onEdit}
-            className="w-full sm:w-auto"
-          >
-            <Pencil className="w-4 h-4" />
-            Editar Orden
-          </Button>
+
+        {isClosedOrder ? (
+          <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-[var(--color-border)] text-small text-[var(--color-text-muted)]">
+            <Lock className="w-4 h-4 text-[var(--color-brand)]" />
+            Orden cerrada ({order.estado}) — No admite modificaciones
+          </div>
+        ) : (
+          onEdit && (
+            <Button
+              variant="primary"
+              type="button"
+              onClick={onEdit}
+              className="w-full sm:w-auto"
+            >
+              <Pencil className="w-4 h-4" />
+              Editar / Agregar Platillo
+            </Button>
+          )
         )}
       </div>
     </div>

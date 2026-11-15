@@ -1,4 +1,6 @@
+// Reemplaza todo: frontend/src/shared/layouts/Navbar.jsx
 import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 import {
   Menu,
   Users,
@@ -11,6 +13,11 @@ import {
   LogOut,
   ShieldCheck,
   ChevronRight,
+  ChevronDown,
+  Settings,
+  Sun,
+  Moon,
+  BadgeCheck,
   Home,
   LayoutGrid,
   X,
@@ -26,9 +33,15 @@ import logo from "@/assets/images/1-logo.png";
 import logo2 from "@/assets/images/2-logo.png";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
-import { showOpsAlert, showConfirmDeleteAlert } from "@/shared/services/alertService";
+import {
+  showOpsAlert,
+  showConfirmDeleteAlert,
+} from "@/shared/services/alertService";
 import { hasPermission } from "@/features/permissions/services/permissionServices";
-import { getProfile, getUserInitials } from "@/features/auth/services/authService";
+import {
+  getProfile,
+  getUserInitials,
+} from "@/features/auth/services/authService";
 import UserProfileModal from "@/features/auth/components/UserProfileModal";
 
 export default function Navbar() {
@@ -74,16 +87,23 @@ export default function Navbar() {
       }
 
       try {
-        const [profileData, users, dishes, orders, providers, inventory, createUsers] =
-          await Promise.all([
-            getProfile().catch(() => null),
-            hasPermission("list_users"),
-            hasPermission("list_dishes"),
-            hasPermission("list_orders"),
-            hasPermission("list_providers"),
-            hasPermission("list_inventory"),
-            hasPermission("create_users"),
-          ]);
+        const [
+          profileData,
+          users,
+          dishes,
+          orders,
+          providers,
+          inventory,
+          createUsers,
+        ] = await Promise.all([
+          getProfile().catch(() => null),
+          hasPermission("list_users"),
+          hasPermission("list_dishes"),
+          hasPermission("list_orders"),
+          hasPermission("list_providers"),
+          hasPermission("list_inventory"),
+          hasPermission("create_users"),
+        ]);
 
         if (isMounted) {
           setProfile(profileData);
@@ -124,6 +144,23 @@ export default function Navbar() {
     }
   };
 
+  const handleLightThemeClick = () => {
+    Swal.fire({
+      icon: "info",
+      title: "Modo Claro en desarrollo",
+      text: "ESTA FUNCION ESTA SIENDO DESARROLLADA POR EL DEV JAMES POR FAVOR ESPERA",
+      confirmButtonText: "Entendido",
+      timer: 10000,
+      timerProgressBar: true,
+      customClass: {
+        popup: "rounded-3xl",
+        confirmButton:
+          "bg-[var(--color-brand)] text-black font-bold px-5 py-2.5 rounded-xl cursor-pointer",
+      },
+      buttonsStyling: false,
+    });
+  };
+
   const handleCursosClick = (e) => {
     e.preventDefault();
     showOpsAlert({
@@ -156,31 +193,37 @@ export default function Navbar() {
   const adminModuleItems = [
     allowedModules.users && {
       label: "Usuarios",
+      fullLabel: "Gestionar Usuarios",
       to: "/dashboard/userList",
       icon: Users,
     },
     allowedModules.dishes && {
       label: "Platillos",
+      fullLabel: "Gestionar Platillos",
       to: "/dashboard/dishList",
       icon: UtensilsCrossed,
     },
     allowedModules.orders && {
       label: "Órdenes",
+      fullLabel: "Gestionar Órdenes",
       to: "/dashboard/orderList",
       icon: Logs,
     },
     allowedModules.providers && {
       label: "Proveedores",
+      fullLabel: "Gestionar Proveedores",
       to: "/dashboard/providerList",
       icon: Truck,
     },
     allowedModules.inventory && {
       label: "Inventario",
+      fullLabel: "Gestionar Inventario",
       to: "/dashboard/inventoryList",
       icon: Boxes,
     },
     allowedModules.permissions && {
       label: "Permisos",
+      fullLabel: "Gestionar Permisos",
       to: "/dashboard/permissions",
       icon: ShieldCheck,
     },
@@ -289,137 +332,221 @@ export default function Navbar() {
                   </Link>
 
                   <span className="hidden md:inline-block h-6 w-[1.5px] bg-[var(--color-background-inverse)]/25 rounded-full mx-0.5" />
+
+                  {/* Dropdown para visitantes en Desktop */}
+                  <div className="relative hidden md:block">
+                    <Dropdown className="z-15">
+                      <DropdownTrigger>
+                        <IconButton ariaLabel="Abrir menú de navegación">
+                          <Menu />
+                        </IconButton>
+                      </DropdownTrigger>
+
+                      <DropdownContent>
+                        <DropdownItem>
+                          <Link
+                            to="/dashboard/menu"
+                            className="flex items-center gap-3 w-full text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition"
+                          >
+                            <BookOpen
+                              size={18}
+                              className="text-[var(--color-brand)] shrink-0"
+                            />
+                            <span>Ver Menú Gastronómico</span>
+                          </Link>
+                        </DropdownItem>
+                      </DropdownContent>
+                    </Dropdown>
+                  </div>
                 </>
               ) : (
-                profile && (
-                  <button
-                    type="button"
-                    onClick={() => setIsProfileOpen(true)}
-                    title="Ver mi perfil"
-                    className="inline-flex items-center gap-2 p-1 pr-3 rounded-full bg-[var(--color-background-inverse)] text-[var(--color-brand)] shadow-sm hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
-                  >
-                    <span className="w-8 h-8 rounded-full bg-[var(--color-brand)] text-[var(--color-text-primary)] flex items-center justify-center text-xs font-bold">
-                      {initials}
-                    </span>
-                    <span className="text-xs font-semibold text-[var(--color-text-inverse)] max-w-[95px] sm:max-w-[110px] truncate">
-                      {firstName}
-                    </span>
-                  </button>
-                )
-              )}
+                <>
+                  {/* MOBILE (< md): Intacto */}
+                  {profile && (
+                    <button
+                      type="button"
+                      onClick={() => setIsProfileOpen(true)}
+                      title="Ver mi perfil"
+                      className="md:hidden inline-flex items-center gap-2 p-1 pr-3 rounded-full bg-[var(--color-background-inverse)] text-[var(--color-brand)] shadow-sm active:scale-95 transition-all duration-200 cursor-pointer"
+                    >
+                      <span className="relative w-8 h-8 rounded-full bg-[var(--color-brand)] text-[var(--color-text-primary)] flex items-center justify-center text-xs font-bold">
+                        {initials}
+                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[var(--color-background-inverse)]" />
+                      </span>
+                      <span className="text-xs font-semibold text-[var(--color-text-inverse)] max-w-[95px] truncate">
+                        {firstName}
+                      </span>
+                    </button>
+                  )}
 
-              {/* Dropdown Menu Hamburguesa (Solo Desktop) */}
-              <div className="relative hidden md:block">
-                <Dropdown className="z-15">
-                  <DropdownTrigger>
-                    <IconButton ariaLabel="Abrir menú de navegación">
-                      <Menu />
-                    </IconButton>
-                  </DropdownTrigger>
-
-                  <DropdownContent>
-                    <DropdownItem>
-                      <Link
-                        to="/dashboard/menu"
-                        className="flex items-center gap-3 w-full text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition"
-                      >
-                        <BookOpen size={18} className="text-[var(--color-brand)] shrink-0" />
-                        <span>Ver Menú</span>
-                      </Link>
-                    </DropdownItem>
-
-                    {isAuthenticated && allowedModules.users && (
-                      <DropdownItem>
-                        <Link
-                          to="/dashboard/userList"
-                          className="flex items-center gap-3 w-full text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition"
+                  {/* DESKTOP (md+): Extensión de Perfil Estilo Imágenes 2, 3, 4 y 5 */}
+                  <div className="relative hidden md:block">
+                    <Dropdown className="z-30">
+                      <DropdownTrigger>
+                        <button
+                          type="button"
+                          title="Abrir menú de cuenta y sistema"
+                          className="group inline-flex items-center gap-2.5 pl-1.5 pr-3.5 py-1.5 rounded-full bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] border border-[var(--color-background-inverse)] shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-200 cursor-pointer"
                         >
-                          <Users size={18} className="text-[var(--color-brand)] shrink-0" />
-                          <span>Gestionar Usuarios</span>
-                        </Link>
-                      </DropdownItem>
-                    )}
+                          {/* Avatar con puntico verde de estado activo */}
+                          <span className="relative w-9 h-9 rounded-full bg-[var(--color-brand)] text-[var(--color-text-primary)] flex items-center justify-center text-xs font-extrabold shrink-0 shadow">
+                            {initials}
+                            <span
+                              title="En línea"
+                              className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[var(--color-background-inverse)]"
+                            />
+                          </span>
 
-                    {isAuthenticated && allowedModules.dishes && (
-                      <DropdownItem>
-                        <Link
-                          to="/dashboard/dishList"
-                          className="flex items-center gap-3 w-full text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition"
-                        >
-                          <UtensilsCrossed size={18} className="text-[var(--color-brand)] shrink-0" />
-                          <span>Gestionar Platillos</span>
-                        </Link>
-                      </DropdownItem>
-                    )}
-
-                    {isAuthenticated && allowedModules.orders && (
-                      <DropdownItem>
-                        <Link
-                          to="/dashboard/orderList"
-                          className="flex items-center gap-3 w-full text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition"
-                        >
-                          <Logs size={18} className="text-[var(--color-brand)] shrink-0" />
-                          <span>Gestionar Órdenes</span>
-                        </Link>
-                      </DropdownItem>
-                    )}
-
-                    {isAuthenticated && allowedModules.providers && (
-                      <DropdownItem>
-                        <Link
-                          to="/dashboard/providerList"
-                          className="flex items-center gap-3 w-full text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition"
-                        >
-                          <Truck size={18} className="text-[var(--color-brand)] shrink-0" />
-                          <span>Gestionar Proveedores</span>
-                        </Link>
-                      </DropdownItem>
-                    )}
-
-                    {isAuthenticated && allowedModules.inventory && (
-                      <DropdownItem>
-                        <Link
-                          to="/dashboard/inventoryList"
-                          className="flex items-center gap-3 w-full text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition"
-                        >
-                          <Boxes size={18} className="text-[var(--color-brand)] shrink-0" />
-                          <span>Gestionar Inventario</span>
-                        </Link>
-                      </DropdownItem>
-                    )}
-
-                    {isAuthenticated && allowedModules.permissions && (
-                      <DropdownItem>
-                        <Link
-                          to="/dashboard/permissions"
-                          className="flex items-center gap-3 w-full text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition"
-                        >
-                          <ShieldCheck size={18} className="text-[var(--color-brand)] shrink-0" />
-                          <span>Gestionar Permisos</span>
-                        </Link>
-                      </DropdownItem>
-                    )}
-
-                    {isAuthenticated && (
-                      <>
-                        <hr className="border-[var(--color-border)]/15 my-1" />
-                        <DropdownItem onClick={handleLoginRedirect}>
-                          <div className="flex items-center gap-3 w-full text-left text-[var(--color-brand)] hover:opacity-80 font-semibold transition cursor-pointer">
-                            <LogIn size={18} className="shrink-0" />
-                            <span>Cerrar sesión</span>
+                          <div className="flex flex-col items-start text-left leading-tight">
+                            <span className="text-xs font-bold text-[var(--color-text-inverse)] max-w-[140px] truncate">
+                              {profile?.userName || firstName}
+                            </span>
+                            <span className="text-[11px] text-[var(--color-text-muted)] max-w-[140px] truncate">
+                              {profile?.userEmail || "Activo ahora"}
+                            </span>
                           </div>
-                        </DropdownItem>
-                      </>
-                    )}
-                  </DropdownContent>
-                </Dropdown>
-              </div>
+
+                          <ChevronDown className="w-4 h-4 text-[var(--color-brand)] transition-transform duration-200 group-aria-expanded:rotate-180 ml-0.5" />
+                        </button>
+                      </DropdownTrigger>
+
+                      <DropdownContent className="w-80 p-3.5 rounded-3xl">
+                        {/* 1. Cabecera del Perfil con punto verde y badge (Imágenes 2 y 5) */}
+                        <div className="flex items-center gap-3 pb-3 border-b border-[var(--color-border)]/20">
+                          <div className="relative w-12 h-12 rounded-full bg-[var(--color-brand)] text-[var(--color-text-primary)] flex items-center justify-center text-sm font-extrabold shrink-0 shadow-md">
+                            {initials}
+                            <span
+                              title="Activo"
+                              className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-[var(--color-background-inverse)]"
+                            />
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-bold text-[var(--color-text-inverse)] truncate">
+                              {profile?.userName || "Usuario JAMF"}
+                            </p>
+                            <p className="text-xs text-[var(--color-text-muted)] truncate">
+                              {profile?.userEmail || "sesion@jamf.com"}
+                            </p>
+                            <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-md bg-[var(--color-surface-dark)] border border-[var(--color-brand)]/30 text-[11px] font-semibold text-[var(--color-brand)]">
+                              <span>{profile?.userRole || "Administrador"}</span>
+                              <BadgeCheck className="w-3.5 h-3.5 text-[var(--color-brand)]" />
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* 2. Selector de Tema Claro / Oscuro (Imagen 5 - Justine Skye) */}
+                        <div className="py-2.5 border-b border-[var(--color-border)]/20">
+                          <div className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-[var(--color-surface-dark)] border border-[var(--color-border)]/40">
+                            <button
+                              type="button"
+                              onClick={handleLightThemeClick}
+                              className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-xl text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-brand)] hover:bg-white/5 transition cursor-pointer"
+                            >
+                              <Sun className="w-4 h-4 text-amber-400" />
+                              <span>Claro</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-xl text-xs font-bold bg-[var(--color-background-inverse)] text-[var(--color-brand)] border border-[var(--color-brand)]/40 shadow-sm cursor-default"
+                            >
+                              <Moon className="w-4 h-4 text-[var(--color-brand)]" />
+                              <span>Oscuro</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* 3. Opciones de Cuenta y Módulos (Todo visible sin scroll) */}
+                        <div className="py-1 flex flex-col gap-0.5 border-b border-[var(--color-border)]/20">
+                          <DropdownItem onClick={() => setIsProfileOpen(true)}>
+                            <div className="flex items-center justify-between w-full text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition">
+                              <div className="flex items-center gap-3">
+                                <Settings
+                                  size={17}
+                                  className="text-[var(--color-brand)] shrink-0"
+                                />
+                                <span>Ajustes de perfil</span>
+                              </div>
+                              <ChevronRight
+                                size={14}
+                                className="text-[var(--color-text-muted)]"
+                              />
+                            </div>
+                          </DropdownItem>
+
+                          <DropdownItem onClick={() => navigate("/dashboard/menu")}>
+                            <div
+                              className={`flex items-center justify-between w-full transition ${
+                                isMenuActive
+                                  ? "text-[var(--color-brand)] font-bold"
+                                  : "text-[var(--color-text-inverse)] hover:text-[var(--color-brand)]"
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <BookOpen
+                                  size={17}
+                                  className="text-[var(--color-brand)] shrink-0"
+                                />
+                                <span>Ver Menú Gastronómico</span>
+                              </div>
+                              {isMenuActive && (
+                                <span className="w-2 h-2 rounded-full bg-[var(--color-brand)]" />
+                              )}
+                            </div>
+                          </DropdownItem>
+
+                          {adminModuleItems.map((item) => {
+                            const Icon = item.icon;
+                            const active = location.pathname === item.to;
+                            return (
+                              <DropdownItem
+                                key={item.to}
+                                onClick={() => navigate(item.to)}
+                              >
+                                <div
+                                  className={`flex items-center justify-between w-full transition ${
+                                    active
+                                      ? "text-[var(--color-brand)] font-bold"
+                                      : "text-[var(--color-text-inverse)] hover:text-[var(--color-brand)]"
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <Icon
+                                      size={17}
+                                      className="text-[var(--color-brand)] shrink-0"
+                                    />
+                                    <span>{item.fullLabel}</span>
+                                  </div>
+                                  {active && (
+                                    <span className="w-2 h-2 rounded-full bg-[var(--color-brand)]" />
+                                  )}
+                                </div>
+                              </DropdownItem>
+                            );
+                          })}
+                        </div>
+
+                        {/* 4. Pie: Cerrar sesión */}
+                        <div className="pt-1">
+                          <DropdownItem onClick={handleLoginRedirect}>
+                            <div className="flex items-center gap-3 w-full text-left text-red-400 hover:text-red-300 font-semibold transition cursor-pointer">
+                              <LogOut size={17} className="shrink-0" />
+                              <span>Cerrar sesión</span>
+                            </div>
+                          </DropdownItem>
+                        </div>
+                      </DropdownContent>
+                    </Dropdown>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
       </nav>
 
-      {/* PANEL TÁCTIL INFERIOR DE MÓDULOS EN MOBILE */}
+      {/* PANEL TÁCTIL INFERIOR DE MÓDULOS EN MOBILE (INTACTO) */}
       {isMobileSheetOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs md:hidden flex flex-col justify-end pb-24 px-3"
@@ -465,7 +592,9 @@ export default function Navbar() {
                     >
                       <Icon
                         className={`w-5 h-5 shrink-0 ${
-                          active ? "text-[var(--color-text-primary)]" : "text-[var(--color-brand)]"
+                          active
+                            ? "text-[var(--color-text-primary)]"
+                            : "text-[var(--color-brand)]"
                         }`}
                       />
                       <span className="text-xs sm:text-sm font-semibold truncate">
@@ -484,7 +613,7 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* BARRA DE NAVEGACIÓN INFERIOR FLOTANTE EN MOBILE */}
+      {/* BARRA DE NAVEGACIÓN INFERIOR FLOTANTE EN MOBILE (INTACTA) */}
       <div className="fixed bottom-3 inset-x-3 z-50 md:hidden pointer-events-none">
         <div className="max-w-md mx-auto bg-[var(--color-background-inverse)]/95 backdrop-blur-md border border-[var(--color-brand)]/40 rounded-2xl shadow-2xl px-2 py-1.5 flex items-center justify-around pointer-events-auto">
           {/* 1. Inicio */}

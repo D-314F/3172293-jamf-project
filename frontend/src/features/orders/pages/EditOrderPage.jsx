@@ -69,6 +69,8 @@ export default function EditOrderPage() {
           id: order.id || "",
           tableNumber: String(order.mesa ?? ""),
           waiterId: order.mesero || "",
+          dishId: order.detalles || order.dishId || "",
+          quantity: order.quantity || 1,
           estado: order.estado || "Pendiente",
           isActive: order.isActive ?? true,
           observations: order.observations || "",

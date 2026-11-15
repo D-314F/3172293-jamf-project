@@ -1,3 +1,4 @@
+// Reemplaza todo: frontend/src/shared/components/Dropdown.jsx
 import {
   createContext,
   useContext,
@@ -83,18 +84,24 @@ export function DropdownContent({ children, className = "" }) {
     <div
       role="menu"
       className={`
-        absolute right-0 top-full mt-2.5
-        w-64 sm:w-72 h-auto max-h-[82vh] overflow-y-auto
-        rounded-2xl shadow-2xl
-        border border-[var(--color-brand)]/40
+        absolute right-0 top-full mt-3
+        w-72 sm:w-80 h-auto
+        rounded-3xl shadow-2xl
+        border border-[var(--color-brand)]/45
         bg-[var(--color-background-inverse)]
         text-[var(--color-text-inverse)]
         font-[var(--font-body)]
-        p-2.5
+        p-3
         z-50
         ${className}
       `}
     >
+      {/* Flecha superior (caret) que conecta el Dropdown como extensión del perfil */}
+      <span
+        aria-hidden="true"
+        className="hidden md:block absolute -top-2 right-7 w-3.5 h-3.5 rotate-45 bg-[var(--color-background-inverse)] border-l border-t border-[var(--color-brand)]/45"
+      />
+
       {/* Cabecera compacta solo en Mobile */}
       <div className="flex items-center justify-between px-3 py-2 mb-1.5 border-b border-[var(--color-border)]/15 md:hidden">
         <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-brand)] font-[var(--font-heading)]">
@@ -110,7 +117,7 @@ export function DropdownContent({ children, className = "" }) {
         </button>
       </div>
 
-      <div className="flex flex-col gap-1">{children}</div>
+      <div className="relative z-10 flex flex-col gap-0.5">{children}</div>
     </div>
   );
 }
@@ -129,8 +136,8 @@ export function DropdownItem({ children, onClick, className = "" }) {
       role="menuitem"
       onClick={handleClick}
       className={`
-        w-full text-left px-3 py-2.5 rounded-xl
-        text-sm font-medium
+        w-full text-left px-3 py-2 rounded-xl
+        text-xs sm:text-sm font-medium
         hover:bg-[var(--color-surface-dark)]
         active:scale-[0.99]
         transition-all cursor-pointer

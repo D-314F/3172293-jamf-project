@@ -1,11 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Select } from "@/shared";
 import InventoryRowActions from "../components/InventoryRowActions";
 import { INVENTORY_STATUS_OPTIONS } from "../data/inventory";
 import { updateInventory } from "../services/inventoryServices";
 
 function InventoryStatusCell({ item }) {
-  const [currentStatus, setCurrentStatus] = useState(item.status || "Disponible");
+  const [currentStatus, setCurrentStatus] = useState(
+    item.status || "Disponible"
+  );
+
+  useEffect(() => {
+    setCurrentStatus(item.status || "Disponible");
+  }, [item.id, item.status]);
 
   const handleStatusChange = async (newStatus) => {
     setCurrentStatus(newStatus);
@@ -30,20 +36,52 @@ function InventoryStatusCell({ item }) {
 }
 
 export const inventoryColumns = [
-  { accessorKey: "id", header: "Id" },
-  { accessorKey: "name", header: "Nombre" },
-  { accessorKey: "barcode", header: "Código de barras" },
-  { accessorKey: "quantity", header: "Cantidad existente" },
-  { 
-    accessorKey: "unitPrice", 
-    header: "Precio",
-    cell: ({ row }) => `$${row.original.unitPrice ?? 0}`
+  {
+    accessorKey: "codigo",
+    header: "Código",
+    cell: ({ row }) => (
+      <span className="px-2 py-0.5 text-xs font-semibold rounded-md bg-[var(--color-brand)]/15 text-[var(--color-brand)] border border-[var(--color-brand)]/30">
+        {row.original.codigo || `INV-${row.original.id}`}
+      </span>
+    ),
   },
-  { accessorKey: "brand", header: "Marca" },
+  {
+    accessorKey: "name",
+    header: "Insumo / Producto",
+    cell: ({ row }) => (
+      <span className="font-medium text-[var(--color-text-inverse)]">
+        {row.original.name}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "brand",
+    header: "Proveedor que suministra",
+  },
+  {
+    accessorKey: "quantity",
+    header: "Stock actual",
+    cell: ({ row }) => (
+      <span className="font-semibold">
+        {row.original.quantity ?? 0} uds.
+      </span>
+    ),
+  },
+  {
+    accessorKey: "unitPrice",
+    header: "Valor unitario",
+    cell: ({ row }) =>
+      `$${Number(row.original.unitPrice ?? 0).toLocaleString("es-CO")}`,
+  },
   {
     accessorKey: "status",
     header: "Estado",
-    cell: ({ row }) => <InventoryStatusCell item={row.original} />,
+    cell: ({ row }) => (
+      <InventoryStatusCell
+        key={`inv-status-${row.original.id}`}
+        item={row.original}
+      />
+    ),
   },
   {
     id: "actions",
