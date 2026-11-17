@@ -1,6 +1,5 @@
 // Reemplaza todo: frontend/src/shared/layouts/Navbar.jsx
 import { useState, useEffect } from "react";
-import Swal from "sweetalert2";
 import {
   Menu,
   Users,
@@ -28,6 +27,7 @@ import {
   DropdownTrigger,
   DropdownContent,
   DropdownItem,
+  useTheme,
 } from "@/shared";
 import logo from "@/assets/images/1-logo.png";
 import logo2 from "@/assets/images/2-logo.png";
@@ -49,6 +49,7 @@ export default function Navbar() {
   const location = useLocation();
   const token = sessionStorage.getItem("token");
   const isAuthenticated = Boolean(token);
+  const { theme, setTheme } = useTheme();
 
   const [profile, setProfile] = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -144,22 +145,38 @@ export default function Navbar() {
     }
   };
 
-  const handleLightThemeClick = () => {
-    Swal.fire({
-      icon: "info",
-      title: "Modo Claro en desarrollo",
-      text: "ESTA FUNCION ESTA SIENDO DESARROLLADA POR EL DEV JAMES POR FAVOR ESPERA",
-      confirmButtonText: "Entendido",
-      timer: 10000,
-      timerProgressBar: true,
-      customClass: {
-        popup: "rounded-3xl",
-        confirmButton:
-          "bg-[var(--color-brand)] text-black font-bold px-5 py-2.5 rounded-xl cursor-pointer",
-      },
-      buttonsStyling: false,
-    });
-  };
+  const renderThemeSwitch = () => (
+    <div className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-[var(--color-surface-dark)] border border-[var(--color-border)]/40">
+      {[
+        { id: "light", label: "Claro", Icon: Sun },
+        { id: "dark", label: "Oscuro", Icon: Moon },
+      ].map(({ id, label, Icon }) => {
+        const active = theme === id;
+        return (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setTheme(id)}
+            aria-pressed={active}
+            className={`flex items-center justify-center gap-2 py-1.5 px-3 rounded-xl text-xs transition ${
+              active
+                ? "font-bold bg-[var(--color-background-inverse)] text-[var(--color-brand)] border border-[var(--color-brand)]/40 shadow-sm cursor-default"
+                : "font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-brand)] hover:bg-[var(--color-brand)]/10 cursor-pointer"
+            }`}
+          >
+            <Icon
+              className={`w-4 h-4 ${
+                id === "light"
+                  ? "text-[var(--color-warning)]"
+                  : "text-[var(--color-brand)]"
+              }`}
+            />
+            <span>{label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
 
   const handleCursosClick = (e) => {
     e.preventDefault();
@@ -361,7 +378,7 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  {/* MOBILE (< md): Intacto */}
+                  {/* MOBILE (< md) */}
                   {profile && (
                     <button
                       type="button"
@@ -371,7 +388,7 @@ export default function Navbar() {
                     >
                       <span className="relative w-8 h-8 rounded-full bg-[var(--color-brand)] text-[var(--color-text-primary)] flex items-center justify-center text-xs font-bold">
                         {initials}
-                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[var(--color-background-inverse)]" />
+                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[var(--color-success)] ring-2 ring-[var(--color-background-inverse)]" />
                       </span>
                       <span className="text-xs font-semibold text-[var(--color-text-inverse)] max-w-[95px] truncate">
                         {firstName}
@@ -379,7 +396,7 @@ export default function Navbar() {
                     </button>
                   )}
 
-                  {/* DESKTOP (md+): Extensión de Perfil Estilo Imágenes 2, 3, 4 y 5 */}
+                  {/* DESKTOP (md+): Extensión de Perfil */}
                   <div className="relative hidden md:block">
                     <Dropdown className="z-30">
                       <DropdownTrigger>
@@ -388,12 +405,11 @@ export default function Navbar() {
                           title="Abrir menú de cuenta y sistema"
                           className="group inline-flex items-center gap-2.5 pl-1.5 pr-3.5 py-1.5 rounded-full bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] border border-[var(--color-background-inverse)] shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-200 cursor-pointer"
                         >
-                          {/* Avatar con puntico verde de estado activo */}
                           <span className="relative w-9 h-9 rounded-full bg-[var(--color-brand)] text-[var(--color-text-primary)] flex items-center justify-center text-xs font-extrabold shrink-0 shadow">
                             {initials}
                             <span
                               title="En línea"
-                              className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[var(--color-background-inverse)]"
+                              className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[var(--color-success)] ring-2 ring-[var(--color-background-inverse)]"
                             />
                           </span>
 
@@ -411,13 +427,13 @@ export default function Navbar() {
                       </DropdownTrigger>
 
                       <DropdownContent className="w-80 p-3.5 rounded-3xl">
-                        {/* 1. Cabecera del Perfil con punto verde y badge (Imágenes 2 y 5) */}
+                        {/* 1. Cabecera del Perfil */}
                         <div className="flex items-center gap-3 pb-3 border-b border-[var(--color-border)]/20">
                           <div className="relative w-12 h-12 rounded-full bg-[var(--color-brand)] text-[var(--color-text-primary)] flex items-center justify-center text-sm font-extrabold shrink-0 shadow-md">
                             {initials}
                             <span
                               title="Activo"
-                              className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-[var(--color-background-inverse)]"
+                              className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-[var(--color-success)] ring-2 ring-[var(--color-background-inverse)]"
                             />
                           </div>
 
@@ -435,29 +451,12 @@ export default function Navbar() {
                           </div>
                         </div>
 
-                        {/* 2. Selector de Tema Claro / Oscuro (Imagen 5 - Justine Skye) */}
+                        {/* 2. Selector de Tema Claro / Oscuro */}
                         <div className="py-2.5 border-b border-[var(--color-border)]/20">
-                          <div className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-[var(--color-surface-dark)] border border-[var(--color-border)]/40">
-                            <button
-                              type="button"
-                              onClick={handleLightThemeClick}
-                              className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-xl text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-brand)] hover:bg-white/5 transition cursor-pointer"
-                            >
-                              <Sun className="w-4 h-4 text-amber-400" />
-                              <span>Claro</span>
-                            </button>
-
-                            <button
-                              type="button"
-                              className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-xl text-xs font-bold bg-[var(--color-background-inverse)] text-[var(--color-brand)] border border-[var(--color-brand)]/40 shadow-sm cursor-default"
-                            >
-                              <Moon className="w-4 h-4 text-[var(--color-brand)]" />
-                              <span>Oscuro</span>
-                            </button>
-                          </div>
+                          {renderThemeSwitch()}
                         </div>
 
-                        {/* 3. Opciones de Cuenta y Módulos (Todo visible sin scroll) */}
+                        {/* 3. Opciones de Cuenta y Módulos */}
                         <div className="py-1 flex flex-col gap-0.5 border-b border-[var(--color-border)]/20">
                           <DropdownItem onClick={() => setIsProfileOpen(true)}>
                             <div className="flex items-center justify-between w-full text-[var(--color-text-inverse)] hover:text-[var(--color-brand)] transition">
@@ -530,7 +529,7 @@ export default function Navbar() {
                         {/* 4. Pie: Cerrar sesión */}
                         <div className="pt-1">
                           <DropdownItem onClick={handleLoginRedirect}>
-                            <div className="flex items-center gap-3 w-full text-left text-red-400 hover:text-red-300 font-semibold transition cursor-pointer">
+                            <div className="flex items-center gap-3 w-full text-left text-[var(--color-error)] hover:opacity-80 font-semibold transition cursor-pointer">
                               <LogOut size={17} className="shrink-0" />
                               <span>Cerrar sesión</span>
                             </div>
@@ -546,7 +545,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* PANEL TÁCTIL INFERIOR DE MÓDULOS EN MOBILE (INTACTO) */}
+      {/* PANEL TÁCTIL INFERIOR DE MÓDULOS EN MOBILE */}
       {isMobileSheetOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs md:hidden flex flex-col justify-end pb-24 px-3"
@@ -573,6 +572,8 @@ export default function Navbar() {
                 <X className="w-4 h-4" />
               </button>
             </div>
+
+            <div className="pb-1">{renderThemeSwitch()}</div>
 
             {adminModuleItems.length > 0 ? (
               <div className="grid grid-cols-2 gap-3">
@@ -613,7 +614,7 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* BARRA DE NAVEGACIÓN INFERIOR FLOTANTE EN MOBILE (INTACTA) */}
+      {/* BARRA DE NAVEGACIÓN INFERIOR FLOTANTE EN MOBILE */}
       <div className="fixed bottom-3 inset-x-3 z-50 md:hidden pointer-events-none">
         <div className="max-w-md mx-auto bg-[var(--color-background-inverse)]/95 backdrop-blur-md border border-[var(--color-brand)]/40 rounded-2xl shadow-2xl px-2 py-1.5 flex items-center justify-around pointer-events-auto">
           {/* 1. Inicio */}
@@ -648,7 +649,7 @@ export default function Navbar() {
             <span className="text-[11px] font-semibold mt-1">Menú</span>
           </Link>
 
-          {/* 3. Órdenes (Acceso directo si tiene permiso) */}
+          {/* 3. Órdenes */}
           {isAuthenticated && allowedModules.orders && (
             <Link
               to="/dashboard/orderList"
@@ -666,7 +667,7 @@ export default function Navbar() {
             </Link>
           )}
 
-          {/* 4. Módulos POS (Si está autenticado) */}
+          {/* 4. Módulos POS */}
           {isAuthenticated && (
             <button
               type="button"
@@ -685,7 +686,7 @@ export default function Navbar() {
             </button>
           )}
 
-          {/* 5. Salir (si está autenticado) o Ingresar (si es visitante) */}
+          {/* 5. Salir / Ingresar */}
           {isAuthenticated ? (
             <button
               type="button"

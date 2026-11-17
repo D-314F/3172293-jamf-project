@@ -27,4 +27,5 @@ export {default as ReportModal} from "./components/ReportModal";
 
 // layouts components
 export {default as Navbar} from "./layouts/Navbar";
-
+// Contextos
+export { ThemeProvider, useTheme } from "./context/ThemeContext";
