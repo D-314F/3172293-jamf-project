@@ -71,7 +71,7 @@ export const IconButton = React.forwardRef(function IconButton(
             bg-[var(--color-brand-soft)]/15
             text-[var(--color-brand-soft-hover)]
             hover:bg-[var(--color-brand-soft)]
-            hover:text-[var(--color-text-inverse)]
+            hover:text-[var(--color-text-on-solid)]
             focus-visible:ring-[var(--color-brand-soft)]
         `,
     };

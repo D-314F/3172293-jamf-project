@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Outlet, Navigate, useLocation, useNavigate } from "react-router-dom";
-import authBg from "@/assets/images/bf-2.png";
-import { Navbar } from "@/shared";
+import darkBg from "@/assets/images/bf-2.png";
+import lightBg from "@/assets/images/bf-19.png";
+import { Navbar, useTheme } from "@/shared";
 import Footer from "./Footer";
 import { SessionTimeout } from "@/features/auth";
 import { hasPermission } from "@/features/permissions/services/permissionServices";
@@ -53,6 +54,8 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
   const token = sessionStorage.getItem("token");
   const [checkingPermission, setCheckingPermission] = useState(false);
+  const { isLight } = useTheme();
+  const activeBg = isLight ? lightBg : darkBg;
 
   const isPublicPath =
     PUBLIC_DASHBOARD_PATHS.includes(location.pathname) ||
@@ -97,17 +100,17 @@ export default function DashboardLayout() {
   }
 
   return (
-    <div
+        <div
       className="min-h-screen w-full flex flex-col"
-      style={{
-        backgroundImage: `url(${authBg})`,
+        style={{
+        backgroundImage: `linear-gradient(var(--color-backdrop-overlay), var(--color-backdrop-overlay)), url(${activeBg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
+        backgroundAttachment: "fixed",
       }}
     >
       {/* Control de cierre automático tras 10 minutos de inactividad (RNF09) */}
       <SessionTimeout />
-
       <Navbar />
 
       <main className="flex-grow ">

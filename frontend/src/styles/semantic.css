@@ -1,3 +1,4 @@
+/* Ruta: frontend/src/styles/semantic.css */
 :root {
     /* ============ BRAND ============ */
     --semantic-brand: var(--color-primary-400);            /* #FFCA28 Dorado */
@@ -11,12 +12,14 @@
     --semantic-surface-muted: var(--color-gray-100);       /* Zona auxiliar clara */
     --semantic-background-inverse: var(--color-black);     /* Carbón M3 (#121316) para cards/modales oscuros */
     --semantic-surface-dark: var(--color-gray-950);        /* Contenedor interno oscuro (#1A1C20) */
+    --semantic-backdrop-overlay: var(--color-backdrop-dark);
 
     /* ============ TEXT ============= */
-    --semantic-text-primary: var(--color-gray-950);        /* Lectura principal sobre claro */
+    --semantic-text-primary: var(--color-gray-950);        /* Lectura principal sobre claro / dorado */
     --semantic-text-secondary: var(--color-gray-600);      /* Subtítulos sobre claro */
     --semantic-text-muted: var(--color-gray-400);          /* Texto auxiliar legible tanto en claro como en oscuro */
     --semantic-text-inverse: var(--color-white);           /* Texto principal sobre fondo oscuro */
+    --semantic-text-on-solid: var(--color-white);          /* Texto fijo blanco sobre botones rojos/sólidos */
 
     /* =========== BORDER ========== */
     --semantic-border: var(--color-gray-700);              /* Borde sutil M3 */
@@ -26,7 +29,7 @@
     --semantic-focus-ring: var(--color-primary-600);
     --semantic-focus-border: var(--color-primary-400);
 
-    /* =========== STATE (Corregido typo secundary) =========== */
+    /* =========== STATE =========== */
     --semantic-success: var(--color-status-success);
     --semantic-warning: var(--color-status-warning);
     --semantic-error: var(--color-status-error);
@@ -45,4 +48,32 @@
     --semantic-font-weight-heading: var(--font-weight-bold);
     --semantic-font-weight-body: var(--font-weight-regular);
     --semantic-font-weight-label: var(--font-weight-medium);
+}
+
+/* ============ MODO CLARO (100% mapeado con variables de tokens.css) ============ */
+[data-theme="light"] {
+    color-scheme: light;
+
+    --semantic-brand: var(--color-primary-light-accent);
+    --semantic-brand-hover: var(--color-primary-light-accent-hover);
+
+    --semantic-background: var(--color-white);
+    --semantic-surface: var(--color-gray-200);
+    --semantic-surface-muted: var(--color-gray-100);
+    --semantic-background-inverse: var(--color-white);
+    --semantic-surface-dark: var(--color-gray-100);
+    --semantic-backdrop-overlay: var(--color-backdrop-light);
+
+    --semantic-text-primary: var(--color-black);
+    --semantic-text-secondary: var(--color-gray-700);
+    --semantic-text-muted: var(--color-gray-600);
+    --semantic-text-inverse: var(--color-black);
+    --semantic-text-on-solid: var(--color-white);
+
+    --semantic-border: var(--color-gray-300);
+    --semantic-border-strong: var(--color-gray-400);
+
+    --semantic-success: var(--color-status-success-dark);
+    --semantic-warning: var(--color-status-warning-dark);
+    --semantic-error: var(--color-secondary-600);
 }

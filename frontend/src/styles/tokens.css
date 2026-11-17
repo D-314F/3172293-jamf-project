@@ -55,7 +55,13 @@
     --color-status-success: #22C55E;
     --color-status-warning: #F59E0B;
     --color-status-error: #EF4444;
-
+        /* Variantes primitivas para contraste sobre superficies claras */
+    --color-primary-light-accent: #C98800;
+    --color-primary-light-accent-hover: #B37700;
+    --color-status-success-dark: #16A34A;
+    --color-status-warning-dark: #D97706;
+    --color-backdrop-dark: transparent;
+    --color-backdrop-light: rgba(248, 249, 251, 0.45);
     /* Typography */
     --main-font: Helvetica, Arial, sans-serif;
     --secondary-font: Calibri, Helvetica, Arial, sans-serif;
@@ -78,4 +84,5 @@
     --fs-xxs: 0.875rem;    /* 14px - Body Medium (Estándar móvil M3) */
     --fs-xxxs: 0.8125rem;  /* 13px - Label Large / Body Small */
     --fs-xxxxs: 0.75rem;   /* 12px - Label Medium / Caption (Antes era 8px) */
+
 }

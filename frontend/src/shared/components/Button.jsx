@@ -10,8 +10,8 @@ export default function Button({
     const variants = {
         primary:
         "bg-[var(--color-brand)] text-[var(--color-text-primary)] font-[var(--font-heading)] hover:bg-[var(--color-brand-hover)] shadow-sm",
-        secondary:
-        "bg-[var(--color-brand-soft)] text-[var(--color-text-inverse)] font-[var(--font-heading)] hover:bg-[var(--color-brand-soft-hover)] shadow-sm",
+                secondary:
+        "bg-[var(--color-brand-soft)] text-[var(--color-text-on-solid)] font-[var(--font-heading)] hover:bg-[var(--color-brand-soft-hover)] shadow-sm",
     };
 
     const sizes = {

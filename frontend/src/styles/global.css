@@ -15,6 +15,8 @@
     --color-surface-muted: var(--semantic-surface-muted);
     --color-background-inverse: var(--semantic-background-inverse);
     --color-surface-dark: var(--semantic-surface-dark);
+    --color-backdrop-overlay: var(--semantic-backdrop-overlay);
+    --color-text-on-solid: var(--semantic-text-on-solid);
 
     /* ======== TEXT ======== */
     --color-text-primary: var(--semantic-text-primary);
