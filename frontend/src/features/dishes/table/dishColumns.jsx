@@ -17,7 +17,7 @@ export const dishColumns = [
         <img
           src={resolveDishImage(dish)}
           alt={dish.dishName}
-          className="w-12 h-12 object-cover rounded-xl border border-[var(--color-brand)]/30 shadow-sm"
+          className="w-11 h-11 object-cover rounded-xl border border-[var(--color-brand)]/30 shadow-sm"
         />
       );
     },
@@ -35,7 +35,7 @@ export const dishColumns = [
     accessorKey: "category",
     header: "Categoría",
     cell: ({ row }) => (
-      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[var(--color-brand)]/12 text-[var(--color-brand)] border border-[var(--color-brand)]/25">
+      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-medium font-semibold bg-[var(--color-brand)]/12 text-[var(--color-brand)] border border-[var(--color-brand)]/25">
         {normalizeCategoryLabel(row.original.category)}
       </span>
     ),
@@ -50,13 +50,25 @@ export const dishColumns = [
     ),
   },
   {
-    accessorKey: "description",
-    header: "Descripción",
-    cell: ({ row }) => (
-      <span className="text-xs sm:text-sm text-[var(--color-text-muted)] line-clamp-2 max-w-xs">
-        {row.original.description}
-      </span>
-    ),
+    accessorKey: "stock",
+    header: "Stock",
+    cell: ({ row }) => {
+      const stock = Number(
+        row.original.effectiveStock ?? row.original.stock ?? row.original.dishStock ?? 0
+      );
+      const isOut = stock <= 0;
+      return (
+        <span
+          className={`inline-flex items-center px-2.5 py-1 rounded-full text-medium font-semibold border whitespace-nowrap ${
+            isOut
+              ? "bg-[var(--color-error)]/15 text-[var(--color-error)] border-[var(--color-error)]/35"
+              : "bg-[var(--color-success)]/15 text-[var(--color-success)] border-[var(--color-success)]/35"
+          }`}
+        >
+          {isOut ? "Agotado (0)" : `${stock} uds.`}
+        </span>
+      );
+    },
   },
   {
     accessorKey: "isActive",

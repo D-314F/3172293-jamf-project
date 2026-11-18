@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const dishSchema = z.object({
   nombre: z
@@ -9,11 +9,18 @@ export const dishSchema = z.object({
     .string()
     .min(1, "El precio es obligatorio")
     .refine((val) => !isNaN(Number(val)) && Number(val) > 0, "Precio inválido"),
-  categoria: z
-    .string()
-    .min(1, "Selecciona una categoría"),
+  categoria: z.string().min(1, "Selecciona una categoría"),
   descripcion: z
     .string()
     .min(10, "Mínimo 10 caracteres")
-    .max(200, "Máximo 200 caracteres")
+    .max(200, "Máximo 200 caracteres"),
+  inventoryId: z.string().optional().default(""),
+  dishStock: z
+    .string()
+    .optional()
+    .default("15")
+    .refine(
+      (val) => val === "" || (!isNaN(Number(val)) && Number(val) >= 0 && Number.isInteger(Number(val))),
+      "El stock debe ser un número entero mayor o igual a 0"
+    ),
 });

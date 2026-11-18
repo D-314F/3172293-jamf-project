@@ -7,7 +7,7 @@ import {
   PhoneCall,
   Pencil,
 } from "lucide-react";
-import { Input, Button } from "@/shared";
+import { Input, Button, resolveMediaUrl } from "@/shared";
 import { getUserInitials } from "@/features/auth/services/authService";
 import { user_groups_function } from "../data/users";
 import documentTypes from "../../../data/selects/documentsTypes.json";
@@ -30,7 +30,7 @@ export default function UserDetailForm({ user = {} }) {
     user?.userGroup ||
     "Sin grupo asignado";
 
-  const avatarSrc = user?.userAvatarUrl || null;
+  const avatarSrc = resolveMediaUrl(user?.userAvatarUrl);
   const initials = getUserInitials(user?.userName || user?.fullName || "");
 
   return (

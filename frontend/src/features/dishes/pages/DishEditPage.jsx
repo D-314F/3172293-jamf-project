@@ -21,6 +21,8 @@ export default function DishEditPage() {
           dishPrice: String(data.dishPrice ?? data.precio ?? ""),
           dishCategory: data.dishCategory || data.categoria || "",
           dishDescription: data.dishDescription || data.descripcion || "",
+          inventoryId: data.inventoryId ? String(data.inventoryId) : "",
+          dishStock: String(data.dishStock ?? data.stock ?? 15),
           dishImageUrl: data.dishImageUrl || data.imagen || null,
           dishImage: [],
           isActive: Boolean(data.isActive ?? data.activo ?? true),
@@ -36,7 +38,11 @@ export default function DishEditPage() {
   }, [id]);
 
   const handleSubmit = async (dataToSend) => {
-    await updateDish(id, dataToSend);
+    await updateDish(id, {
+      ...dataToSend,
+      inventoryId: dataToSend.inventoryId ? Number(dataToSend.inventoryId) : null,
+      dishStock: Number(dataToSend.dishStock ?? 0),
+    });
   };
 
   return (

@@ -26,3 +26,11 @@ dist-ssr
 # Variables de entorno (contraseñas y secretos)
 .env
 .env.local
+
+# Archivos subidos dinámicamente en backend (conservar estructura .gitkeep e imágenes semilla)
+backend/uploads/**
+!backend/uploads/
+!backend/uploads/*/
+!backend/uploads/*/.gitkeep
+!backend/uploads/products/bf-*.png
+!backend/uploads/products/home-1.png

@@ -47,7 +47,7 @@ export default function DishListPage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3">
+        <div className="flex flex-wrap items-center justify-start sm:justify-end gap-4">
           {canReport && (
             <Button
               variant="secondary"

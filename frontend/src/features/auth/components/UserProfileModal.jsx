@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Modal, Button, Input } from "@/shared";
+import { Modal, Button, Input, resolveMediaUrl } from "@/shared";
 import { showSuccessAlert } from "@/shared/services/alertService";
 import {
   Mail,
@@ -52,14 +52,14 @@ function ProfileInfoRow({ icon: Icon, label, value, copyValue }) {
   };
 
   return (
-    <div className="flex items-start justify-between gap-3 rounded-2xl bg-[var(--color-gray-950)] border border-[var(--color-gray-800)]/70 px-4 py-2.5">
+    <div className="flex items-start justify-between gap-3 rounded-2xl bg-[var(--color-surface-dark)] border border-[var(--color-border)]/70 px-4 py-2.5">
       <div className="flex items-start gap-3 min-w-0">
         <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand)]/12 text-[var(--color-brand)]">
           <Icon className="w-4 h-4" />
         </span>
 
         <div className="min-w-0">
-          <p className="text-small text-[var(--color-gray-300)] leading-tight">
+          <p className="text-medium text-[var(--color-text-muted)] leading-tight">
             {label}
           </p>
           <p className="text-medium font-medium text-[var(--color-text-inverse)] break-words mt-0.5 leading-snug">
@@ -73,10 +73,10 @@ function ProfileInfoRow({ icon: Icon, label, value, copyValue }) {
           type="button"
           onClick={handleCopy}
           title={`Copiar ${label.toLowerCase()}`}
-          className="shrink-0 p-1.5 rounded-lg text-[var(--color-gray-300)] hover:text-[var(--color-brand)] hover:bg-white/5 transition-colors cursor-pointer"
+          className="shrink-0 min-w-[48px] min-h-[48px] inline-flex items-center justify-center rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-brand)] hover:bg-[var(--color-brand)]/10 transition-colors cursor-pointer"
         >
           {copied ? (
-            <Check className="w-4 h-4 text-emerald-400" />
+            <Check className="w-4 h-4 text-[var(--color-success)]" />
           ) : (
             <Copy className="w-4 h-4" />
           )}
@@ -201,11 +201,11 @@ export default function UserProfileModal({
         {/* Contenedor Principal: Vertical en Mobile, Horizontal en Desktop */}
         <div className="flex flex-col md:flex-row gap-6 md:items-start">
           {/* Columna Izquierda: Identidad + Rol + Accesos */}
-          <div className="md:w-5/12 flex flex-col items-center justify-start text-center gap-4 p-5 rounded-2xl bg-[var(--color-gray-950)] border border-[var(--color-brand)]/25">
+          <div className="md:w-5/12 flex flex-col items-center justify-start text-center gap-4 p-5 rounded-2xl bg-[var(--color-surface-dark)] border border-[var(--color-brand)]/25">
             <div className="flex flex-col items-center gap-3 w-full">
               {profile.userAvatarUrl ? (
                 <img
-                  src={profile.userAvatarUrl}
+                  src={resolveMediaUrl(profile.userAvatarUrl)}
                   alt={profile.userName}
                   className="w-20 h-20 rounded-full object-cover border-2 border-[var(--color-brand)] shadow-lg"
                 />
@@ -219,7 +219,7 @@ export default function UserProfileModal({
                 <h3 className="text-subtitle font-bold text-[var(--color-text-inverse)] leading-tight">
                   {profile.userName}
                 </h3>
-                <p className="text-medium text-[var(--color-gray-300)] flex items-center justify-center gap-1.5 break-all">
+                <p className="text-medium text-[var(--color-text-muted)] flex items-center justify-center gap-1.5 break-all">
                   <Mail className="w-4 h-4 shrink-0 text-[var(--color-brand)]" />
                   <span>{profile.userEmail}</span>
                 </p>
@@ -231,13 +231,13 @@ export default function UserProfileModal({
                   {profile.userType}
                 </span>
 
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-small font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/35">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-small font-medium bg-[var(--color-success)]/15 text-[var(--color-success)] border border-[var(--color-success)]/35">
                   <UserCheck className="w-3.5 h-3.5" />
                   {profile.isActive ? "Activo" : "Inactivo"}
                 </span>
 
                 {profile.isSuperuser && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-small font-medium bg-amber-500/15 text-amber-200 border border-amber-400/35">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-small font-medium bg-[var(--color-warning)]/15 text-[var(--color-warning)] border border-[var(--color-warning)]/35">
                     <KeyRound className="w-3.5 h-3.5" />
                     Superusuario
                   </span>
@@ -246,8 +246,8 @@ export default function UserProfileModal({
             </div>
 
             {allowedModules && (
-              <div className="w-full pt-3 border-t border-[var(--color-gray-800)]/80">
-                <p className="text-small text-[var(--color-gray-300)] mb-2.5 text-center">
+              <div className="w-full pt-3 border-t border-[var(--color-border)]/40">
+                <p className="text-medium text-[var(--color-text-muted)] mb-2.5 text-center">
                   Tus accesos en el sistema
                 </p>
                 {activeModules.length > 0 ? (
@@ -255,14 +255,14 @@ export default function UserProfileModal({
                     {activeModules.map((mod) => (
                       <span
                         key={mod}
-                        className="px-2.5 py-1 rounded-full text-small font-medium bg-white/8 text-[var(--color-text-inverse)] border border-white/10"
+                        className="px-2.5 py-1 rounded-full text-small font-medium bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] border border-[var(--color-border)]"
                       >
                         {mod}
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-small text-center text-[var(--color-gray-300)]">
+                  <p className="text-medium text-center text-[var(--color-text-muted)]">
                     Solo vista pública y menú
                   </p>
                 )}
@@ -274,7 +274,7 @@ export default function UserProfileModal({
           <div className="md:w-7/12 flex flex-col justify-start gap-3">
             {isEditing ? (
               <form onSubmit={handleSave} className="space-y-3.5">
-                <div className="flex items-start gap-2 rounded-xl bg-[var(--color-brand)]/10 border border-[var(--color-brand)]/30 px-3.5 py-2.5 text-small text-[var(--color-gray-200)]">
+                <div className="flex items-start gap-2 rounded-xl bg-[var(--color-brand)]/10 border border-[var(--color-brand)]/30 px-3.5 py-2.5 text-medium text-[var(--color-text-inverse)]">
                   <Lock className="w-4 h-4 text-[var(--color-brand)] shrink-0 mt-0.5" />
                   <span>
                     Por seguridad, tu cargo, documento y correo institucional solo

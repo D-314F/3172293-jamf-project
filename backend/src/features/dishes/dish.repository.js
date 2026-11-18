@@ -1,17 +1,28 @@
 import { pool } from "../../config/db.js";
 
+const DISH_WITH_INVENTORY_SELECT = `
+    SELECT d.*,
+           i.nombre AS inventory_name,
+           i.codigo AS inventory_codigo,
+           i.cantidad AS inventory_quantity,
+           i.is_active AS inventory_is_active,
+           i.status AS inventory_status
+    FROM public.dishes d
+    LEFT JOIN public.inventory i ON d.inventory_id = i.id
+`;
+
 export const dishRepository = {
-    // 1. Obtener todos los platillos para la tabla
+    // 1. Obtener todos los platillos junto con el insumo y stock de inventario
     async findAll() {
-        const query = "SELECT * FROM public.dishes ORDER BY id ASC";
+        const query = `${DISH_WITH_INVENTORY_SELECT} ORDER BY d.id ASC`;
         const result = await pool.query(query);
         return result.rows;
     },
 
     // 2. Obtener platillo por ID (para Ver y Editar)
     async findById(id) {
-        const query = "SELECT * FROM public.dishes WHERE id = $1";
-        const result = await pool.query(query, [id]);
+        const query = `${DISH_WITH_INVENTORY_SELECT} WHERE d.id = $1`;
+        const result = await pool.query(query, [Number(id)]);
         return result.rows[0];
     },
 
@@ -23,18 +34,22 @@ export const dishRepository = {
             dishCategory,
             dishDescription,
             dishImageUrl,
+            inventoryId,
+            dishStock,
             isActive,
         } = dishData;
 
         const query = `
-            INSERT INTO dishes (
+            INSERT INTO public.dishes (
                 dish_name,
                 dish_price,
                 dish_category,
                 dish_description,
                 dish_image_url,
+                inventory_id,
+                dish_stock,
                 is_active
-            ) VALUES ($1, $2, $3, $4, $5, $6)
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING id;
         `;
 
@@ -44,6 +59,8 @@ export const dishRepository = {
             dishCategory,
             dishDescription,
             dishImageUrl,
+            inventoryId ? Number(inventoryId) : null,
+            Number(dishStock ?? 0),
             isActive,
         ];
 
@@ -59,18 +76,22 @@ export const dishRepository = {
             dishCategory,
             dishDescription,
             dishImageUrl,
+            inventoryId,
+            dishStock,
             isActive,
         } = dishData;
 
         const query = `
-            UPDATE dishes SET
+            UPDATE public.dishes SET
                 dish_name = $1,
                 dish_price = $2,
                 dish_category = $3,
                 dish_description = $4,
                 dish_image_url = $5,
-                is_active = $6
-            WHERE id = $7
+                inventory_id = $6,
+                dish_stock = $7,
+                is_active = $8
+            WHERE id = $9
             RETURNING id;
         `;
 
@@ -80,8 +101,10 @@ export const dishRepository = {
             dishCategory,
             dishDescription,
             dishImageUrl,
+            inventoryId ? Number(inventoryId) : null,
+            Number(dishStock ?? 0),
             isActive,
-            id,
+            Number(id),
         ];
 
         const result = await pool.query(query, values);

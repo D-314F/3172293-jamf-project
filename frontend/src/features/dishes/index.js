@@ -9,6 +9,5 @@ export { default as DishEditPage } from "./pages/DishEditPage";
 
 
 export { dishColumns } from "./table/dishColumns"; // ojo: no es default
-export { dishes } from "./data/dishes";
 
 export { default as ReportConfigModal } from "./reports/components/ReportConfigModal";

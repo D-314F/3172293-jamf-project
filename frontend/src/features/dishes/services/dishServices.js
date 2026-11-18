@@ -1,19 +1,7 @@
 import { API_URL } from "@/features/config";
+import { resolveUploadedImageUrl } from "@/shared";
 
 const DISHES_URL = `${API_URL}/dishes`;
-
-function fileToDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    if (!file || !(file instanceof Blob)) {
-      resolve(null);
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (err) => reject(err);
-    reader.readAsDataURL(file);
-  });
-}
 
 // Obtener todos los platillos (GET /api/dishes)
 export async function getDishes() {
@@ -55,19 +43,17 @@ export async function getDishById(id) {
 // Actualizar platillo (PUT /api/dishes/:id)
 export async function updateDish(id, dishData) {
   const token = sessionStorage.getItem("token");
-
-  const rawFile = Array.isArray(dishData.dishImage)
-    ? dishData.dishImage[0]
-    : Array.isArray(dishData.userImage)
-    ? dishData.userImage[0]
-    : null;
-
-  const base64Image = rawFile ? await fileToDataUrl(rawFile) : null;
+  const uploadedUrl = await resolveUploadedImageUrl(
+    dishData.dishImage || dishData.userImage,
+    "products"
+  );
 
   const payload = {
     ...dishData,
-    ...(base64Image ? { dishImageUrl: base64Image } : {}),
+    ...(uploadedUrl ? { dishImageUrl: uploadedUrl } : {}),
   };
+  delete payload.dishImage;
+  delete payload.userImage;
 
   const response = await fetch(`${DISHES_URL}/${id}`, {
     method: "PUT",
@@ -89,19 +75,17 @@ export async function updateDish(id, dishData) {
 // Crear platillo (POST /api/dishes)
 export async function createDish(dishData) {
   const token = sessionStorage.getItem("token");
-
-  const rawFile = Array.isArray(dishData.userImage)
-    ? dishData.userImage[0]
-    : Array.isArray(dishData.dishImage)
-    ? dishData.dishImage[0]
-    : null;
-
-  const base64Image = rawFile ? await fileToDataUrl(rawFile) : null;
+  const uploadedUrl = await resolveUploadedImageUrl(
+    dishData.userImage || dishData.dishImage,
+    "products"
+  );
 
   const payload = {
     ...dishData,
-    ...(base64Image ? { dishImageUrl: base64Image } : {}),
+    ...(uploadedUrl ? { dishImageUrl: uploadedUrl } : {}),
   };
+  delete payload.userImage;
+  delete payload.dishImage;
 
   const response = await fetch(DISHES_URL, {
     method: "POST",

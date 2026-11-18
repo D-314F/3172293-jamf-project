@@ -8,6 +8,7 @@ import {
 export default function DishViewContent({ dish = {} }) {
   const isDishActive = Boolean(dish.isActive ?? dish.activo ?? dish.active ?? true);
   const imgSrc = resolveDishImage(dish);
+  const effectiveStock = Number(dish.effectiveStock ?? dish.stock ?? dish.dishStock ?? 0);
 
   return (
     <div className="bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] rounded-3xl p-6 sm:p-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8 items-center border border-[var(--color-brand)]/35 shadow-2xl">
@@ -20,7 +21,7 @@ export default function DishViewContent({ dish = {} }) {
         />
 
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--color-surface-dark)] border border-[var(--color-border)]/20">
-          <span className="text-xs text-[var(--color-text-muted)] font-[var(--font-label)]">
+          <span className="text-medium text-[var(--color-text-muted)] font-[var(--font-label)]">
             Estado:
           </span>
           <span
@@ -28,7 +29,7 @@ export default function DishViewContent({ dish = {} }) {
               isDishActive ? "bg-[var(--color-success)]" : "bg-[var(--color-error)]"
             }`}
           />
-          <span className="text-xs font-semibold text-[var(--color-text-inverse)]">
+          <span className="text-medium font-semibold text-[var(--color-text-inverse)]">
             {isDishActive ? "Habilitado" : "Deshabilitado"}
           </span>
         </div>
@@ -54,15 +55,33 @@ export default function DishViewContent({ dish = {} }) {
           disabled
         />
 
+        <Input
+          label="Stock efectivo disponible"
+          value={`${effectiveStock} porciones`}
+          disabled
+        />
+
+        <div className="sm:col-span-2">
+          <Input
+            label="Insumo vinculado en Inventario"
+            value={
+              dish.inventoryName
+                ? `${dish.inventoryName} (${dish.inventoryQuantity ?? 0} uds. en bodega)`
+                : "Sin vínculo directo a bodega"
+            }
+            disabled
+          />
+        </div>
+
         <div className="sm:col-span-2 flex flex-col gap-1.5">
-          <label className="text-xs sm:text-sm font-medium text-[var(--color-text-inverse)]">
+          <label className="text-medium font-medium text-[var(--color-text-inverse)]">
             Descripción
           </label>
           <textarea
             value={dish.descripcion || dish.description || ""}
             disabled
             rows={3}
-            className="w-full rounded-xl bg-[var(--color-surface-dark)] text-[var(--color-text-inverse)] p-3.5 text-sm border border-[var(--color-border)]/20 opacity-90 resize-none focus:outline-none"
+            className="w-full rounded-xl bg-[var(--color-surface-dark)] text-[var(--color-text-inverse)] p-3.5 text-medium border border-[var(--color-border)]/20 opacity-90 resize-none focus:outline-none"
           />
         </div>
       </div>

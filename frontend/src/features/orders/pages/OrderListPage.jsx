@@ -76,7 +76,7 @@ export default function OrderListPage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3">
+        <div className="flex flex-wrap items-center justify-start sm:justify-end gap-4">
           {canReport && (
             <Button
               variant="secondary"
@@ -125,7 +125,7 @@ export default function OrderListPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
             {ticketOrders.map((order) => {
               const items = String(order.detalles || "")
                 .split(",")

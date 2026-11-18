@@ -68,7 +68,7 @@ export default function VerifyCodeForm() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
+    <div className="h-dvh min-h-[540px] w-full flex items-center justify-center p-4 relative overflow-hidden">
       {/* Fondo y overlay idénticos a los demás formularios */}
       <img
         src={bf1}
@@ -104,7 +104,7 @@ export default function VerifyCodeForm() {
               Verificar Código
             </h1>
 
-            <p className="text-[var(--color-text-muted)] text-xs sm:text-sm text-center">
+            <p className="text-[var(--color-text-muted)] text-medium text-center">
               Ingresa el código que enviamos a tu correo
             </p>
           </div>

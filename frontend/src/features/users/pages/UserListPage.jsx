@@ -105,7 +105,7 @@ export default function UserListPage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3">
+        <div className="flex flex-wrap items-center justify-start sm:justify-end gap-4">
           {canReport && (
             <Button
               variant="secondary"
@@ -145,7 +145,7 @@ export default function UserListPage() {
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
               aria-label="Filtrar por rol"
-              className="bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl px-3.5 py-2 text-small font-[var(--font-label)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
+              className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl px-3.5 py-2 text-medium font-[var(--font-label)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
             >
               <option value="ALL">Rol: Todos</option>
               {availableRoles.map((role) => (
@@ -160,7 +160,7 @@ export default function UserListPage() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               aria-label="Filtrar por estado"
-              className="bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl px-3.5 py-2 text-small font-[var(--font-label)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
+              className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl px-3.5 py-2 text-medium font-[var(--font-label)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
             >
               <option value="ALL">Estado: Todos</option>
               <option value="ACTIVE">Estado: Activo</option>
@@ -174,7 +174,7 @@ export default function UserListPage() {
                   setRoleFilter("ALL");
                   setStatusFilter("ALL");
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-[var(--color-brand)] bg-[var(--color-brand)]/10 hover:bg-[var(--color-brand)]/20 border border-[var(--color-brand)]/30 transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 min-h-[48px] px-4 py-2 rounded-xl text-medium font-medium text-[var(--color-brand)] bg-[var(--color-brand)]/10 hover:bg-[var(--color-brand)]/20 border border-[var(--color-brand)]/30 transition cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 Limpiar filtros

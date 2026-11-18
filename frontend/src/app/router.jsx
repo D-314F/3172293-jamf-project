@@ -16,7 +16,6 @@ import { InventoryForm, InventoryListPage, InventoryDetailsForm, EditInventoryPa
 import { OrderForm, OrderListPage, EditOrderPage, ViewOrderPage } from "@/features/orders";
 
 import HomePage from "@/features/home/pages/HomePage";
-//import MenuPage from "@/features/menu/pages/MenuPage";
 import LoginForm from "@/features/auth/components/LoginForm";
 import { PermissionPage } from "@/features/permissions";
 import ViewMenuPage from "@/features/menu/pages/ViewMenuPage";

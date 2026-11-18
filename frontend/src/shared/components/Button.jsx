@@ -1,4 +1,4 @@
-// src/shared/components/Button.jsx
+// Ruta: frontend/src/shared/components/Button.jsx
 export default function Button({
     variant = "primary",
     size = "md",
@@ -10,13 +10,14 @@ export default function Button({
     const variants = {
         primary:
         "bg-[var(--color-brand)] text-[var(--color-text-primary)] font-[var(--font-heading)] hover:bg-[var(--color-brand-hover)] shadow-sm",
-                secondary:
+        secondary:
         "bg-[var(--color-brand-soft)] text-[var(--color-text-on-solid)] font-[var(--font-heading)] hover:bg-[var(--color-brand-soft-hover)] shadow-sm",
     };
 
+    // Google Material Design 3: altura táctil mínima >= 48px
     const sizes = {
-        sm: "h-9 px-4 text-small inline-flex items-center justify-center gap-1.5",
-        md: "h-10 px-5 text-medium inline-flex items-center justify-center gap-2",
+        sm: "min-h-[48px] min-w-[48px] px-4 text-medium inline-flex items-center justify-center gap-2",
+        md: "min-h-[48px] min-w-[48px] px-5 text-medium inline-flex items-center justify-center gap-2",
     };
 
     return (

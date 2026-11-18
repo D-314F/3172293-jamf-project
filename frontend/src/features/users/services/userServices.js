@@ -1,19 +1,7 @@
 import { API_URL } from "@/features/config";
+import { resolveUploadedImageUrl } from "@/shared";
 
 const USERS_URL = `${API_URL}/users`;
-
-function fileToDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    if (!file || !(file instanceof Blob)) {
-      resolve(null);
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (err) => reject(err);
-    reader.readAsDataURL(file);
-  });
-}
 
 // Obtener todos los usuarios (GET /api/users)
 export async function getUsers() {
@@ -55,14 +43,16 @@ export async function getUserById(id) {
 // Actualizar un usuario (PUT /api/users/:id)
 export async function updateUser(id, userData) {
   const token = sessionStorage.getItem("token");
-
-  const rawFile = Array.isArray(userData.userImage) ? userData.userImage[0] : null;
-  const base64Avatar = rawFile ? await fileToDataUrl(rawFile) : null;
+  const uploadedAvatarUrl = await resolveUploadedImageUrl(
+    userData.userImage,
+    "users"
+  );
 
   const payload = {
     ...userData,
-    ...(base64Avatar ? { userAvatarUrl: base64Avatar } : {}),
+    ...(uploadedAvatarUrl ? { userAvatarUrl: uploadedAvatarUrl } : {}),
   };
+  delete payload.userImage;
 
   const response = await fetch(`${USERS_URL}/${id}`, {
     method: "PUT",
@@ -84,14 +74,16 @@ export async function updateUser(id, userData) {
 // Crear un nuevo usuario (POST /api/users)
 export async function createUser(userData) {
   const token = sessionStorage.getItem("token");
-
-  const rawFile = Array.isArray(userData.userImage) ? userData.userImage[0] : null;
-  const base64Avatar = rawFile ? await fileToDataUrl(rawFile) : null;
+  const uploadedAvatarUrl = await resolveUploadedImageUrl(
+    userData.userImage,
+    "users"
+  );
 
   const payload = {
     ...userData,
-    ...(base64Avatar ? { userAvatarUrl: base64Avatar } : {}),
+    ...(uploadedAvatarUrl ? { userAvatarUrl: uploadedAvatarUrl } : {}),
   };
+  delete payload.userImage;
 
   const response = await fetch(USERS_URL, {
     method: "POST",

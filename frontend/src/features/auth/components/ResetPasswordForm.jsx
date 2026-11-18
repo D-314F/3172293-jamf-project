@@ -69,7 +69,7 @@ export default function ResetPasswordForm() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
+    <div className="h-dvh min-h-[580px] w-full flex items-center justify-center p-4 relative overflow-hidden">
       {/* Fondo y overlay unificados */}
       <img
         src={bf1}
@@ -105,7 +105,7 @@ export default function ResetPasswordForm() {
               Restablecer Contraseña
             </h2>
 
-            <p className="text-[var(--color-text-muted)] text-xs sm:text-sm text-center">
+            <p className="text-[var(--color-text-muted)] text-medium text-center">
               Ingresa tu nueva contraseña y confírmala para continuar
             </p>
           </div>

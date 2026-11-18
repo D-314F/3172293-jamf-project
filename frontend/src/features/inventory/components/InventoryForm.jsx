@@ -308,7 +308,7 @@ export default function InventoryForm() {
                     <span className="text-4xl font-bold font-[var(--font-heading)] text-[var(--color-brand)]">
                       {getInitials(formData.nombre)}
                     </span>
-                    <span className="text-[11px] text-[var(--color-text-muted)] mt-1">
+                    <span className="text-caption text-[var(--color-text-muted)] mt-1">
                       Insumo POS
                     </span>
                   </div>
@@ -320,22 +320,22 @@ export default function InventoryForm() {
                     e.stopPropagation();
                     fileInputRef.current?.click();
                   }}
-                  className="absolute bottom-1 right-1 w-10 h-10 rounded-full bg-[var(--color-brand)] text-[var(--color-background-inverse)] border-2 border-[var(--color-background-inverse)] shadow-lg flex items-center justify-center hover:scale-110 transition cursor-pointer"
+                  className="absolute bottom-1 right-1 min-w-[48px] min-h-[48px] rounded-full bg-[var(--color-brand)] text-[var(--color-text-primary)] border-2 border-[var(--color-background-inverse)] shadow-lg flex items-center justify-center hover:scale-110 transition cursor-pointer"
                   aria-label="Subir foto del insumo"
                 >
                   <Camera className="w-5 h-5" />
                 </button>
               </div>
 
-              <span className="text-xs text-[var(--color-text-muted)]">
+              <span className="text-medium text-[var(--color-text-muted)] text-center">
                 Toca el ícono de cámara para subir foto
               </span>
               {errors.userImage && (
-                <span className="text-red-400 text-xs">{errors.userImage}</span>
+                <span className="text-[var(--color-error)] text-medium">{errors.userImage}</span>
               )}
             </div>
 
-            <div className="flex flex-col gap-3 w-full pt-4 border-t border-[var(--color-border)]/60">
+            <div className="flex flex-col gap-4 w-full pt-6 border-t border-[var(--color-border)]/60">
               <Button
                 type="button"
                 variant="secondary"

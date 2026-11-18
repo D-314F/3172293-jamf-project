@@ -1,22 +1,17 @@
 import { API_URL } from "@/features/config";
+import { resolveUploadedImageUrl } from "@/shared";
 
 const INVENTORY_URL = `${API_URL}/inventory`;
 
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-    reader.readAsDataURL(file);
-  });
-}
-
 async function attachInventoryImage(inventoryData) {
   const payload = { ...inventoryData };
-  const files = payload.userImage || payload.productImage;
+  const uploadedUrl = await resolveUploadedImageUrl(
+    payload.userImage || payload.productImage,
+    "products"
+  );
 
-  if (Array.isArray(files) && files.length > 0 && files[0] instanceof File) {
-    payload.productImageUrl = await fileToBase64(files[0]);
+  if (uploadedUrl) {
+    payload.productImageUrl = uploadedUrl;
   }
 
   delete payload.userImage;

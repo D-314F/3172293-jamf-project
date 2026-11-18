@@ -1,5 +1,5 @@
 // Importamos el paquete 'pg' usando el sistema de módulos ES
-import pkg from 'pg';
+import pkg from "pg";
 
 // Extraemos la clase Pool desde el paquete
 const { Pool } = pkg;
@@ -10,19 +10,28 @@ import dotenv from "dotenv";
 // Cargamos las variables definidas en el archivo .env
 dotenv.config();
 
+const poolConfig = process.env.DATABASE_URL
+    ? {
+          connectionString: process.env.DATABASE_URL,
+          ssl: { rejectUnauthorized: false },
+          max: 10,
+          idleTimeoutMillis: 30000,
+      }
+    : {
+          host: process.env.DB_HOST,
+          port: process.env.DB_PORT,
+          user: process.env.DB_USER,
+          password: process.env.DB_PASSWORD,
+          database: process.env.DB_NAME,
+          max: 10,
+          idleTimeoutMillis: 30000,
+      };
+
 // Creamos y exportamos la instancia del Pool de PostgreSQL
-export const pool = new Pool({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    user: process.env.DB_USER, 
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    max: 10,
-    idleTimeoutMillis: 30000,
-});
+export const pool = new Pool(poolConfig);
 
 // Evento que se dispara al conectar
-pool.on('connect', () => {
+pool.on("connect", () => {
     console.log("Conectado a PostgreSQL");
 });
 

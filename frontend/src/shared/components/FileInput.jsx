@@ -77,20 +77,19 @@ export default function FileInput({
           {isImage(file) ? (
             <img src={previews[i]} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-[10px] px-1">
+            <div className="w-full h-full flex flex-col items-center justify-center bg-[var(--color-surface-dark)] text-[var(--color-text-inverse)] text-caption px-1">
               <span className="font-semibold">PDF</span>
               <span className="truncate w-full text-center">{file.name}</span>
             </div>
           )}
 
-          {/* Acciones hover: reorder visual + eliminar */}
-          <div className="absolute top-1 right-1 flex flex-col gap-1 opacity-0 group-hover:opacity-100">
-            <button className="w-7 h-7 bg-white rounded-full text-black text-xs">
-              ↕
-            </button>
+          {/* Acciones hover: eliminar con objetivo táctil >= 48px */}
+          <div className="absolute top-1 right-1 flex flex-col gap-2 opacity-0 group-hover:opacity-100">
             <button
+              type="button"
               onClick={() => remove(i)}
-              className="w-7 h-7 bg-white rounded-full text-black text-xs"
+              aria-label={`Eliminar ${file.name}`}
+              className="min-w-[48px] min-h-[48px] bg-[var(--color-background-inverse)]/90 border border-[var(--color-brand)]/40 rounded-full text-[var(--color-text-inverse)] text-medium flex items-center justify-center cursor-pointer"
             >
               ✕
             </button>
@@ -101,7 +100,7 @@ export default function FileInput({
       {/* Trigger de input oculto + loader */}
       <div
         onClick={() => !isLoading && inputRef.current.click()}
-        className="w-24 h-24 border-2 border-dashed border-white rounded flex items-center justify-center cursor-pointer"
+        className="w-24 h-24 border-2 border-dashed border-[var(--color-border)] rounded flex items-center justify-center cursor-pointer"
       >
         {isLoading ? (
           <InfinityLoader
@@ -110,10 +109,10 @@ export default function FileInput({
             strokeLength="0.15"
             bgOpacity="0.1"
             speed="1.3"
-            color="black"
+            color="currentColor"
           />
         ) : (
-          <span className="text-blue-500 text-sm">Seleccionar</span>
+          <span className="text-[var(--color-brand)] text-medium font-medium">Seleccionar</span>
         )}
       </div>
 

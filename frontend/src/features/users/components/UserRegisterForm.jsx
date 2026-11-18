@@ -363,7 +363,7 @@ export default function UserRegisterForm() {
                 </Button>
               </div>
 
-              <div className="flex flex-col gap-3 w-full pt-4 border-t border-[var(--color-border)]/50">
+              <div className="flex flex-col gap-4 w-full pt-6 border-t border-[var(--color-border)]/50">
                 <Button
                   type="button"
                   variant="secondary"
@@ -406,7 +406,7 @@ export default function UserRegisterForm() {
           error={modalError}
         />
 
-        <div className="flex justify-end gap-3 pt-4">
+        <div className="flex justify-end gap-4 pt-6">
           <Button
             type="button"
             variant="secondary"
@@ -445,7 +445,7 @@ export default function UserRegisterForm() {
           error={modalError}
         />
 
-        <div className="flex justify-end gap-3 pt-4">
+        <div className="flex justify-end gap-4 pt-6">
           <Button
             type="button"
             variant="secondary"

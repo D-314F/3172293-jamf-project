@@ -28,10 +28,10 @@ export default function DataTable({ data, columns }) {
   return (
     <div className="space-y-4 font-[var(--font-body)]">
       {/* TOOLBAR */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        {/* Buscador con ícono M3 */}
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-[var(--color-brand)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        {/* Buscador con área invisible recomendada de 60px */}
+        <div className="relative w-full sm:w-80 min-h-[60px] flex items-center">
+          <Search className="w-5 h-5 text-[var(--color-brand)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             placeholder="Buscar registro..."
@@ -42,7 +42,7 @@ export default function DataTable({ data, columns }) {
               border border-[var(--color-border)]
               text-[var(--color-text-inverse)]
               placeholder:text-[var(--color-text-muted)]
-              rounded-xl pl-10 pr-4 py-2.5
+              rounded-xl pl-11 pr-4 h-12 min-h-[48px]
               w-full
               text-medium
               font-[var(--font-body)]
@@ -54,7 +54,7 @@ export default function DataTable({ data, columns }) {
           />
         </div>
 
-        {/* Selector de filas */}
+        {/* Selector de filas (>= 48px táctil) */}
         <select
           value={table.getState().pagination.pageSize}
           onChange={(e) => table.setPageSize(Number(e.target.value))}
@@ -62,7 +62,7 @@ export default function DataTable({ data, columns }) {
             bg-[var(--color-surface-dark)]
             border border-[var(--color-border)]
             text-[var(--color-text-inverse)]
-            rounded-xl px-4 py-2.5
+            rounded-xl px-4 h-12 min-h-[48px]
             text-medium
             font-[var(--font-label)]
             cursor-pointer
@@ -126,6 +126,7 @@ export default function DataTable({ data, columns }) {
                 <tr
                   key={row.id}
                   className="
+                    min-h-[48px] max-h-[72px] h-14
                     border-b border-[var(--color-border)]/35
                     hover:bg-[var(--color-brand)]/8
                     text-[var(--color-text-inverse)]
@@ -135,7 +136,7 @@ export default function DataTable({ data, columns }) {
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
-                      className="px-5 py-3.5 text-medium font-[var(--font-body)] whitespace-nowrap"
+                      className="px-5 py-1.5 text-medium font-[var(--font-body)] whitespace-nowrap align-middle"
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -157,7 +158,7 @@ export default function DataTable({ data, columns }) {
           {table.getFilteredRowModel().rows.length} registros
         </span>
 
-        <div className="flex flex-wrap items-center justify-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-4">
           <Button
             size="sm"
             variant="secondary"

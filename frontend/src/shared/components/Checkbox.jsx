@@ -12,7 +12,7 @@ export default function Checkbox({
         htmlFor={id}
         className={`
             text-[var(--color-text-inverse)]
-            flex items-center gap-2.5
+            flex items-center gap-2.5 min-h-[48px]
             text-medium font-[var(--font-body)]
             cursor-pointer select-none
             ${disabled ? "opacity-50 cursor-not-allowed" : ""}

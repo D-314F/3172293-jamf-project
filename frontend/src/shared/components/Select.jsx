@@ -85,7 +85,7 @@ export default function Select({
         onChange={handleSelectChange}
         value={confirmChange ? internalValue : value}
         className={`
-          w-full h-10 rounded-xl border px-4
+          w-full min-h-[48px] h-12 rounded-xl border px-4
           text-body
           font-[var(--font-body)]
           bg-[var(--color-background)]
