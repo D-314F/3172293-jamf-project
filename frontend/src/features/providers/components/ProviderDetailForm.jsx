@@ -1,4 +1,4 @@
-import { Input } from "@/shared";
+import { Input, resolveMediaUrl } from "@/shared";
 import {
   getProviderDocLabel,
   getProviderProductLabel,
@@ -105,7 +105,7 @@ export default function ProviderDetailForm({ provider }) {
       <div className="flex flex-col items-center justify-center gap-5 bg-[var(--color-surface-dark)]/50 p-6 rounded-2xl border border-[var(--color-border)]/60 w-full h-full">
         {provider?.providerImageUrl ? (
           <img
-            src={provider.providerImageUrl}
+            src={resolveMediaUrl(provider.providerImageUrl)}
             alt={displayName || "Logo del proveedor"}
             className="w-36 h-36 sm:w-44 sm:h-44 object-cover rounded-2xl border-2 border-[var(--color-brand)] shadow-lg"
           />

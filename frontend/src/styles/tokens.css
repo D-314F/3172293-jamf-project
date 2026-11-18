@@ -55,9 +55,9 @@
     --color-status-success: #22C55E;
     --color-status-warning: #F59E0B;
     --color-status-error: #EF4444;
-        /* Variantes primitivas para contraste sobre superficies claras */
-    --color-primary-light-accent: #C98800;
-    --color-primary-light-accent-hover: #B37700;
+        /* Variantes primitivas para contraste mínimo 3:1 sobre superficies claras */
+    --color-primary-light-accent: #B37700;
+    --color-primary-light-accent-hover: #996400;
     --color-status-success-dark: #16A34A;
     --color-status-warning-dark: #D97706;
     --color-backdrop-dark: transparent;

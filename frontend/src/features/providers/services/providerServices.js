@@ -1,22 +1,17 @@
 import { API_URL } from "@/features/config";
+import { resolveUploadedImageUrl } from "@/shared";
 
 const PROVIDERS_URL = `${API_URL}/providers`;
 
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-    reader.readAsDataURL(file);
-  });
-}
-
 async function attachProviderImage(providerData) {
   const payload = { ...providerData };
-  const files = payload.providerImage || payload.userImage;
+  const uploadedUrl = await resolveUploadedImageUrl(
+    payload.providerImage || payload.userImage,
+    "providers"
+  );
 
-  if (Array.isArray(files) && files.length > 0 && files[0] instanceof File) {
-    payload.providerImageUrl = await fileToBase64(files[0]);
+  if (uploadedUrl) {
+    payload.providerImageUrl = uploadedUrl;
   }
 
   delete payload.providerImage;

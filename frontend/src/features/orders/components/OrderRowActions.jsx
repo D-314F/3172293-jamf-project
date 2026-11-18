@@ -9,7 +9,7 @@ export default function OrderRowActions({ order }) {
   const handleEdit = () => navigate(`/dashboard/orders/edit/${order.id}`);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-4">
       <IconButton
         onClick={handleView}
         variant="primary"

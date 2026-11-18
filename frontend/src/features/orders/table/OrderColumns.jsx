@@ -26,7 +26,7 @@ function OrderStatusCell({ order }) {
         confirmChange={true}
         hidePlaceholder={true}
         itemName={`la orden #${order.id} (Mesa ${order.mesa})`}
-        className="bg-white text-[var(--color-text-primary)] h-9 text-sm font-medium border-[var(--color-brand)] cursor-pointer"
+        className="bg-[var(--color-background)] text-[var(--color-text-primary)] min-h-[48px] text-medium font-medium border-[var(--color-brand)] cursor-pointer"
       />
     </div>
   );

@@ -104,14 +104,14 @@ export function DropdownContent({ children, className = "" }) {
 
       {/* Cabecera compacta solo en Mobile */}
       <div className="flex items-center justify-between px-3 py-2 mb-1.5 border-b border-[var(--color-border)]/15 md:hidden">
-        <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-brand)] font-[var(--font-heading)]">
+        <span className="text-caption font-bold uppercase tracking-wider text-[var(--color-brand)] font-[var(--font-heading)]">
           Navegación POS
         </span>
         <button
           type="button"
           onClick={() => setOpen(false)}
           aria-label="Cerrar menú"
-          className="w-7 h-7 rounded-full bg-[var(--color-surface-dark)] text-[var(--color-text-muted)] hover:text-[var(--color-brand)] flex items-center justify-center transition-colors cursor-pointer"
+          className="min-w-[48px] min-h-[48px] rounded-full bg-[var(--color-surface-dark)] text-[var(--color-text-muted)] hover:text-[var(--color-brand)] flex items-center justify-center transition-colors cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
@@ -136,8 +136,8 @@ export function DropdownItem({ children, onClick, className = "" }) {
       role="menuitem"
       onClick={handleClick}
       className={`
-        w-full text-left px-3 py-2 rounded-xl
-        text-xs sm:text-sm font-medium
+        w-full text-left min-h-[48px] px-3 py-2 rounded-xl
+        text-medium font-medium flex items-center
         hover:bg-[var(--color-surface-dark)]
         active:scale-[0.99]
         transition-all cursor-pointer

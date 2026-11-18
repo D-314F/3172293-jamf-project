@@ -14,11 +14,36 @@ import { ESTADOS_ORDEN } from "../data/ordersData";
 import { orderSchema } from "../schemas/orderSchema";
 import { getUsers } from "@/features/users/services/userServices";
 import { getDishes } from "@/features/dishes/services/dishServices";
+import { normalizeCategoryLabel } from "@/features/dishes/utils/dishImages";
 import {
   showSuccessAlert,
   showCancelAlert,
   showUserErrorAlert,
 } from "@/shared/services/alertService";
+
+const EXTRA_CATEGORIES = [
+  "Todas",
+  "Entradas",
+  "Platos Fuertes",
+  "Ensaladas",
+  "Postres",
+  "Bebidas",
+];
+
+function countDishesInString(rawDishStr = "") {
+  const map = new Map();
+  String(rawDishStr || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .forEach((entry) => {
+      const m = entry.match(/^(\d+)x\s+(.+)$/i);
+      const qty = m ? Number(m[1]) : 1;
+      const name = (m ? m[2] : entry).trim().toLowerCase();
+      map.set(name, (map.get(name) || 0) + qty);
+    });
+  return map;
+}
 
 export default function EditOrderContent({
   initialFormData = {},
@@ -31,8 +56,12 @@ export default function EditOrderContent({
 
   const [waiterOptions, setWaiterOptions] = useState([]);
   const [menuDishes, setMenuDishes] = useState([]);
+  const [extraCategory, setExtraCategory] = useState("Todas");
   const [extraDishName, setExtraDishName] = useState("");
   const [extraDishQty, setExtraDishQty] = useState(1);
+  const [initialDishCounts] = useState(() =>
+    countDishesInString(initialFormData?.dishId || "")
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -65,7 +94,11 @@ export default function EditOrderContent({
           .map((d, idx) => ({
             id: d.id ?? idx + 1,
             name: d.nombre || d.dishName || d.name || `Platillo ${idx + 1}`,
+            category: normalizeCategoryLabel(
+              d.categoria || d.dishCategory || "Platos Fuertes"
+            ),
             price: Number(d.precio ?? d.dishPrice ?? d.price ?? 0),
+            stock: Number(d.effectiveStock ?? d.stock ?? d.dishStock ?? 0),
           }));
 
         setMenuDishes(activeDishes);
@@ -104,9 +137,31 @@ export default function EditOrderContent({
     }
   };
 
-  const handleAppendDish = () => {
+  const handleAppendDish = async () => {
     if (!extraDishName) return;
     const qty = Math.max(1, Number(extraDishQty) || 1);
+    const selectedDish = menuDishes.find((d) => d.name === extraDishName);
+
+    if (selectedDish) {
+      const currentCounts = countDishesInString(formData?.dishId || "");
+      const key = extraDishName.trim().toLowerCase();
+      const reservedOriginally = initialDishCounts.get(key) || 0;
+      const maxAllowedTotal = reservedOriginally + Number(selectedDish.stock ?? 0);
+      const currentInForm = currentCounts.get(key) || 0;
+
+      if (currentInForm + qty > maxAllowedTotal) {
+        const remainingToAdd = Math.max(0, maxAllowedTotal - currentInForm);
+        await showUserErrorAlert({
+          title: "Stock insuficiente",
+          text:
+            remainingToAdd === 0
+              ? `Ya alcanzaste el límite máximo en stock para "${extraDishName}".`
+              : `Solo puedes agregar ${remainingToAdd} unidad(es) adicional(es) de "${extraDishName}".`,
+        });
+        return;
+      }
+    }
+
     const newEntry = `${qty}x ${extraDishName}`;
     const updatedList = [...dishItems, newEntry];
 
@@ -188,7 +243,7 @@ export default function EditOrderContent({
       console.error("Error al actualizar la orden:", error);
       await showUserErrorAlert({
         title: "Error al actualizar",
-        text: "No se pudieron guardar los cambios en el servidor.",
+        text: error.message || "No se pudieron guardar los cambios en el servidor.",
       });
     } finally {
       setLoading(false);
@@ -219,9 +274,14 @@ export default function EditOrderContent({
         ]
       : waiterOptions;
 
-  const extraDishOptions = menuDishes.map((d) => ({
+  const filteredExtraDishes =
+    extraCategory === "Todas"
+      ? menuDishes
+      : menuDishes.filter((d) => d.category === extraCategory);
+
+  const extraDishOptions = filteredExtraDishes.map((d) => ({
     value: d.name,
-    label: `${d.name} ($${d.price.toLocaleString("es-CO")})`,
+    label: `${d.name} ($${d.price.toLocaleString("es-CO")} · Stock: ${d.stock})`,
   }));
 
   return (
@@ -299,11 +359,23 @@ export default function EditOrderContent({
 
           {/* Columna 2: Agregar Platillo Adicional + Observaciones */}
           <div className="flex flex-col gap-5 bg-[var(--color-surface-dark)]/50 p-6 rounded-2xl border border-[var(--color-border)]/60">
-            <div className="p-4 rounded-xl bg-[var(--color-background-inverse)] border border-[var(--color-border)]/70 space-y-3">
-              <p className="text-small font-semibold text-[var(--color-brand)] flex items-center gap-1.5">
+            <div className="p-4 rounded-xl bg-[var(--color-background-inverse)] border border-[var(--color-border)]/70 space-y-4">
+              <p className="text-medium font-semibold text-[var(--color-brand)] flex items-center gap-1.5">
                 <UtensilsCrossed className="w-4 h-4" />
                 ¿Pidieron otro platillo o bebida?
               </p>
+
+              <Select
+                label="Filtrar por categoría"
+                name="extraCategory"
+                value={extraCategory}
+                hidePlaceholder={true}
+                onChange={(e) => {
+                  setExtraCategory(e.target.value);
+                  setExtraDishName("");
+                }}
+                options={EXTRA_CATEGORIES.map((c) => ({ value: c, label: c }))}
+              />
 
               <Select
                 label="Platillo adicional"
@@ -313,7 +385,7 @@ export default function EditOrderContent({
                 options={extraDishOptions}
               />
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
                 <Input
                   label="Cant."
                   type="number"
@@ -409,7 +481,7 @@ export default function EditOrderContent({
               />
             </div>
 
-            <div className="w-full flex flex-col gap-3 pt-3 border-t border-[var(--color-border)]/60">
+            <div className="w-full flex flex-col gap-4 pt-6 border-t border-[var(--color-border)]/60">
               <Button
                 variant="secondary"
                 type="button"

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Pencil } from "lucide-react";
-import { Button, Input } from "@/shared";
+import { Button, Input, resolveMediaUrl } from "@/shared";
 import { getInventoryById } from "../services/inventoryServices";
 
 function getInitials(name = "") {
@@ -176,7 +176,7 @@ export default function ViewInventoryPage() {
           <div className="flex flex-col items-center gap-4 w-full">
             {product.productImageUrl ? (
               <img
-                src={product.productImageUrl}
+                src={resolveMediaUrl(product.productImageUrl)}
                 alt={product.name}
                 className="w-36 h-36 sm:w-44 sm:h-44 object-cover rounded-full border-4 border-[var(--color-brand)] shadow-lg"
               />

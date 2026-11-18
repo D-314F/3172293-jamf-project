@@ -80,11 +80,11 @@ export default function HomePage() {
                 "Descubre nuestra fusión de sabores con ingredientes frescos y técnicas gastronómicas pensadas para ofrecer una experiencia inolvidable en mesa."}
             </p>
 
-            {/* Acciones claras con íconos para móvil y desktop */}
-            <div className="pt-2 flex flex-col sm:flex-row gap-3">
+            {/* Acciones claras (mínimo 24px desde texto, 16px entre botones y >= 48px altura táctil) */}
+            <div className="pt-6 flex flex-col sm:flex-row gap-4">
               <Link
                 to="/dashboard/menu"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[var(--color-brand)] text-[var(--color-text-primary)] font-[var(--font-heading)] text-medium hover:bg-[var(--color-brand-hover)] transition active:scale-[0.98]"
+                className="min-h-[48px] inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[var(--color-brand)] text-[var(--color-text-primary)] font-[var(--font-heading)] text-medium hover:bg-[var(--color-brand-hover)] transition active:scale-[0.98]"
               >
                 <BookOpen className="w-4 h-4" />
                 <span>Explorar Menú</span>
@@ -93,7 +93,7 @@ export default function HomePage() {
 
               <Link
                 to="/dashboard/inventoryList"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] border border-[var(--color-border)] hover:border-[var(--color-brand)] font-[var(--font-label)] text-medium transition active:scale-[0.98]"
+                className="min-h-[48px] inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] border border-[var(--color-border)] hover:border-[var(--color-brand)] font-[var(--font-label)] text-medium transition active:scale-[0.98]"
               >
                 <Boxes className="w-4 h-4 text-[var(--color-brand)]" />
                 <span>Ver Inventario</span>
@@ -103,8 +103,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Tarjetas inferiores de resumen visual (Estilo Selora POS) */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Tarjetas inferiores de resumen visual (8px entre cards M3) */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-2">
         {HIGHLIGHTS.map(({ icon: Icon, title, description }) => (
           <div
             key={title}

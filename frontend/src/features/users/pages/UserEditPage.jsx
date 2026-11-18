@@ -1,6 +1,7 @@
 // Reemplaza todo: frontend/src/features/users/pages/UserEditPage.jsx
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { resolveMediaUrl } from "@/shared";
 import UserEditContent from "../components/UserEditContent";
 import { getUserById, updateUser } from "../services/userServices";
 import documentTypes from "../../../data/selects/documentsTypes.json";
@@ -65,7 +66,7 @@ export default function UserEditPage() {
           userRole: resolvedRole,
           userDocumentNumber:
             data?.userDocumentNumber || data?.documentNumber || "",
-          userImageUrl: data?.userAvatarUrl || null,
+          userImageUrl: resolveMediaUrl(data?.userAvatarUrl),
           userImage: [],
           isActive: data?.isActive ?? true,
         });

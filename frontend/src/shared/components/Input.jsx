@@ -9,10 +9,11 @@ export default function Input({
   disabled = false,
   ...props
 }) {
+  // M3: controles interactivos con altura táctil mínima de 48px
   const sizes = {
-    sm: "h-9 text-medium",
-    md: "h-10 text-body",
-    lg: "h-12 text-body",
+    sm: "min-h-[48px] h-12 text-medium",
+    md: "min-h-[48px] h-12 text-body",
+    lg: "min-h-[52px] h-13 text-body",
   };
 
   return (

@@ -14,7 +14,7 @@ export default function InventoryRowActions({ item }) {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-4">
       <IconButton
         onClick={handleView}
         title="Ver producto"

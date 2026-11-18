@@ -7,7 +7,6 @@ export { default as ProviderDetailPage } from "./pages/ProviderDetailPage";
 
 // Acciones y datos
 export { default as ProviderRowActions } from "./components/ProviderRowActions";
-export { providers } from "./data/providers";
 
 // Reportes y esquemas
 export { default as ReportConfigModal } from "./reports/components/ReportConfigModal";

@@ -12,7 +12,7 @@ import {
   ChefHat,
   LayoutGrid,
 } from "lucide-react";
-import { Button } from "@/shared";
+import { Button, Card } from "@/shared";
 import { PLATILLOS, TIPOS_SERVICIO } from "../data/ordersData";
 import {
   showSuccessAlert,
@@ -107,11 +107,14 @@ export default function OrderForm() {
                 d.categoria || d.dishCategory || "Platos Fuertes"
               );
               const price = Number(d.precio ?? d.dishPrice ?? 0);
+              const stock = Number(d.effectiveStock ?? d.stock ?? d.dishStock ?? 0);
               return {
                 id: d.id ?? idx + 1,
                 name,
                 category,
                 price,
+                stock,
+                inventoryName: d.inventoryName || null,
                 description: d.descripcion || d.dishDescription || "",
                 image: resolveDishImage({
                   id: d.id,
@@ -166,8 +169,26 @@ export default function OrderForm() {
     });
   }, [catalogDishes, selectedCategory, searchQuery]);
 
-  // Funciones del carrito POS
+  // Funciones del carrito POS con validación estricta de stock
   const handleAddDish = (dish) => {
+    const availableStock = Number(dish.stock ?? 0);
+    if (availableStock <= 0) {
+      showUserErrorAlert({
+        title: "Platillo agotado",
+        text: `No hay stock disponible de "${dish.name}" en cocina o inventario.`,
+      });
+      return;
+    }
+
+    const currentQty = getCartQty(dish.name);
+    if (currentQty + 1 > availableStock) {
+      showUserErrorAlert({
+        title: "Stock insuficiente",
+        text: `Solo quedan ${availableStock} unidad(es) disponibles de "${dish.name}".`,
+      });
+      return;
+    }
+
     setCart((prev) => {
       const existing = prev.find((item) => item.name === dish.name);
       if (existing) {
@@ -183,6 +204,7 @@ export default function OrderForm() {
           id: dish.id,
           name: dish.name,
           price: dish.price,
+          stock: availableStock,
           image: dish.image,
           quantity: 1,
           note: "",
@@ -192,6 +214,19 @@ export default function OrderForm() {
   };
 
   const handleUpdateQty = (dishName, delta) => {
+    if (delta > 0) {
+      const catalogItem = catalogDishes.find((d) => d.name === dishName);
+      const currentQty = getCartQty(dishName);
+      const maxStock = Number(catalogItem?.stock ?? 0);
+      if (catalogItem && currentQty + delta > maxStock) {
+        showUserErrorAlert({
+          title: "Stock insuficiente",
+          text: `Solo hay ${maxStock} unidad(es) disponibles de "${dishName}". No puedes agregar más de lo que existe en stock.`,
+        });
+        return;
+      }
+    }
+
     setCart((prev) =>
       prev
         .map((item) =>
@@ -338,7 +373,7 @@ export default function OrderForm() {
             <h1 className="text-xl sm:text-2xl font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)]">
               Terminal POS — Toma de Pedido (Mesero)
             </h1>
-            <p className="text-xs sm:text-sm text-[var(--color-text-muted)]">
+            <p className="text-medium text-[var(--color-text-muted)]">
               Selecciona la mesa, agrega los platillos solicitados y envía la comanda a cocina
             </p>
           </div>
@@ -347,7 +382,7 @@ export default function OrderForm() {
         <button
           type="button"
           onClick={() => setShowTablePicker((prev) => !prev)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[var(--color-background-inverse)] border border-[var(--color-brand)] text-[var(--color-brand)] font-semibold text-sm shadow-lg hover:bg-[var(--color-brand)] hover:text-[var(--color-background-inverse)] transition cursor-pointer"
+          className="inline-flex items-center gap-2 min-h-[48px] px-4 py-2.5 rounded-2xl bg-[var(--color-background-inverse)] border border-[var(--color-brand)] text-[var(--color-brand)] font-semibold text-medium shadow-lg hover:bg-[var(--color-brand)] hover:text-[var(--color-background-inverse)] transition cursor-pointer"
         >
           <LayoutGrid className="w-4 h-4" />
           Mesa actual: #{selectedTable} (
@@ -358,16 +393,16 @@ export default function OrderForm() {
       {/* Selector Visual de Mesas */}
       {showTablePicker && (
         <div className="bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)]/60 p-4 sm:p-5 shadow-xl space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs uppercase tracking-wider font-bold text-[var(--color-brand)] font-[var(--font-heading)]">
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-caption uppercase tracking-wider font-bold text-[var(--color-brand)] font-[var(--font-heading)]">
               1. Selecciona la Mesa del Cliente
             </span>
-            <span className="text-xs text-[var(--color-text-muted)]">
+            <span className="text-medium text-[var(--color-text-muted)]">
               Toca el número de mesa para asignarla a la comanda
             </span>
           </div>
 
-          <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-2.5">
+          <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-2">
             {TABLES.map((num) => {
               const isSelected = selectedTable === num;
               return (
@@ -375,13 +410,13 @@ export default function OrderForm() {
                   key={num}
                   type="button"
                   onClick={() => setSelectedTable(num)}
-                  className={`h-12 rounded-2xl font-bold text-sm flex flex-col items-center justify-center border transition cursor-pointer ${
+                  className={`min-h-[48px] h-12 rounded-2xl font-bold text-medium flex flex-col items-center justify-center border transition cursor-pointer ${
                     isSelected
-                      ? "bg-[var(--color-brand)] text-[var(--color-background-inverse)] border-[var(--color-brand)] shadow-lg scale-105"
+                      ? "bg-[var(--color-brand)] text-[var(--color-text-primary)] border-[var(--color-brand)] shadow-lg scale-105"
                       : "bg-[var(--color-surface-dark)] text-[var(--color-text-inverse)] border-[var(--color-border)] hover:border-[var(--color-brand)]/60"
                   }`}
                 >
-                  <span className="text-[10px] opacity-75 leading-none">
+                  <span className="text-caption opacity-75 leading-none">
                     Mesa
                   </span>
                   <span className="text-base leading-tight">{num}</span>
@@ -396,19 +431,19 @@ export default function OrderForm() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* ==================== IZQUIERDA: CATÁLOGO DE PLATILLOS ==================== */}
         <div className="lg:col-span-8 bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)]/50 p-4 sm:p-6 shadow-2xl space-y-5">
-          <div className="space-y-3">
-            <div className="relative w-full">
-              <Search className="w-4 h-4 text-[var(--color-brand)] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <div className="space-y-4">
+            <div className="relative w-full min-h-[60px] flex items-center">
+              <Search className="w-5 h-5 text-[var(--color-brand)] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar platillo, entrada, bebida o postre..."
-                className="w-full bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] placeholder:text-[var(--color-text-muted)] rounded-2xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
+                className="w-full h-12 bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] placeholder:text-[var(--color-text-muted)] rounded-2xl pl-12 pr-4 text-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
               />
             </div>
 
-            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            <div className="flex items-center gap-4 overflow-x-auto pb-1">
               {CATEGORIES.map((category) => {
                 const active = selectedCategory === category;
                 return (
@@ -416,9 +451,9 @@ export default function OrderForm() {
                     key={category}
                     type="button"
                     onClick={() => setSelectedCategory(category)}
-                    className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap border transition cursor-pointer ${
+                    className={`min-h-[48px] px-4 py-2 rounded-full text-medium font-semibold whitespace-nowrap border transition cursor-pointer ${
                       active
-                        ? "bg-[var(--color-brand)] text-[var(--color-background-inverse)] border-[var(--color-brand)] shadow-md"
+                        ? "bg-[var(--color-brand)] text-[var(--color-text-primary)] border-[var(--color-brand)] shadow-md"
                         : "bg-[var(--color-surface-dark)] text-[var(--color-text-inverse)] border-[var(--color-border)] hover:border-[var(--color-brand)]/50"
                     }`}
                   >
@@ -438,75 +473,64 @@ export default function OrderForm() {
               No se encontraron platillos con ese filtro.
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[680px] overflow-y-auto pr-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2 max-h-[680px] overflow-y-auto pr-1">
               {filteredDishes.map((dish) => {
                 const qtyInCart = getCartQty(dish.name);
+                const statusBadge =
+                  dish.stock <= 0
+                    ? { label: "Agotado (0)", tone: "error" }
+                    : qtyInCart > 0
+                    ? { label: `${qtyInCart}x en orden`, tone: "brand" }
+                    : { label: `Stock: ${dish.stock}`, tone: "neutral" };
 
                 return (
-                  <div
+                  <Card
                     key={dish.id}
-                    className={`group relative rounded-2xl bg-[var(--color-surface-dark)] border p-3.5 flex flex-col justify-between gap-3 transition ${
-                      qtyInCart > 0
-                        ? "border-[var(--color-brand)] ring-1 ring-[var(--color-brand)]/50 shadow-lg"
-                        : "border-[var(--color-border)]/70 hover:border-[var(--color-brand)]/50"
-                    }`}
+                    surface="dark"
+                    imageHeightClass="h-36"
+                    highlighted={qtyInCart > 0}
+                    title={dish.name}
+                    imageUrl={dish.image}
+                    price={dish.price}
+                    categoryBadge={dish.category}
+                    statusBadge={statusBadge}
+                    metaRight={`Disp: ${dish.stock}`}
                   >
-                    <div>
-                      <div className="relative h-36 w-full rounded-xl overflow-hidden bg-black/40 mb-3">
-                        <img
-                          src={dish.image}
-                          alt={dish.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                        />
-                        <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-black/75 text-[var(--color-brand)] backdrop-blur-sm border border-[var(--color-brand)]/30">
-                          {dish.category}
-                        </span>
-                        {qtyInCart > 0 && (
-                          <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[var(--color-brand)] text-[var(--color-background-inverse)] shadow">
-                            {qtyInCart}x en orden
-                          </span>
-                        )}
-                      </div>
-
-                      <h3 className="text-sm font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)] line-clamp-1">
-                        {dish.name}
-                      </h3>
-                      <p className="text-base font-extrabold text-[var(--color-brand)] mt-0.5">
-                        ${dish.price.toLocaleString("es-CO")}
-                      </p>
-                    </div>
-
                     {qtyInCart === 0 ? (
                       <button
                         type="button"
                         onClick={() => handleAddDish(dish)}
-                        className="w-full h-11 rounded-xl bg-[var(--color-brand)]/15 hover:bg-[var(--color-brand)] text-[var(--color-brand)] hover:text-[var(--color-background-inverse)] border border-[var(--color-brand)]/40 font-bold text-sm flex items-center justify-center gap-2 transition cursor-pointer"
+                        className={`w-full min-h-[48px] rounded-xl border font-bold text-medium flex items-center justify-center gap-2 transition cursor-pointer ${
+                          dish.stock <= 0
+                            ? "bg-[var(--color-error)]/10 text-[var(--color-error)] border-[var(--color-error)]/40 hover:bg-[var(--color-error)]/20"
+                            : "bg-[var(--color-brand)]/15 hover:bg-[var(--color-brand)] text-[var(--color-brand)] hover:text-[var(--color-text-primary)] border-[var(--color-brand)]/40"
+                        }`}
                       >
                         <Plus className="w-4 h-4" />
-                        Agregar a la orden
+                        {dish.stock <= 0 ? "Sin stock disponible" : "Agregar a la orden"}
                       </button>
                     ) : (
-                      <div className="flex items-center justify-between gap-2 bg-[var(--color-background-inverse)] rounded-xl p-1 border border-[var(--color-brand)]/50">
+                      <div className="flex items-center justify-between gap-4 bg-[var(--color-background-inverse)] rounded-xl p-1 border border-[var(--color-brand)]/50">
                         <button
                           type="button"
                           onClick={() => handleUpdateQty(dish.name, -1)}
-                          className="w-10 h-9 rounded-lg bg-[var(--color-surface-dark)] hover:bg-red-500/20 text-[var(--color-text-inverse)] flex items-center justify-center transition cursor-pointer"
+                          className="min-w-[48px] min-h-[48px] rounded-lg bg-[var(--color-surface-dark)] hover:bg-[var(--color-error)]/20 text-[var(--color-text-inverse)] flex items-center justify-center transition cursor-pointer"
                         >
                           <Minus className="w-4 h-4" />
                         </button>
-                        <span className="font-bold text-sm text-[var(--color-brand)]">
+                        <span className="font-bold text-body text-[var(--color-brand)]">
                           {qtyInCart}
                         </span>
                         <button
                           type="button"
                           onClick={() => handleUpdateQty(dish.name, 1)}
-                          className="w-10 h-9 rounded-lg bg-[var(--color-brand)] text-[var(--color-background-inverse)] flex items-center justify-center transition cursor-pointer"
+                          className="min-w-[48px] min-h-[48px] rounded-lg bg-[var(--color-brand)] text-[var(--color-text-primary)] flex items-center justify-center transition cursor-pointer"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
                       </div>
                     )}
-                  </div>
+                  </Card>
                 );
               })}
             </div>
@@ -523,11 +547,11 @@ export default function OrderForm() {
               <h2 className="text-lg font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)]">
                 Comanda Actual
               </h2>
-              <p className="text-xs text-[var(--color-text-muted)]">
+              <p className="text-medium text-[var(--color-text-muted)]">
                 Estado inicial: <strong className="text-[var(--color-brand)]">En preparación</strong>
               </p>
             </div>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-[var(--color-brand)]/15 text-[var(--color-brand)] border border-[var(--color-brand)]/40">
+            <span className="px-3 py-1 rounded-full text-caption font-bold bg-[var(--color-brand)]/15 text-[var(--color-brand)] border border-[var(--color-brand)]/40">
               Mesa #{selectedTable}
             </span>
           </div>
@@ -541,9 +565,9 @@ export default function OrderForm() {
                   key={tipo.value}
                   type="button"
                   onClick={() => setServiceType(tipo.value)}
-                  className={`py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+                  className={`min-h-[48px] py-2 rounded-xl text-caption sm:text-small font-bold transition cursor-pointer ${
                     active
-                      ? "bg-[var(--color-brand)] text-[var(--color-background-inverse)] shadow"
+                      ? "bg-[var(--color-brand)] text-[var(--color-text-primary)] shadow"
                       : "text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)]"
                   }`}
                 >
@@ -555,15 +579,15 @@ export default function OrderForm() {
 
           {/* Mesero Responsable (SOLO ROL MESERO) */}
           <div className="bg-[var(--color-surface-dark)] rounded-2xl p-3.5 border border-[var(--color-border)]/70 space-y-2.5">
-            <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center justify-between text-medium gap-2">
               <span className="text-[var(--color-text-muted)] flex items-center gap-1.5 font-medium">
-                <UserCheck className="w-3.5 h-3.5 text-[var(--color-brand)]" />
+                <UserCheck className="w-4 h-4 text-[var(--color-brand)]" />
                 Mesero responsable:
               </span>
               <button
                 type="button"
                 onClick={() => setShowTablePicker(true)}
-                className="text-[var(--color-brand)] hover:underline font-semibold cursor-pointer"
+                className="min-h-[48px] inline-flex items-center text-medium text-[var(--color-brand)] hover:underline font-semibold cursor-pointer"
               >
                 Mesa #{selectedTable} (Cambiar →)
               </button>
@@ -572,7 +596,7 @@ export default function OrderForm() {
             <select
               value={waiterId}
               onChange={(e) => setWaiterId(e.target.value)}
-              className="w-full bg-[var(--color-background-inverse)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl px-3 py-2.5 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
+              className="w-full min-h-[48px] bg-[var(--color-background-inverse)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl px-3 py-2.5 text-medium font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
             >
               <option value="">Selecciona el mesero...</option>
               {waiterOptions.map((w) => (
@@ -584,14 +608,14 @@ export default function OrderForm() {
           </div>
 
           {/* Lista de Platillos en el Carrito */}
-          <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+          <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
             {cart.length === 0 ? (
               <div className="py-8 px-4 text-center rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface-dark)]/40 space-y-2">
                 <Utensils className="w-8 h-8 text-[var(--color-brand)]/60 mx-auto" />
-                <p className="text-sm font-medium text-[var(--color-text-inverse)]">
+                <p className="text-medium font-medium text-[var(--color-text-inverse)]">
                   Aún no hay platillos en la comanda
                 </p>
-                <p className="text-xs text-[var(--color-text-muted)]">
+                <p className="text-medium text-[var(--color-text-muted)]">
                   Toca cualquier platillo del catálogo izquierdo para agregarlo a la Mesa #{selectedTable}.
                 </p>
               </div>
@@ -609,47 +633,47 @@ export default function OrderForm() {
                         className="w-12 h-12 rounded-xl object-cover border border-[var(--color-brand)]/40 shrink-0"
                       />
                       <div className="min-w-0">
-                        <h4 className="text-xs sm:text-sm font-bold text-[var(--color-text-inverse)] truncate">
+                        <h4 className="text-medium font-bold text-[var(--color-text-inverse)] truncate">
                           {item.name}
                         </h4>
-                        <p className="text-xs text-[var(--color-text-muted)]">
+                        <p className="text-medium text-[var(--color-text-muted)]">
                           ${item.price.toLocaleString("es-CO")} c/u
                         </p>
                         {item.note && (
-                          <p className="text-[11px] text-[var(--color-brand)] italic mt-0.5">
+                          <p className="text-caption text-[var(--color-brand)] italic mt-0.5">
                             Nota: {item.note}
                           </p>
                         )}
                       </div>
                     </div>
 
-                    <span className="text-xs sm:text-sm font-bold text-[var(--color-brand)] shrink-0">
+                    <span className="text-medium font-bold text-[var(--color-brand)] shrink-0">
                       ${(item.price * item.quantity).toLocaleString("es-CO")}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between gap-2 pt-1">
-                    <div className="flex items-center gap-2 bg-[var(--color-background-inverse)] rounded-xl px-2 py-1 border border-[var(--color-border)]">
+                  <div className="flex items-center justify-between gap-4 pt-1">
+                    <div className="flex items-center gap-4 bg-[var(--color-background-inverse)] rounded-xl p-1 border border-[var(--color-border)]">
                       <button
                         type="button"
                         onClick={() => handleUpdateQty(item.name, -1)}
-                        className="w-8 h-8 rounded-lg bg-[var(--color-surface-dark)] hover:bg-white/10 text-[var(--color-text-inverse)] flex items-center justify-center cursor-pointer"
+                        className="min-w-[48px] min-h-[48px] rounded-lg bg-[var(--color-surface-dark)] hover:bg-white/10 text-[var(--color-text-inverse)] flex items-center justify-center cursor-pointer"
                       >
-                        <Minus className="w-3.5 h-3.5" />
+                        <Minus className="w-4 h-4" />
                       </button>
-                      <span className="w-6 text-center font-bold text-sm text-[var(--color-text-inverse)]">
+                      <span className="w-6 text-center font-bold text-medium text-[var(--color-text-inverse)]">
                         {item.quantity}
                       </span>
                       <button
                         type="button"
                         onClick={() => handleUpdateQty(item.name, 1)}
-                        className="w-8 h-8 rounded-lg bg-[var(--color-brand)] text-[var(--color-background-inverse)] flex items-center justify-center cursor-pointer"
+                        className="min-w-[48px] min-h-[48px] rounded-lg bg-[var(--color-brand)] text-[var(--color-text-primary)] flex items-center justify-center cursor-pointer"
                       >
-                        <Plus className="w-3.5 h-3.5" />
+                        <Plus className="w-4 h-4" />
                       </button>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-4">
                       <button
                         type="button"
                         onClick={() =>
@@ -658,7 +682,7 @@ export default function OrderForm() {
                           )
                         }
                         title="Agregar nota para cocina en este plato"
-                        className="w-9 h-9 rounded-xl bg-[var(--color-background-inverse)] border border-[var(--color-border)] hover:border-[var(--color-brand)] text-[var(--color-brand)] flex items-center justify-center cursor-pointer"
+                        className="min-w-[48px] min-h-[48px] rounded-xl bg-[var(--color-background-inverse)] border border-[var(--color-border)] hover:border-[var(--color-brand)] text-[var(--color-brand)] flex items-center justify-center cursor-pointer"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
@@ -666,7 +690,7 @@ export default function OrderForm() {
                         type="button"
                         onClick={() => handleRemoveItem(item.name)}
                         title="Eliminar platillo de la comanda"
-                        className="w-9 h-9 rounded-xl bg-red-500/15 border border-red-500/30 hover:bg-red-500/25 text-red-400 flex items-center justify-center cursor-pointer"
+                        className="min-w-[48px] min-h-[48px] rounded-xl bg-[var(--color-error)]/15 border border-[var(--color-error)]/30 hover:bg-[var(--color-error)]/25 text-[var(--color-error)] flex items-center justify-center cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -681,7 +705,7 @@ export default function OrderForm() {
                         handleItemNoteChange(item.name, e.target.value)
                       }
                       placeholder="Ej: Sin cebolla, término 3/4, salsa aparte..."
-                      className="w-full bg-[var(--color-background-inverse)] border border-[var(--color-brand)]/50 rounded-xl px-3 py-2 text-xs text-[var(--color-text-inverse)] focus:outline-none"
+                      className="w-full min-h-[48px] bg-[var(--color-background-inverse)] border border-[var(--color-brand)]/50 rounded-xl px-3 py-2 text-medium text-[var(--color-text-inverse)] focus:outline-none"
                     />
                   )}
                 </div>
@@ -696,19 +720,19 @@ export default function OrderForm() {
               value={generalNotes}
               onChange={(e) => setGeneralNotes(e.target.value)}
               placeholder="Observación general para cocina (ej: Alergia a maní, servir entradas primero...)"
-              className="w-full bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] placeholder:text-[var(--color-text-muted)] rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
+              className="w-full min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] placeholder:text-[var(--color-text-muted)] rounded-xl px-3.5 py-2.5 text-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
             />
           </div>
 
           {/* Resumen de Cuenta para cuando pase a Caja */}
           <div className="bg-[var(--color-surface-dark)] rounded-2xl p-4 border border-[var(--color-border)] space-y-2">
-            <div className="flex items-center justify-between text-xs text-[var(--color-text-muted)]">
+            <div className="flex items-center justify-between text-medium text-[var(--color-text-muted)]">
               <span>Subtotal ({totalUnits} platillos)</span>
               <span>
                 ${(subtotalAmount - taxIncluded).toLocaleString("es-CO")}
               </span>
             </div>
-            <div className="flex items-center justify-between text-xs text-[var(--color-text-muted)]">
+            <div className="flex items-center justify-between text-medium text-[var(--color-text-muted)]">
               <span>Impoconsumo (8% incl.)</span>
               <span>${taxIncluded.toLocaleString("es-CO")}</span>
             </div>
@@ -722,8 +746,8 @@ export default function OrderForm() {
             </div>
           </div>
 
-          {/* Botones de Acción */}
-          <div className="flex flex-col gap-2.5 pt-1">
+          {/* Botones de Acción (gap-4 = 16px entre botones, pt-6 = 24px desde el resumen) */}
+          <div className="flex flex-col gap-4 pt-6">
             <Button
               type="submit"
               variant="primary"

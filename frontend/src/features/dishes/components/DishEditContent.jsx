@@ -1,8 +1,9 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Save, Camera } from "lucide-react";
 import { Select, Input, Button, Checkbox } from "@/shared";
 import dishCategories from "../../../data/selects/dishCategories.json";
+import { getInventory } from "@/features/inventory/services/inventoryServices";
 import { dishSchema } from "../schemas/dishSchema";
 import { resolveDishImage } from "../utils/dishImages";
 import {
@@ -20,6 +21,22 @@ export default function DishEditContent({
   const fileInputRef = useRef(null);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [inventoryItems, setInventoryItems] = useState([]);
+
+  useEffect(() => {
+    getInventory()
+      .then((list) => setInventoryItems(Array.isArray(list) ? list : []))
+      .catch(() => setInventoryItems([]));
+  }, []);
+
+  const inventoryOptions = inventoryItems.map((item) => {
+    const qty = Number(item.quantity ?? item.cantidad ?? 0);
+    const active = item.isActive !== false && item.status !== "Agotado" && qty > 0;
+    return {
+      value: String(item.id),
+      label: `${item.name || item.nombre} (${active ? `Stock: ${qty} uds.` : "Agotado - 0 uds."})`,
+    };
+  });
 
   const previewUrl = useMemo(() => {
     if (
@@ -30,11 +47,13 @@ export default function DishEditContent({
       return URL.createObjectURL(formData.dishImage[0]);
     }
     return resolveDishImage({
+      id: formData.id,
       nombre: formData.dishName,
       categoria: formData.dishCategory,
       dishImageUrl: formData.dishImageUrl,
     });
   }, [
+    formData.id,
     formData.dishImage,
     formData.dishName,
     formData.dishCategory,
@@ -68,6 +87,8 @@ export default function DishEditContent({
       precio: formData.dishPrice,
       categoria: formData.dishCategory || "",
       descripcion: formData.dishDescription,
+      inventoryId: String(formData.inventoryId ?? ""),
+      dishStock: String(formData.dishStock ?? "0"),
     };
 
     const result = dishSchema.safeParse(adaptedData);
@@ -81,6 +102,7 @@ export default function DishEditContent({
         if (fieldName === "categoria") fieldErrors.dishCategory = issue.message;
         if (fieldName === "descripcion")
           fieldErrors.dishDescription = issue.message;
+        if (fieldName === "dishStock") fieldErrors.dishStock = issue.message;
       });
       setErrors(fieldErrors);
 
@@ -89,6 +111,40 @@ export default function DishEditContent({
         text: "Por favor, completa correctamente los campos del platillo.",
       });
       return;
+    }
+
+    const requestedStock = Number(result.data.dishStock || 0);
+    if (result.data.inventoryId) {
+      const linkedInv = inventoryItems.find(
+        (item) => String(item.id) === String(result.data.inventoryId)
+      );
+      if (linkedInv) {
+        const invQty = Number(linkedInv.quantity ?? linkedInv.cantidad ?? 0);
+        const invActive =
+          linkedInv.isActive !== false && linkedInv.status !== "Agotado";
+
+        if (formData.isActive && (!invActive || invQty <= 0)) {
+          setErrors({
+            inventoryId: "Insumo agotado o inactivo en inventario",
+          });
+          await showUserErrorAlert({
+            title: "Sin existencias en inventario",
+            text: `No puedes habilitar "${formData.dishName}" con el insumo "${linkedInv.name || linkedInv.nombre}" agotado (Stock: ${invQty}).`,
+          });
+          return;
+        }
+
+        if (requestedStock > invQty) {
+          setErrors({
+            dishStock: `Máximo ${invQty} porciones según inventario`,
+          });
+          await showUserErrorAlert({
+            title: "Stock insuficiente en inventario",
+            text: `Asignaste ${requestedStock} porciones, pero de "${linkedInv.name || linkedInv.nombre}" solo hay ${invQty} unidad(es) en inventario.`,
+          });
+          return;
+        }
+      }
     }
 
     setErrors({});
@@ -110,7 +166,7 @@ export default function DishEditContent({
       console.error(error);
       await showUserErrorAlert({
         title: "Error al actualizar",
-        text: "No se pudieron guardar los cambios del platillo.",
+        text: error.message || "No se pudieron guardar los cambios del platillo.",
       });
     } finally {
       setLoading(false);
@@ -137,8 +193,8 @@ export default function DishEditContent({
           <h1 className="text-xl sm:text-2xl font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)]">
             Editar Platillo del Menú
           </h1>
-          <p className="text-small text-[var(--color-text-muted)]">
-            Actualiza nombre, categoría gastronómica, precio al público y fotografía
+          <p className="text-medium text-[var(--color-text-muted)]">
+            Actualiza nombre, categoría gastronómica, stock vinculado a inventario y fotografía
           </p>
         </div>
 
@@ -174,6 +230,26 @@ export default function DishEditContent({
             onChange={handleChange}
             placeholder="Ej: 38000"
             error={errors.dishPrice}
+          />
+
+          <Input
+            label="Stock disponible (porciones)"
+            type="number"
+            min={0}
+            name="dishStock"
+            value={formData?.dishStock ?? "0"}
+            onChange={handleChange}
+            placeholder="Ej: 15"
+            error={errors.dishStock}
+          />
+
+          <Select
+            label="Insumo principal de Inventario (opcional)"
+            name="inventoryId"
+            value={formData?.inventoryId || ""}
+            options={inventoryOptions}
+            onChange={handleChange}
+            error={errors.inventoryId}
           />
 
           <Input
@@ -224,14 +300,14 @@ export default function DishEditContent({
                   e.stopPropagation();
                   fileInputRef.current?.click();
                 }}
-                className="absolute bottom-1 right-1 w-10 h-10 rounded-full bg-[var(--color-brand)] text-[var(--color-background-inverse)] border-2 border-[var(--color-background-inverse)] shadow-lg flex items-center justify-center hover:scale-110 transition cursor-pointer"
+                className="absolute bottom-1 right-1 min-w-[48px] min-h-[48px] rounded-full bg-[var(--color-brand)] text-[var(--color-text-primary)] border-2 border-[var(--color-background-inverse)] shadow-lg flex items-center justify-center hover:scale-110 transition cursor-pointer"
                 aria-label="Cambiar fotografía del platillo"
               >
                 <Camera className="w-5 h-5" />
               </button>
             </div>
 
-            <span className="text-xs text-[var(--color-text-muted)]">
+            <span className="text-medium text-[var(--color-text-muted)] text-center">
               Toca el ícono de cámara para cambiar foto
             </span>
           </div>
@@ -248,7 +324,7 @@ export default function DishEditContent({
             />
           </div>
 
-          <div className="w-full flex flex-col gap-3 pt-3 border-t border-[var(--color-border)]/60">
+          <div className="w-full flex flex-col gap-4 pt-6 border-t border-[var(--color-border)]/60">
             <Button
               variant="secondary"
               type="button"

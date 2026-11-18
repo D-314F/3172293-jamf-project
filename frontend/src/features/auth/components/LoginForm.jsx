@@ -143,7 +143,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
+    <div className="h-dvh w-full flex items-center justify-center p-3 sm:p-4 relative overflow-hidden">
       {/* Fondo con overlay degradado */}
       <img
         src={bf1}
@@ -152,11 +152,11 @@ export default function LoginForm() {
       />
       <div className="absolute inset-0 bg-[var(--color-background-inverse)]/70 backdrop-blur-[2px] z-0" />
 
-      {/* Tarjeta de Login (MD3 Elevated Container) */}
-      <div className="w-full max-w-md p-6 sm:p-8 md:p-10 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl relative z-10 shadow-2xl flex flex-col items-center transition-all duration-300">
+      {/* Tarjeta de Login compacta (sin scroll en desktop/portátil) */}
+      <div className="w-full max-w-md p-5 sm:p-6 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl relative z-10 shadow-2xl flex flex-col items-center transition-all duration-300">
 
         {/* Logo */}
-        <div className="w-16 h-16 sm:w-20 sm:h-20 mb-4 rounded-full bg-[var(--color-brand)] p-3 flex items-center justify-center shadow-md">
+        <div className="w-14 h-14 mb-2 rounded-full bg-[var(--color-brand)] p-2.5 flex items-center justify-center shadow-md">
           <img 
             src={logo} 
             alt="Logo Marca" 
@@ -168,18 +168,18 @@ export default function LoginForm() {
           Iniciar Sesión
         </h1>
 
-        <p className="text-[var(--color-text-muted)] text-medium font-[var(--font-body)] text-center mb-4 max-w-xs">
+        <p className="text-[var(--color-text-muted)] text-medium font-[var(--font-body)] text-center mb-3 max-w-xs">
           Ingresa tus credenciales para acceder a la plataforma
         </p>
 
         {/* Banner de Estado Bloqueado con cuenta regresiva en vivo */}
         {isLocked && (
-          <div className="w-full mb-4 p-4 rounded-2xl bg-[var(--color-brand-soft)]/20 border border-[var(--color-brand-soft)] text-center flex flex-col items-center gap-1 shadow-lg animate-fade-in">
+          <div className="w-full mb-3 p-3 rounded-2xl bg-[var(--color-brand-soft)]/20 border border-[var(--color-brand-soft)] text-center flex flex-col items-center gap-1 shadow-lg animate-fade-in">
             <span className="text-body font-[var(--font-heading)] text-[var(--color-brand-soft)] flex items-center justify-center gap-1">
                Cuenta bloqueada
             </span>
-            <span className="text-caption font-[var(--font-body)] text-[var(--color-text-inverse)]">
-              Cuenta bloqueada después de 3 intentos de autenticación erróneos consecutivos.
+            <span className="text-medium font-[var(--font-body)] text-[var(--color-text-inverse)]">
+              Cuenta bloqueada después de 3 intentos erróneos consecutivos.
             </span>
             <span className="text-body font-[var(--font-heading)] text-[var(--color-brand)] mt-1">
               Disponible de nuevo en: {formatTime(countdown)}
@@ -187,7 +187,7 @@ export default function LoginForm() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="gap-5 flex flex-col w-full">
+        <form onSubmit={handleSubmit} className="gap-4 flex flex-col w-full">
           <Input
             label="Correo Electrónico"
             name="userEmail"
@@ -230,12 +230,12 @@ export default function LoginForm() {
           </Button>
 
           {errors.submit && (
-            <p className="text-[var(--color-brand-soft)] text-medium font-[var(--font-body)] text-center mt-1">
+            <p className="text-[var(--color-brand-soft)] text-medium font-[var(--font-body)] text-center">
               {errors.submit}
             </p>
           )}
 
-          <div className="text-center text-medium pt-4 border-t border-[var(--color-brand)]/20">
+          <div className="text-center text-medium pt-3 border-t border-[var(--color-brand)]/20">
             <span className="text-[var(--color-text-inverse)]/80 font-[var(--font-body)]">¿No tienes cuenta? </span>
             <Link 
               to="/register" 
