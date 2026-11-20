@@ -1,6 +1,6 @@
 // src/features/users/components/PublicRegisterForm.jsx
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { UserPlus, ArrowLeft, ShieldAlert } from "lucide-react";
 import { Input, Select, Button } from "@/shared";
 import { getDocumentTypes } from "@/services/selectService";
@@ -43,6 +43,10 @@ const publicRegisterSchema = userSchema.pick({
     useEffect(() => {
         getDocumentTypes().then(setDocumentTypes);
     }, []);
+
+    if (sessionStorage.getItem("token")) {
+        return <Navigate to="/dashboard/home" replace />;
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
