@@ -1,7 +1,7 @@
 // src/features/auth/components/LoginForm.jsx
 
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom"; 
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Input, Button } from "@/shared";
 import { loginSchema } from "../schemas/loginSchema";
 import { 
@@ -46,6 +46,10 @@ export default function LoginForm() {
       if (timer) clearInterval(timer);
     };
   }, [isLocked, countdown]);
+
+  if (sessionStorage.getItem("token")) {
+    return <Navigate to="/dashboard/home" replace />;
+  }
 
   // Formato mm:ss (ej: 10:00, 09:59...)
   const formatTime = (seconds) => {
@@ -115,7 +119,7 @@ export default function LoginForm() {
         timer: 2000,
       });
 
-      navigate("/dashboard/home");
+      navigate("/dashboard/home", { replace: true });
     } catch (error) {
       console.error("Error al iniciar sesión:", error.message);
 

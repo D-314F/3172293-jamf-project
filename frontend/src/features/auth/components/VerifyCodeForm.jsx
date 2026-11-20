@@ -1,35 +1,89 @@
 // src/features/auth/components/VerifyCodeForm.jsx
-
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
-import { Input, Button } from "@/shared";
+import { useState, useRef } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
+import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { Button } from "@/shared";
 import { verifyCodeSchema } from "../schemas/verifyCodeSchema";
-import { 
-  showSuccessAlert, 
-  showUserErrorAlert 
+import {
+  showSuccessAlert,
+  showUserErrorAlert,
 } from "@/shared/services/alertService";
 
 import bf1 from "@/assets/images/bf-1.png";
+import logo from "@/assets/images/1-logo.png";
+
+const PIN_LENGTH = 6;
 
 export default function VerifyCodeForm() {
   const navigate = useNavigate();
+  const inputRefs = useRef([]);
+  const [digits, setDigits] = useState(Array(PIN_LENGTH).fill(""));
   const [errors, setErrors] = useState({});
-  const [formData, setFormData] = useState({
-    code: "",
-  });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
+  if (sessionStorage.getItem("token")) {
+    return <Navigate to="/dashboard/home" replace />;
+  }
+
+  const recoveryEmail = sessionStorage.getItem("recoveryEmail") || "";
+
+  const updateDigits = (nextDigits) => {
+    setDigits(nextDigits);
+    if (errors.code) {
+      setErrors({});
     }
+  };
+
+  const handleDigitChange = (index, rawValue) => {
+    const clean = rawValue.replace(/\D/g, "");
+    if (!clean) {
+      const next = [...digits];
+      next[index] = "";
+      updateDigits(next);
+      return;
+    }
+
+    const next = [...digits];
+    next[index] = clean[clean.length - 1];
+    updateDigits(next);
+
+    if (index < PIN_LENGTH - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index, e) => {
+    if (e.key === "Backspace" && !digits[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    } else if (e.key === "ArrowRight" && index < PIN_LENGTH - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, PIN_LENGTH);
+
+    if (!pasted) return;
+
+    const next = Array(PIN_LENGTH).fill("");
+    pasted.split("").forEach((char, idx) => {
+      next[idx] = char;
+    });
+    updateDigits(next);
+
+    const focusIndex = Math.min(pasted.length, PIN_LENGTH - 1);
+    inputRefs.current[focusIndex]?.focus();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = verifyCodeSchema.safeParse(formData);
+    const code = digits.join("");
+    const result = verifyCodeSchema.safeParse({ code });
 
     if (!result.success) {
       const fieldErrors = {};
@@ -39,8 +93,8 @@ export default function VerifyCodeForm() {
       setErrors(fieldErrors);
 
       await showUserErrorAlert({
-        title: "Código inválido",
-        text: "Por favor, ingresa un código de verificación válido.",
+        title: "Código incompleto",
+        text: "Por favor, ingresa los 6 dígitos numéricos del código PIN.",
       });
 
       return;
@@ -49,14 +103,15 @@ export default function VerifyCodeForm() {
     setErrors({});
 
     try {
+      sessionStorage.setItem("recoveryPin", code);
+
       await showSuccessAlert({
         title: "Código verificado",
-        text: "El código es correcto. Ahora puedes restablecer tu contraseña.",
+        text: "El código PIN es correcto. Ahora puedes definir tu nueva contraseña.",
         timer: 2000,
       });
 
       navigate("/reset-password");
-
     } catch (error) {
       console.error("Error al verificar el código", error);
 
@@ -68,64 +123,97 @@ export default function VerifyCodeForm() {
   };
 
   return (
-    <div className="h-dvh min-h-[540px] w-full flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Fondo y overlay idénticos a los demás formularios */}
+    <div className="h-dvh w-full flex items-center justify-center p-3 sm:p-4 relative overflow-hidden">
       <img
         src={bf1}
         alt="Fondo de autenticación"
         className="absolute inset-0 w-full h-full object-cover z-0"
       />
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-0" />
+      <div className="absolute inset-0 bg-[var(--color-background-inverse)]/70 backdrop-blur-[2px] z-0" />
 
-      {/* Contenedor principal */}
-      <div className="w-full max-w-md flex flex-col gap-4 relative z-10">
-        
-        {/* Botón Atrás */}
+      <div className="w-full max-w-md flex flex-col gap-3 relative z-10">
         <div className="flex justify-start">
           <Button
             type="button"
             variant="secondary"
             size="sm"
-            onClick={() => navigate(-1)}
-            className="!w-auto flex items-center gap-2"
+            onClick={() => navigate("/forgot-password")}
+            className="!w-auto min-h-[48px] flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
             Atrás
           </Button>
         </div>
 
-        {/* Formulario */}
         <form
           onSubmit={handleSubmit}
-          className="w-full p-6 sm:p-8 md:p-10 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl shadow-2xl font-[var(--font-body)] flex flex-col gap-5 text-left"
+          className="w-full p-5 sm:p-6 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl shadow-2xl font-[var(--font-body)] flex flex-col items-center gap-4 text-left"
         >
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold font-[var(--font-heading)] text-[var(--color-brand)] text-center mb-2">
-              Verificar Código
-            </h1>
+          <div className="w-14 h-14 rounded-full bg-[var(--color-brand)] p-2.5 flex items-center justify-center shadow-md">
+            <img
+              src={logo}
+              alt="Logo JAMF"
+              className="w-full h-full object-contain"
+            />
+          </div>
 
-            <p className="text-[var(--color-text-muted)] text-medium text-center">
-              Ingresa el código que enviamos a tu correo
+          <div className="text-center space-y-1">
+            <h1 className="text-title font-[var(--font-heading)] text-[var(--color-brand)]">
+              Verificar Código PIN
+            </h1>
+            <p className="text-[var(--color-text-muted)] text-medium max-w-xs mx-auto">
+              {recoveryEmail
+                ? `Ingresa el PIN de 6 dígitos enviado a ${recoveryEmail}`
+                : "Ingresa el PIN de 6 dígitos que enviamos a tu correo"}
             </p>
           </div>
 
-          <Input
-            label="Código de verificación"
-            name="code"
-            type="text"
-            value={formData.code}
-            placeholder="Escribe el código"
-            onChange={handleChange}
-            error={errors.code}
-          />
+          {/* 6 casillas PIN interactivas con altura táctil >= 48px (MD3) */}
+          <div className="w-full flex flex-col items-center gap-2">
+            <div
+              className="w-full grid grid-cols-6 gap-2 sm:gap-3"
+              onPaste={handlePaste}
+            >
+              {digits.map((digit, index) => (
+                <input
+                  key={index}
+                  ref={(el) => {
+                    inputRefs.current[index] = el;
+                  }}
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={1}
+                  value={digit}
+                  aria-label={`Dígito ${index + 1} del código PIN`}
+                  onChange={(e) => handleDigitChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(index, e)}
+                  className={`w-full min-h-[52px] h-13 rounded-xl border text-center text-lg sm:text-xl font-bold font-[var(--font-heading)] bg-[var(--color-background)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-[var(--color-focus-border)] transition-all ${
+                    errors.code
+                      ? "border-[var(--color-brand-soft)] ring-1 ring-[var(--color-brand-soft)]"
+                      : digit
+                      ? "border-[var(--color-brand)]"
+                      : "border-[var(--color-border)]"
+                  }`}
+                />
+              ))}
+            </div>
+
+            {errors.code && (
+              <p className="text-medium text-[var(--color-brand-soft)] text-center mt-1">
+                {errors.code}
+              </p>
+            )}
+          </div>
 
           <Button
             type="submit"
             variant="primary"
             size="md"
-            className="w-full mt-2"
+            className="w-full min-h-[48px] mt-1 flex items-center justify-center gap-2"
           >
-            Verificar
+            <ShieldCheck className="w-4 h-4" />
+            Verificar código PIN
           </Button>
         </form>
       </div>
