@@ -96,7 +96,7 @@ export default function ViewMenuPage() {
 
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-surface-dark)] border border-[var(--color-brand)]/30 text-[var(--color-brand)] text-medium font-semibold">
               <Sparkles className="w-4 h-4" />
-              <span>{dishes.length} platillos disponibles</span>
+              <span>{`${dishes.length} platillos disponibles`}</span>
             </div>
           </div>
 

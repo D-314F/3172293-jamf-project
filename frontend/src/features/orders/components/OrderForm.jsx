@@ -727,25 +727,25 @@ export default function OrderForm() {
           {/* Resumen de Cuenta para cuando pase a Caja */}
           <div className="bg-[var(--color-surface-dark)] rounded-2xl p-4 border border-[var(--color-border)] space-y-2">
             <div className="flex items-center justify-between text-medium text-[var(--color-text-muted)]">
-              <span>Subtotal ({totalUnits} platillos)</span>
+              <span>{`Subtotal (${totalUnits} platillos)`}</span>
               <span>
-                ${(subtotalAmount - taxIncluded).toLocaleString("es-CO")}
+                {`$${(subtotalAmount - taxIncluded).toLocaleString("es-CO")}`}
               </span>
             </div>
             <div className="flex items-center justify-between text-medium text-[var(--color-text-muted)]">
               <span>Impoconsumo (8% incl.)</span>
-              <span>${taxIncluded.toLocaleString("es-CO")}</span>
+              <span>{`$${taxIncluded.toLocaleString("es-CO")}`}</span>
             </div>
             <div className="pt-2 border-t border-[var(--color-border)] flex items-baseline justify-between">
               <span className="text-sm font-bold text-[var(--color-text-inverse)]">
-                Total Cuenta Mesa #{selectedTable}
+                {`Total Cuenta Mesa #${selectedTable}`}
               </span>
               <span className="text-2xl font-extrabold font-[var(--font-heading)] text-[var(--color-brand)]">
-                ${subtotalAmount.toLocaleString("es-CO")}
+                {`$${subtotalAmount.toLocaleString("es-CO")}`}
               </span>
             </div>
           </div>
-
+          
           {/* Botones de Acción (gap-4 = 16px entre botones, pt-6 = 24px desde el resumen) */}
           <div className="flex flex-col gap-4 pt-6">
             <Button
