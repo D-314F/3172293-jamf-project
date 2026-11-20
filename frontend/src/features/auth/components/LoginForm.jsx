@@ -119,12 +119,8 @@ export default function LoginForm() {
     } catch (error) {
       console.error("Error al iniciar sesión:", error.message);
 
-      const nextAttempts = failedAttempts + 1;
-      setFailedAttempts(nextAttempts);
-
-      if (error.code === "ACCOUNT_LOCKED" || nextAttempts >= 3) {
+      if (error.code === "ACCOUNT_LOCKED") {
         setIsLocked(true);
-        // 10 minutos = 600 segundos
         const lockSeconds = error.secondsLeft || 600;
         setCountdown(lockSeconds);
 
@@ -132,11 +128,19 @@ export default function LoginForm() {
           title: "Cuenta Bloqueada",
           text: `Cuenta bloqueada después de 3 intentos de autenticación erróneos consecutivos. Podrás intentar de nuevo en ${formatTime(lockSeconds)}.`,
         });
-      } else {
-        const remaining = error.remaining ?? (3 - nextAttempts);
+      } else if (error.code === "INVALID_CREDENTIALS") {
+        const nextAttempts = error.attempts ?? failedAttempts + 1;
+        setFailedAttempts(nextAttempts);
+        const remaining = error.remaining ?? Math.max(0, 3 - nextAttempts);
+
         await showUserErrorAlert({
           title: "Error de autenticación",
           text: `Credenciales inválidas. Te quedan ${remaining} intento(s) antes del bloqueo.`,
+        });
+      } else {
+        await showUserErrorAlert({
+          title: "Error al iniciar sesión",
+          text: error.message || "No fue posible iniciar sesión. Intenta nuevamente.",
         });
       }
     }
