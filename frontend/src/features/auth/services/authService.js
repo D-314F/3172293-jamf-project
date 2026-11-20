@@ -1,4 +1,5 @@
 import { API_URL } from "@/features/config";
+import { resolveUploadedImageUrl } from "@/shared";
 
 const AUTH_API_URL = `${API_URL}/auth`;
 
@@ -57,6 +58,10 @@ export function getUserInitials(name = "") {
 
 export async function updateProfile(profileData) {
     const token = sessionStorage.getItem("token");
+    const uploadedAvatarUrl = await resolveUploadedImageUrl(
+        profileData.userAvatarFile,
+        "users"
+    );
 
     const response = await fetch(`${AUTH_API_URL}/profile`, {
         method: "PUT",
@@ -67,13 +72,14 @@ export async function updateProfile(profileData) {
         body: JSON.stringify({
             userPhone: profileData.userPhone,
             userAddress: profileData.userAddress,
+            ...(uploadedAvatarUrl ? { userAvatarUrl: uploadedAvatarUrl } : {}),
         }),
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.error || "Error al actualizar los datos de contacto");
+        throw new Error(data.error || "Error al actualizar los datos del perfil");
     }
 
     return data.profile;

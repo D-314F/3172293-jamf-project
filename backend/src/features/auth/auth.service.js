@@ -137,9 +137,10 @@ export const authService = {
         };
     },
 
-        async updateProfile(userId, { userPhone, userAddress }) {
+            async updateProfile(userId, { userPhone, userAddress, userAvatarUrl }) {
         const cleanPhone = String(userPhone ?? "").trim();
         const cleanAddress = String(userAddress ?? "").trim();
+        const cleanAvatarUrl = userAvatarUrl ? String(userAvatarUrl).trim() : null;
 
         if (!/^[0-9]{10}$/.test(cleanPhone)) {
             const error = new Error("El teléfono debe tener exactamente 10 dígitos.");
@@ -156,6 +157,7 @@ export const authService = {
         const updated = await authRepository.updateOwnContact(userId, {
             userPhone: cleanPhone,
             userAddress: cleanAddress,
+            userAvatarUrl: cleanAvatarUrl,
         });
 
         if (!updated) {

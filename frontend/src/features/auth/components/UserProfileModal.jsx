@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Modal, Button, Input, resolveMediaUrl } from "@/shared";
 import { showSuccessAlert } from "@/shared/services/alertService";
 import {
@@ -16,6 +16,7 @@ import {
   Check,
   Pencil,
   Lock,
+  Camera,
 } from "lucide-react";
 import { getUserInitials, updateProfile } from "../services/authService";
 
@@ -93,11 +94,15 @@ export default function UserProfileModal({
   allowedModules = null,
   onProfileUpdated = null,
 }) {
+  const fileInputRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     userPhone: "",
     userAddress: "",
   });
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [avatarError, setAvatarError] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -123,7 +128,23 @@ export default function UserProfileModal({
     `${profile.userDocumentTypes || ""} ${profile.userDocumentNumber || ""}`.trim() ||
     "No registrado";
 
+  const displayedAvatar =
+    avatarPreview || (!avatarError ? resolveMediaUrl(profile.userAvatarUrl) : null);
+
+  const resetAvatarSelection = () => {
+    if (avatarPreview) {
+      URL.revokeObjectURL(avatarPreview);
+    }
+    setAvatarFile(null);
+    setAvatarPreview(null);
+    setAvatarError(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const handleClose = () => {
+    resetAvatarSelection();
     setIsEditing(false);
     setFieldErrors({});
     setSubmitError("");
@@ -140,11 +161,49 @@ export default function UserProfileModal({
     setIsEditing(true);
   };
 
+  const handlePickAvatarClick = () => {
+    if (!isEditing) {
+      handleStartEdit();
+    }
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setSubmitError("Selecciona un archivo de imagen válido (JPG, PNG o WEBP).");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setSubmitError("La imagen no debe superar los 5 MB.");
+      return;
+    }
+
+    if (avatarPreview) {
+      URL.revokeObjectURL(avatarPreview);
+    }
+
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+    setAvatarError(false);
+    setSubmitError("");
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setFieldErrors((prev) => ({ ...prev, [name]: "" }));
     setSubmitError("");
+  };
+
+  const handleCancelEdit = () => {
+    resetAvatarSelection();
+    setFieldErrors({});
+    setSubmitError("");
+    setIsEditing(false);
   };
 
   const handleSave = async (e) => {
@@ -173,18 +232,20 @@ export default function UserProfileModal({
       const updatedProfile = await updateProfile({
         userPhone: phone,
         userAddress: address,
+        userAvatarFile: avatarFile,
       });
 
       onProfileUpdated?.(updatedProfile);
+      resetAvatarSelection();
       setIsEditing(false);
 
       await showSuccessAlert({
-        title: "Contacto actualizado",
-        text: "Tu teléfono y dirección se actualizaron correctamente.",
+        title: "Perfil actualizado",
+        text: "Tus datos de perfil se actualizaron correctamente.",
         timer: 1800,
       });
     } catch (error) {
-      setSubmitError(error.message || "No se pudo actualizar tu contacto");
+      setSubmitError(error.message || "No se pudo actualizar tu perfil");
     } finally {
       setIsSaving(false);
     }
@@ -198,22 +259,43 @@ export default function UserProfileModal({
       className="md:max-w-3xl"
     >
       <div className="flex flex-col gap-4">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={handleAvatarChange}
+          className="hidden"
+        />
+
         {/* Contenedor Principal: Vertical en Mobile, Horizontal en Desktop */}
         <div className="flex flex-col md:flex-row gap-6 md:items-start">
           {/* Columna Izquierda: Identidad + Rol + Accesos */}
           <div className="md:w-5/12 flex flex-col items-center justify-start text-center gap-4 p-5 rounded-2xl bg-[var(--color-surface-dark)] border border-[var(--color-brand)]/25">
             <div className="flex flex-col items-center gap-3 w-full">
-              {profile.userAvatarUrl ? (
-                <img
-                  src={resolveMediaUrl(profile.userAvatarUrl)}
-                  alt={profile.userName}
-                  className="w-20 h-20 rounded-full object-cover border-2 border-[var(--color-brand)] shadow-lg"
-                />
-              ) : (
-                <div className="w-20 h-20 rounded-full bg-[var(--color-brand)] text-[var(--color-text-primary)] flex items-center justify-center text-2xl font-bold shadow-lg border-2 border-[var(--color-text-inverse)]/20">
-                  {initials}
-                </div>
-              )}
+              <div className="relative group">
+                {displayedAvatar ? (
+                  <img
+                    src={displayedAvatar}
+                    alt={profile.userName}
+                    onError={() => setAvatarError(true)}
+                    className="w-24 h-24 rounded-full object-cover border-2 border-[var(--color-brand)] shadow-lg"
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-[var(--color-brand)] text-[var(--color-text-primary)] flex items-center justify-center text-2xl font-bold shadow-lg border-2 border-[var(--color-text-inverse)]/20">
+                    {initials}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handlePickAvatarClick}
+                  title="Cambiar foto de perfil"
+                  aria-label="Cambiar foto de perfil"
+                  className="absolute -bottom-1 -right-1 min-w-[40px] min-h-[40px] rounded-full bg-[var(--color-background-inverse)] text-[var(--color-brand)] border-2 border-[var(--color-brand)] shadow-md flex items-center justify-center hover:scale-105 active:scale-95 transition cursor-pointer"
+                >
+                  <Camera className="w-4 h-4" />
+                </button>
+              </div>
 
               <div className="space-y-1 max-w-full">
                 <h3 className="text-subtitle font-bold text-[var(--color-text-inverse)] leading-tight">
@@ -270,7 +352,7 @@ export default function UserProfileModal({
             )}
           </div>
 
-          {/* Columna Derecha: Sin justify-between para eliminar el espacio muerto */}
+          {/* Columna Derecha */}
           <div className="md:w-7/12 flex flex-col justify-start gap-3">
             {isEditing ? (
               <form onSubmit={handleSave} className="space-y-3.5">
@@ -280,6 +362,25 @@ export default function UserProfileModal({
                     Por seguridad, tu cargo, documento y correo institucional solo
                     los modifica un administrador.
                   </span>
+                </div>
+
+                <div className="flex items-center justify-between gap-3 rounded-2xl bg-[var(--color-surface-dark)] border border-[var(--color-border)]/70 px-4 py-2.5">
+                  <div className="min-w-0">
+                    <p className="text-medium font-semibold text-[var(--color-text-inverse)]">
+                      Foto de perfil
+                    </p>
+                    <p className="text-small text-[var(--color-text-muted)] truncate">
+                      {avatarFile ? avatarFile.name : "JPG, PNG o WEBP (máx. 5 MB)"}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="shrink-0 min-h-[48px] px-3.5 rounded-xl bg-[var(--color-brand)]/15 border border-[var(--color-brand)]/40 text-[var(--color-brand)] hover:bg-[var(--color-brand)] hover:text-[var(--color-text-primary)] text-small font-semibold inline-flex items-center gap-1.5 transition cursor-pointer"
+                  >
+                    <Camera className="w-4 h-4" />
+                    <span>Elegir foto</span>
+                  </button>
                 </div>
 
                 <Input
@@ -317,7 +418,7 @@ export default function UserProfileModal({
                     type="button"
                     variant="secondary"
                     size="md"
-                    onClick={() => setIsEditing(false)}
+                    onClick={handleCancelEdit}
                     disabled={isSaving}
                     className="w-full sm:flex-1"
                   >
@@ -346,7 +447,7 @@ export default function UserProfileModal({
                     className="inline-flex items-center gap-1.5 text-small font-semibold text-[var(--color-brand)] hover:underline cursor-pointer"
                   >
                     <Pencil className="w-3.5 h-3.5" />
-                    Editar contacto
+                    Editar perfil
                   </button>
                 </div>
 
