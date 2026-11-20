@@ -1,5 +1,5 @@
 import StatusSwitch from "@/shared/components/StatusSwitch";
-import DishRowActions from "@/features/dishes/components/dishRowActions";
+import DishRowActions from "@/features/dishes/components/DishRowActions";
 import { updateDish } from "../services/dishServices";
 import {
   resolveDishImage,

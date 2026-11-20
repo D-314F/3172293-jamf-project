@@ -1,4 +1,4 @@
-export { default as DishForm } from "./components/DishForm";
+export { default as DishForm } from "./components/dishForm";
 export { default as DishEditContent } from "./components/DishEditContent";
 export { default as DishRowActions } from "./components/DishRowActions";
 
