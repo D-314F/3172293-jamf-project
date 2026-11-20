@@ -1,0 +1,3 @@
+# Configuración SPA para Cloudflare Pages:
+# Enruta todas las vistas internas de React Router hacia index.html (código 200) para evitar errores 404 al recargar la página.
+/* /index.html 200 
