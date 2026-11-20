@@ -1,14 +1,15 @@
+import documentsTypes from "@/data/selects/documentsTypes.json";
+import userTypes from "@/data/selects/userTypes.json";
+import dishCategories from "@/data/selects/dishCategories.json";
+
 export async function getDocumentTypes() {
-  const res = await fetch("/src/data/selects/documentsTypes.json");
-  return res.json();
+  return documentsTypes;
 }
 
 export async function getUserTypes() {
-  const res = await fetch("/src/data/selects/userTypes.json");
-  return res.json();
+  return userTypes;
 }
 
 export async function getDishCategories() {
-  const res = await fetch("/src/data/selects/dishCategories.json");
-  return res.json();
+  return dishCategories;
 }
