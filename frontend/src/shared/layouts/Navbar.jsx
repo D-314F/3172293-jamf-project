@@ -28,6 +28,7 @@ import {
   DropdownContent,
   DropdownItem,
   useTheme,
+  resolveMediaUrl,
 } from "@/shared";
 import logo from "@/assets/images/1-logo.png";
 import logo2 from "@/assets/images/2-logo.png";
@@ -52,6 +53,7 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme();
 
   const [profile, setProfile] = useState(null);
+  const [avatarError, setAvatarError] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
 
@@ -206,6 +208,12 @@ export default function Navbar() {
     ? profile.userName.trim().split(/\s+/)[0]
     : "Perfil";
   const initials = getUserInitials(profile?.userName || "");
+  const rawAvatarUrl = resolveMediaUrl(profile?.userAvatarUrl);
+  const avatarUrl = !avatarError ? rawAvatarUrl : null;
+
+  useEffect(() => {
+    setAvatarError(false);
+  }, [profile?.userAvatarUrl]);
 
   const adminModuleItems = [
     allowedModules.users && {
@@ -387,7 +395,16 @@ export default function Navbar() {
                       className="md:hidden inline-flex items-center gap-2 min-h-[48px] p-1.5 pr-3 rounded-full bg-[var(--color-background-inverse)] text-[var(--color-brand)] shadow-sm active:scale-95 transition-all duration-200 cursor-pointer"
                     >
                       <span className="relative w-9 h-9 rounded-full bg-[var(--color-brand)] text-[var(--color-text-primary)] flex items-center justify-center text-caption font-bold">
-                        {initials}
+                        {avatarUrl ? (
+                          <img
+                            src={avatarUrl}
+                            alt={firstName}
+                            onError={() => setAvatarError(true)}
+                            className="w-full h-full rounded-full object-cover"
+                          />
+                        ) : (
+                          initials
+                        )}
                         <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[var(--color-success)] ring-2 ring-[var(--color-background-inverse)]" />
                       </span>
                       <span className="text-caption font-semibold text-[var(--color-text-inverse)] max-w-[95px] truncate">
@@ -406,7 +423,16 @@ export default function Navbar() {
                           className="group inline-flex items-center gap-2.5 min-h-[48px] pl-1.5 pr-3.5 py-1.5 rounded-full bg-[var(--color-background-inverse)] text-[var(--color-text-inverse)] border border-[var(--color-background-inverse)] shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-200 cursor-pointer"
                         >
                           <span className="relative w-9 h-9 rounded-full bg-[var(--color-brand)] text-[var(--color-text-primary)] flex items-center justify-center text-caption font-extrabold shrink-0 shadow">
-                            {initials}
+                            {avatarUrl ? (
+                              <img
+                                src={avatarUrl}
+                                alt={firstName}
+                                onError={() => setAvatarError(true)}
+                                className="w-full h-full rounded-full object-cover"
+                              />
+                            ) : (
+                              initials
+                            )}
                             <span
                               title="En línea"
                               className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[var(--color-success)] ring-2 ring-[var(--color-background-inverse)]"
@@ -430,7 +456,16 @@ export default function Navbar() {
                         {/* 1. Cabecera del Perfil */}
                         <div className="flex items-center gap-3 pb-3 border-b border-[var(--color-border)]/20">
                           <div className="relative w-12 h-12 rounded-full bg-[var(--color-brand)] text-[var(--color-text-primary)] flex items-center justify-center text-medium font-extrabold shrink-0 shadow-md">
-                            {initials}
+                            {avatarUrl ? (
+                              <img
+                                src={avatarUrl}
+                                alt={firstName}
+                                onError={() => setAvatarError(true)}
+                                className="w-full h-full rounded-full object-cover"
+                              />
+                            ) : (
+                              initials
+                            )}
                             <span
                               title="Activo"
                               className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-[var(--color-success)] ring-2 ring-[var(--color-background-inverse)]"
@@ -445,7 +480,7 @@ export default function Navbar() {
                               {profile?.userEmail || "sesion@jamf.com"}
                             </p>
                             <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-md bg-[var(--color-surface-dark)] border border-[var(--color-brand)]/30 text-caption font-semibold text-[var(--color-brand)]">
-                              <span>{profile?.userRole || "Administrador"}</span>
+                              <span>{profile?.userType || profile?.userRole || "Usuario"}</span>
                               <BadgeCheck className="w-3.5 h-3.5 text-[var(--color-brand)]" />
                             </span>
                           </div>

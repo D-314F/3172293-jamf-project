@@ -79,17 +79,23 @@ export const authRepository = {
         return result.rows[0];
     },
 
-        // Actualiza únicamente los datos de contacto propios del usuario autenticado
-    async updateOwnContact(userId, { userPhone, userAddress }) {
+    // Actualiza únicamente los datos de contacto y avatar propios del usuario autenticado
+    async updateOwnContact(userId, { userPhone, userAddress, userAvatarUrl = null }) {
         const query = `
             UPDATE users
             SET user_phone = $1,
-                user_address = $2
-            WHERE id = $3
+                user_address = $2,
+                user_avatar_url = COALESCE($3, user_avatar_url)
+            WHERE id = $4
             RETURNING id;
         `;
 
-        const result = await pool.query(query, [userPhone, userAddress, userId]);
+        const result = await pool.query(query, [
+            userPhone,
+            userAddress,
+            userAvatarUrl,
+            userId,
+        ]);
         return result.rows[0];
     },
 };
