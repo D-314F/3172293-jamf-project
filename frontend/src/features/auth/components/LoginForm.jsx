@@ -6,8 +6,10 @@ import { Input, Button } from "@/shared";
 import { loginSchema } from "../schemas/loginSchema";
 import { 
   showSuccessAlert, 
-  showUserErrorAlert 
+  showUserErrorAlert,
+  showInfoAlert,
 } from "@/shared/services/alertService";
+import { SUPPORT_EMAIL } from "@/features/config";
 
 import bf1 from "@/assets/images/bf-1.png";
 import logo from "@/assets/images/1-logo.png";
@@ -56,6 +58,12 @@ export default function LoginForm() {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  };
+    const handleSupportClick = () => {
+    showInfoAlert({
+      title: "Soporte técnico",
+      text: `Este es el correo del soporte: ${SUPPORT_EMAIL}`,
+    });
   };
 
   const handleChange = (e) => {
@@ -253,6 +261,15 @@ export default function LoginForm() {
             </Link>
           </div>
         </form>
+                    <div>
+              <button
+                type="button"
+                onClick={handleSupportClick}
+                className="text-[var(--color-text-muted)] hover:text-[var(--color-brand)] hover:underline transition-all font-[var(--font-label)] text-small cursor-pointer"
+              >
+                ¿Necesitas soporte?
+              </button>
+            </div>
       </div>
     </div>
   );
