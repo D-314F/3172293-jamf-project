@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { FileSpreadsheet, Plus } from "lucide-react";
 import { DataTable, Button } from "@/shared";
-import { inventoryColumns } from "../table/inventoryColumns";
+import { getInventoryColumns } from "../table/inventoryColumns";
 import { getInventory } from "../services/inventoryServices";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
 import { hasPermission } from "@/features/permissions/services/permissionServices";
@@ -13,18 +13,25 @@ export default function InventoryListPage() {
   const [loading, setLoading] = useState(true);
   const [canCreate, setCanCreate] = useState(false);
   const [canReport, setCanReport] = useState(false);
+  const [canView, setCanView] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
 
   useEffect(() => {
     const fetchInventory = async () => {
       try {
-        const [data, createPerm, reportPerm] = await Promise.all([
-          getInventory(),
-          hasPermission("create_inventory"),
-          hasPermission("report_inventory"),
-        ]);
+        const [data, createPerm, reportPerm, viewPerm, editPerm] =
+          await Promise.all([
+            getInventory(),
+            hasPermission("create_inventory"),
+            hasPermission("report_inventory"),
+            hasPermission("view_inventory"),
+            hasPermission("update_inventory"),
+          ]);
         setInventoryData(data);
         setCanCreate(createPerm);
         setCanReport(reportPerm);
+        setCanView(viewPerm);
+        setCanEdit(editPerm);
       } catch (error) {
         console.error("Error al obtener el inventario:", error);
       } finally {
@@ -34,6 +41,11 @@ export default function InventoryListPage() {
 
     fetchInventory();
   }, []);
+
+  const columns = useMemo(
+    () => getInventoryColumns({ canView, canEdit }),
+    [canView, canEdit]
+  );
 
   return (
     <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-10 space-y-6">
@@ -75,7 +87,7 @@ export default function InventoryListPage() {
             Cargando inventario de la base de datos...
           </p>
         ) : (
-          <DataTable data={inventoryData} columns={inventoryColumns} />
+          <DataTable data={inventoryData} columns={columns} />
         )}
       </div>
 

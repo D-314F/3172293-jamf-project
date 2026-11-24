@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FileSpreadsheet, Plus, Filter, RotateCcw } from "lucide-react";
 import { DataTable, Button } from "@/shared";
 import {
-  providerColumns,
+  getProviderColumns,
   formatProviderDocumentType,
 } from "../table/providerColumns";
 import { getProviders } from "../services/providerServices";
@@ -16,6 +16,8 @@ export default function ProviderListPage() {
   const [loading, setLoading] = useState(true);
   const [canCreate, setCanCreate] = useState(false);
   const [canReport, setCanReport] = useState(false);
+  const [canView, setCanView] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
 
   const [docTypeFilter, setDocTypeFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -23,14 +25,19 @@ export default function ProviderListPage() {
   useEffect(() => {
     const fetchProviders = async () => {
       try {
-        const [data, createPerm, reportPerm] = await Promise.all([
-          getProviders(),
-          hasPermission("create_providers"),
-          hasPermission("report_providers"),
-        ]);
+        const [data, createPerm, reportPerm, viewPerm, editPerm] =
+          await Promise.all([
+            getProviders(),
+            hasPermission("create_providers"),
+            hasPermission("report_providers"),
+            hasPermission("view_providers"),
+            hasPermission("update_providers"),
+          ]);
         setProviders(Array.isArray(data) ? data : []);
         setCanCreate(createPerm);
         setCanReport(reportPerm);
+        setCanView(viewPerm);
+        setCanEdit(editPerm);
       } catch (error) {
         console.error("Error al obtener proveedores:", error);
       } finally {
@@ -40,6 +47,11 @@ export default function ProviderListPage() {
 
     fetchProviders();
   }, []);
+
+  const columns = useMemo(
+    () => getProviderColumns({ canView, canEdit }),
+    [canView, canEdit]
+  );
 
   useEffect(() => {
     const handleStatusUpdated = (event) => {
@@ -177,7 +189,7 @@ export default function ProviderListPage() {
         ) : (
           <DataTable
             data={filteredAndSortedProviders}
-            columns={providerColumns}
+            columns={columns}
           />
         )}
       </div>

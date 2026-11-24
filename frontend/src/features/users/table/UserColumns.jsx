@@ -19,7 +19,7 @@ const normalizeDocBadge = (rawValue) => {
   return val.toUpperCase();
 };
 
-function UserStatusCell({ user }) {
+function UserStatusCell({ user, canEdit = true }) {
   const realStatus = Boolean(user.isActive ?? user.is_active);
   const [checked, setChecked] = useState(realStatus);
 
@@ -45,13 +45,14 @@ function UserStatusCell({ user }) {
   return (
     <StatusSwitch
       checked={checked}
+      disabled={!canEdit}
       onChange={handleChange}
       itemName={`al usuario "${user.userName}"`}
     />
   );
 }
 
-export const UserColumns = [
+export const getUserColumns = ({ canView = true, canEdit = true } = {}) => [
   {
     accessorKey: "userName",
     header: "Nombre completo",
@@ -102,12 +103,21 @@ export const UserColumns = [
       <UserStatusCell
         key={`status-${row.original.id}`}
         user={row.original}
+        canEdit={canEdit}
       />
     ),
   },
   {
     id: "actions",
     header: "Acciones",
-    cell: ({ row }) => <UserRowActions user={row.original} />,
+    cell: ({ row }) => (
+      <UserRowActions
+        user={row.original}
+        canView={canView}
+        canEdit={canEdit}
+      />
+    ),
   },
 ];
+
+export const UserColumns = getUserColumns();

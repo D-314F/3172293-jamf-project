@@ -1,14 +1,19 @@
 import accessRepository from "./access.repository.js";
 
 const hasPermission = async (userId, permissionCode) => {
-    if (!userId || !permissionCode) {
-        throw new Error("userId y permissionCode son requeridos");
-    }
+  if (!userId || !permissionCode) {
+    throw new Error("userId y permissionCode son requeridos");
+  }
 
-    const superUser = await accessRepository.isSuperUser(userId);
-    if (superUser) return true;
-
-    return await accessRepository.userHasPermission(userId, permissionCode);
+  return await accessRepository.userHasPermission(userId, permissionCode);
 };
 
-export default { hasPermission };
+const getEffectivePermissions = async (userId) => {
+  if (!userId) {
+    throw new Error("userId es requerido");
+  }
+
+  return await accessRepository.getUserEffectivePermissions(userId);
+};
+
+export default { hasPermission, getEffectivePermissions };
