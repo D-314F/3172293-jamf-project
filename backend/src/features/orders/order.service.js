@@ -243,8 +243,29 @@ export const orderService = {
         try {
             await client.query("BEGIN");
 
+            const tableNum = Number(data.tableNumber);
+
+            // 🔒 VALIDACIÓN DE MESA OCUPADA: La mesa debe estar Pagada o Cancelada para recibir otra orden
+            const tableCheck = await client.query(
+                `SELECT id, order_status FROM public.orders
+                 WHERE table_number = $1
+                   AND is_active = TRUE
+                   AND LOWER(TRIM(order_status)) NOT IN ('pagada', 'cancelado', 'cancelada')
+                 LIMIT 1`,
+                [tableNum]
+            );
+
+            if (tableCheck.rows.length > 0) {
+                const occ = tableCheck.rows[0];
+                const err = new Error(
+                    `La Mesa #${tableNum} ya se encuentra ocupada por la orden #${occ.id} (${occ.order_status}). Debe quedar Pagada para poder crear una nueva orden en esta mesa.`
+                );
+                err.statusCode = 400;
+                throw err;
+            }
+
             const orderData = {
-                tableNumber: Number(data.tableNumber),
+                tableNumber: tableNum,
                 waiterId: data.waiterId,
                 dishId: data.dishId,
                 quantity: Number(data.quantity) || 1,
