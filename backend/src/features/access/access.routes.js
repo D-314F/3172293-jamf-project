@@ -4,6 +4,7 @@ import authenticateToken from "../../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
+router.get("/my-permissions", authenticateToken, accessController.getMyPermissions);
 router.get("/check/:permissionCode", authenticateToken, accessController.checkPermission);
 
 export default router;

@@ -4,7 +4,7 @@ import InventoryRowActions from "../components/InventoryRowActions";
 import { INVENTORY_STATUS_OPTIONS } from "../data/inventory";
 import { updateInventory } from "../services/inventoryServices";
 
-function InventoryStatusCell({ item }) {
+function InventoryStatusCell({ item, canEdit = true }) {
   const [currentStatus, setCurrentStatus] = useState(
     item.status || "Disponible"
   );
@@ -25,6 +25,7 @@ function InventoryStatusCell({ item }) {
       <Select
         value={currentStatus}
         options={INVENTORY_STATUS_OPTIONS}
+        disabled={!canEdit}
         onChange={handleStatusChange}
         confirmChange={true}
         hidePlaceholder={true}
@@ -35,7 +36,10 @@ function InventoryStatusCell({ item }) {
   );
 }
 
-export const inventoryColumns = [
+export const getInventoryColumns = ({
+  canView = true,
+  canEdit = true,
+} = {}) => [
   {
     accessorKey: "codigo",
     header: "Código",
@@ -62,9 +66,7 @@ export const inventoryColumns = [
     accessorKey: "quantity",
     header: "Stock actual",
     cell: ({ row }) => (
-      <span className="font-semibold">
-        {row.original.quantity ?? 0} uds.
-      </span>
+      <span className="font-semibold">{row.original.quantity ?? 0} uds.</span>
     ),
   },
   {
@@ -80,12 +82,21 @@ export const inventoryColumns = [
       <InventoryStatusCell
         key={`inv-status-${row.original.id}`}
         item={row.original}
+        canEdit={canEdit}
       />
     ),
   },
   {
     id: "actions",
     header: "Acciones",
-    cell: ({ row }) => <InventoryRowActions item={row.original} />,
+    cell: ({ row }) => (
+      <InventoryRowActions
+        item={row.original}
+        canView={canView}
+        canEdit={canEdit}
+      />
+    ),
   },
 ];
+
+export const inventoryColumns = getInventoryColumns();

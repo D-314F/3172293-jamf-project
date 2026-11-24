@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FileSpreadsheet,
@@ -10,7 +10,7 @@ import {
   ChefHat,
 } from "lucide-react";
 import { DataTable, Button } from "@/shared";
-import { OrderColumns } from "../table/OrderColumns";
+import { getOrderColumns } from "../table/OrderColumns";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
 import { getOrders } from "../services/orderServices";
 import { hasPermission } from "@/features/permissions/services/permissionServices";
@@ -33,18 +33,25 @@ export default function OrderListPage() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [canCreate, setCanCreate] = useState(false);
   const [canReport, setCanReport] = useState(false);
+  const [canView, setCanView] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const [data, createPerm, reportPerm] = await Promise.all([
-          getOrders(),
-          hasPermission("create_orders"),
-          hasPermission("report_orders"),
-        ]);
+        const [data, createPerm, reportPerm, viewPerm, editPerm] =
+          await Promise.all([
+            getOrders(),
+            hasPermission("create_orders"),
+            hasPermission("report_orders"),
+            hasPermission("view_orders"),
+            hasPermission("update_orders"),
+          ]);
         setOrders(data);
         setCanCreate(createPerm);
         setCanReport(reportPerm);
+        setCanView(viewPerm);
+        setCanEdit(editPerm);
       } catch (error) {
         console.error("Error al obtener las órdenes:", error);
       } finally {
@@ -54,6 +61,11 @@ export default function OrderListPage() {
 
     fetchOrders();
   }, []);
+
+  const columns = useMemo(
+    () => getOrderColumns({ canView, canEdit }),
+    [canView, canEdit]
+  );
 
   // Tomamos las órdenes completadas (Entregadas/Pagadas) o las 4 más recientes para los tickets inferiores
   const completedOrders = orders.filter((o) =>
@@ -106,7 +118,7 @@ export default function OrderListPage() {
             Cargando órdenes de la base de datos...
           </p>
         ) : (
-          <DataTable data={orders} columns={OrderColumns} />
+          <DataTable data={orders} columns={columns} />
         )}
       </div>
 

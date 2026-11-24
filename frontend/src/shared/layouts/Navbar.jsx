@@ -665,7 +665,7 @@ export default function Navbar() {
             {isHomeActive && (
               <span className="absolute top-0 inset-x-3 h-0.5 rounded-full bg-[var(--color-brand)] shadow-[0_0_8px_var(--color-brand)]" />
             )}
-            <Home className="w-5 h-5" />
+            <Home className="w-6 h-6" />
             <span className="text-caption font-semibold mt-1">Inicio</span>
           </Link>
 
@@ -681,7 +681,7 @@ export default function Navbar() {
             {isMenuActive && (
               <span className="absolute top-0 inset-x-3 h-0.5 rounded-full bg-[var(--color-brand)] shadow-[0_0_8px_var(--color-brand)]" />
             )}
-            <BookOpen className="w-5 h-5" />
+            <BookOpen className="w-6 h-6" />
             <span className="text-caption font-semibold mt-1">Menú</span>
           </Link>
 
@@ -698,7 +698,7 @@ export default function Navbar() {
               {isOrdersActive && (
                 <span className="absolute top-0 inset-x-3 h-0.5 rounded-full bg-[var(--color-brand)] shadow-[0_0_8px_var(--color-brand)]" />
               )}
-              <Logs className="w-5 h-5" />
+              <Logs className="w-6 h-6" />
               <span className="text-caption font-semibold mt-1">Órdenes</span>
             </Link>
           )}
@@ -717,7 +717,7 @@ export default function Navbar() {
               {(isMobileSheetOpen || isModuleRouteActive) && (
                 <span className="absolute top-0 inset-x-3 h-0.5 rounded-full bg-[var(--color-brand)] shadow-[0_0_8px_var(--color-brand)]" />
               )}
-              <LayoutGrid className="w-5 h-5" />
+              <LayoutGrid className="w-6 h-6" />
               <span className="text-caption font-semibold mt-1">Módulos</span>
             </button>
           )}
@@ -729,7 +729,7 @@ export default function Navbar() {
               onClick={handleLoginRedirect}
               className="relative flex flex-col items-center justify-center min-w-[48px] min-h-[48px] py-1.5 px-3 rounded-xl text-[var(--color-error)] hover:opacity-85 transition-all cursor-pointer"
             >
-              <LogOut className="w-5 h-5" />
+              <LogOut className="w-6 h-6" />
               <span className="text-caption font-semibold mt-1">Salir</span>
             </button>
           ) : (
@@ -737,7 +737,7 @@ export default function Navbar() {
               to="/login"
               className="relative flex flex-col items-center justify-center min-w-[48px] min-h-[48px] py-1.5 px-3 rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-brand)] transition-all"
             >
-              <LogIn className="w-5 h-5" />
+              <LogIn className="w-6 h-6" />
               <span className="text-caption font-semibold mt-1">Ingresar</span>
             </Link>
           )}

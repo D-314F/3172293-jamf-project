@@ -1,20 +1,20 @@
-// src/features/users/components/PublicRegisterForm.jsx
-import { useState, useEffect } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
-import { UserPlus, ArrowLeft, ShieldAlert } from "lucide-react";
-import { Input, Select, Button } from "@/shared";
-import { getDocumentTypes } from "@/services/selectService";
-import { userSchema } from "../schemas/userSchema";
-import {
+    // src/features/users/components/PublicRegisterForm.jsx
+    import { useState, useEffect } from "react";
+    import { Link, Navigate, useNavigate } from "react-router-dom";
+    import { UserPlus, ArrowLeft, ShieldAlert } from "lucide-react";
+    import { Input, Select, Checkbox, Button } from "@/shared";
+    import { getDocumentTypes } from "@/services/selectService";
+    import { userSchema } from "../schemas/userSchema";
+    import {
     showSuccessAlert,
     showUserErrorAlert,
-} from "@/shared/services/alertService";
-import { createUser } from "../services/userServices";
-import bf1 from "@/assets/images/bf-2.png";
-import logo from "@/assets/images/1-logo.png";
+    } from "@/shared/services/alertService";
+    import { createUser } from "../services/userServices";
+    import bf1 from "@/assets/images/bf-2.png";
+    import logo from "@/assets/images/1-logo.png";
 
-// Esquema exclusivo para registro inicial (sin campos administrativos)
-const publicRegisterSchema = userSchema.pick({
+    // Esquema exclusivo para registro inicial (sin campos administrativos)
+    const publicRegisterSchema = userSchema.pick({
     userDocumentTypes: true,
     userDocumentNumber: true,
     userName: true,
@@ -38,6 +38,7 @@ const publicRegisterSchema = userSchema.pick({
         userPhone: "",
         userAddress: "",
         userPassword: "",
+        acceptTerms: false,
     });
 
     useEffect(() => {
@@ -49,13 +50,30 @@ const publicRegisterSchema = userSchema.pick({
     }
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        const { name, value, type, checked } = e.target;
+        setFormData((prev) => ({
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+        }));
         setErrors((prev) => ({ ...prev, [name]: "" }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!formData.acceptTerms) {
+        setErrors((prev) => ({
+            ...prev,
+            acceptTerms:
+            "Debes autorizar el tratamiento de datos personales para continuar.",
+        }));
+
+        await showUserErrorAlert({
+            title: "Autorización requerida",
+            text: "Es obligatorio autorizar el tratamiento de datos personales (Acuerdo SENA 0013 de 2019) para crear tu cuenta.",
+        });
+        return;
+        }
 
         const result = publicRegisterSchema.safeParse(formData);
 
@@ -67,8 +85,8 @@ const publicRegisterSchema = userSchema.pick({
         setErrors(fieldErrors);
 
         await showUserErrorAlert({
-            title: "Revisa tus datos",
-            text: "Por favor completa correctamente todos los campos personales.",
+            title: "Campos inválidos",
+            text: "Por favor revisa los datos ingresados para crear tu cuenta.",
         });
         return;
         }
@@ -129,9 +147,9 @@ const publicRegisterSchema = userSchema.pick({
             </Button>
             </div>
 
-            {/* Card Principal Estilo POS Pione (Imágenes 1 y 2) */}
+            {/* Card Principal Estilo POS Pione */}
             <div className="rounded-3xl border border-[var(--color-brand)]/60 bg-[var(--color-background-inverse)] p-6 sm:p-10 shadow-2xl space-y-6">
-          {/* Encabezado con Logo en insignia dorada */}
+            {/* Encabezado con Logo en insignia dorada */}
             <div className="flex flex-col items-center text-center gap-2 border-b border-[var(--color-border)]/50 pb-4">
                 <div className="flex items-center justify-center rounded-2xl bg-[var(--color-brand)] px-4 py-2 shadow-md">
                 <img
@@ -154,7 +172,9 @@ const publicRegisterSchema = userSchema.pick({
                 <ShieldAlert className="w-4 h-4 text-[var(--color-brand)] shrink-0 mt-0.5" />
                 <span>
                 Tu cuenta se creará con estado inicial{" "}
-                <strong className="text-[var(--color-brand)]">Pendiente de rol</strong>{" "}
+                <strong className="text-[var(--color-brand)]">
+                    Pendiente de rol
+                </strong>{" "}
                 hasta que el administrador configure tu área de trabajo.
                 </span>
             </div>
@@ -244,6 +264,35 @@ const publicRegisterSchema = userSchema.pick({
                     error={errors.userPassword}
                     />
                 </div>
+                </div>
+
+                <div className="pt-1">
+                <Checkbox
+                    id="public-acceptTerms"
+                    name="acceptTerms"
+                    checked={formData.acceptTerms}
+                    onChange={handleChange}
+                    label={
+                    <>
+                        Autorizo el{" "}
+                        <a
+                        href="https://normograma.sena.edu.co/compilacion/docs/acuerdo_sena_0013_2019.htm"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-[var(--color-brand)] font-semibold underline hover:opacity-85"
+                        >
+                        tratamiento de datos personales (Acuerdo SENA 0013 de
+                        2019)
+                        </a>
+                    </>
+                    }
+                />
+                {errors.acceptTerms && (
+                    <p className="text-[var(--color-brand-soft)] text-small font-[var(--font-body)] mt-1">
+                    {errors.acceptTerms}
+                    </p>
+                )}
                 </div>
 
                 <Button

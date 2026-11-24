@@ -21,32 +21,21 @@ import {
 } from "@/shared/services/alertService";
 import { createOrder, getOrders } from "../services/orderServices";
 import { getUsers } from "@/features/users/services/userServices";
+import { getProfile } from "@/features/auth/services/authService";
 import { getDishes } from "@/features/dishes/services/dishServices";
+import { getDishCategories } from "@/services/selectService";
 import {
   resolveDishImage,
   normalizeCategoryLabel,
 } from "@/features/dishes/utils/dishImages";
 
-const CATEGORIES = [
-  "Todo el Menú",
-  "Entradas",
-  "Platos Fuertes",
-  "Ensaladas",
-  "Postres",
-  "Bebidas",
-];
-
 const TABLES = Array.from({ length: 12 }, (_, idx) => idx + 1);
-
-const FALLBACK_WAITERS = [
-  { value: "James Machado Hernández", label: "James Machado Hernández (Mesero)" },
-  { value: "María Rodríguez López", label: "María Rodríguez López (Mesero)" },
-];
 
 export default function OrderForm() {
   const navigate = useNavigate();
 
-  const [waiterOptions, setWaiterOptions] = useState(FALLBACK_WAITERS);
+  const [categories, setCategories] = useState(["Todo el Menú"]);
+  const [waiterOptions, setWaiterOptions] = useState([]);
   const [catalogDishes, setCatalogDishes] = useState([]);
   const [loadingCatalog, setLoadingCatalog] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -76,9 +65,19 @@ export default function OrderForm() {
       getUsers().catch(() => []),
       getDishes().catch(() => []),
       getOrders().catch(() => []),
+      getProfile().catch(() => null),
+      getDishCategories().catch(() => []),
     ])
-      .then(([usersList, dishesList, ordersList]) => {
+      .then(([usersList, dishesList, ordersList, profileData, dishCategoriesList]) => {
         if (!mounted) return;
+
+        // 0. Cargar categorías desde el catálogo JSON centralizado
+        if (Array.isArray(dishCategoriesList) && dishCategoriesList.length > 0) {
+          setCategories([
+            "Todo el Menú",
+            ...dishCategoriesList.map((c) => c.label),
+          ]);
+        }
 
         // 1. Filtrar mesas ocupadas (activas y que no estén Pagadas ni Canceladas)
         if (Array.isArray(ordersList)) {
@@ -100,26 +99,49 @@ export default function OrderForm() {
           }
         }
 
-        // 2. Cargar meseros
+        // 2. Cargar meseros desde la base de datos y autoseleccionar al usuario que inició sesión (Obs 1.8 / 2.4)
+        const loggedUserName = String(profileData?.userName || "").trim();
+        const loggedUserRole = String(
+          profileData?.userType || profileData?.userRole || "Sesión actual"
+        ).trim();
+
+        let finalWaiters = [];
+
         if (Array.isArray(usersList) && usersList.length > 0) {
           const onlyWaiters = usersList.filter(
             (u) =>
               Boolean(u.isActive ?? u.is_active ?? true) &&
-              String(u.userRole || "").trim().toLowerCase() === "mesero"
+              ["mesero", "administrador", "cajero"].includes(
+                String(u.userRole || u.userType || "").trim().toLowerCase()
+              )
           );
 
-          const finalWaiters =
-            onlyWaiters.length > 0
-              ? onlyWaiters.map((u) => ({
-                  value: u.userName.trim(),
-                  label: `${u.userName.trim()} (Mesero)`,
-                }))
-              : FALLBACK_WAITERS;
+          if (onlyWaiters.length > 0) {
+            finalWaiters = onlyWaiters.map((u) => ({
+              value: u.userName.trim(),
+              label: `${u.userName.trim()} (${u.userRole || u.userType || "Mesero"})`,
+            }));
+          }
+        }
 
-          setWaiterOptions(finalWaiters);
-          setWaiterId(finalWaiters[0]?.value || "");
+        if (
+          loggedUserName &&
+          !finalWaiters.some((w) => w.value === loggedUserName)
+        ) {
+          finalWaiters = [
+            {
+              value: loggedUserName,
+              label: `${loggedUserName} (${loggedUserRole})`,
+            },
+            ...finalWaiters,
+          ];
+        }
+
+        setWaiterOptions(finalWaiters);
+        if (loggedUserName) {
+          setWaiterId(loggedUserName);
         } else {
-          setWaiterId(FALLBACK_WAITERS[0].value);
+          setWaiterId(finalWaiters[0]?.value || "");
         }
 
         // 3. Cargar platillos
@@ -487,7 +509,7 @@ export default function OrderForm() {
             </div>
 
             <div className="flex items-center gap-4 overflow-x-auto pb-1">
-              {CATEGORIES.map((category) => {
+              {categories.map((category) => {
                 const active = selectedCategory === category;
                 return (
                   <button
@@ -620,12 +642,12 @@ export default function OrderForm() {
             })}
           </div>
 
-          {/* Mesero Responsable (SOLO ROL MESERO) */}
+          {/* Mesero Responsable (Autoselecciona sesión actual + Flecha MD3) */}
           <div className="bg-[var(--color-surface-dark)] rounded-2xl p-3.5 border border-[var(--color-border)]/70 space-y-2.5">
             <div className="flex items-center justify-between text-medium gap-2">
               <span className="text-[var(--color-text-muted)] flex items-center gap-1.5 font-medium">
                 <UserCheck className="w-4 h-4 text-[var(--color-brand)]" />
-                Mesero responsable:
+                Mesero / Encargado:
               </span>
               <button
                 type="button"
@@ -636,18 +658,35 @@ export default function OrderForm() {
               </button>
             </div>
 
-            <select
-              value={waiterId}
-              onChange={(e) => setWaiterId(e.target.value)}
-              className="w-full min-h-[48px] bg-[var(--color-background-inverse)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl px-3 py-2.5 text-medium font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
-            >
-              <option value="">Selecciona el mesero...</option>
-              {waiterOptions.map((w) => (
-                <option key={w.value} value={w.value}>
-                  {w.label}
-                </option>
-              ))}
-            </select>
+            <div className="relative flex items-center">
+              <select
+                value={waiterId}
+                onChange={(e) => setWaiterId(e.target.value)}
+                className="w-full min-h-[48px] bg-[var(--color-background-inverse)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl pl-3.5 pr-10 py-2.5 text-medium font-medium appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
+              >
+                <option value="">Selecciona el mesero...</option>
+                {waiterOptions.map((w) => (
+                  <option key={w.value} value={w.value}>
+                    {w.label}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute right-3.5 flex items-center justify-center text-[var(--color-brand)]">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2.5}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+            </div>
           </div>
 
           {/* Lista de Platillos en el Carrito */}

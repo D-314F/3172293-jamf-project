@@ -39,7 +39,7 @@ export function formatProviderDocumentType(rawValue) {
   };
 }
 
-function ProviderStatusCell({ provider }) {
+function ProviderStatusCell({ provider, canEdit = true }) {
   const realStatus = Boolean(provider.isActive ?? provider.providerStatus);
   const [checked, setChecked] = useState(realStatus);
 
@@ -63,13 +63,17 @@ function ProviderStatusCell({ provider }) {
   return (
     <StatusSwitch
       checked={checked}
+      disabled={!canEdit}
       onChange={handleChange}
       itemName={`al proveedor "${provider.fullName}"`}
     />
   );
 }
 
-export const providerColumns = [
+export const getProviderColumns = ({
+  canView = true,
+  canEdit = true,
+} = {}) => [
   {
     accessorKey: "fullName",
     header: "Nombre / Razón social",
@@ -122,12 +126,21 @@ export const providerColumns = [
       <ProviderStatusCell
         key={`provider-status-${row.original.id}`}
         provider={row.original}
+        canEdit={canEdit}
       />
     ),
   },
   {
     id: "actions",
     header: "Acciones",
-    cell: ({ row }) => <ProviderRowActions provider={row.original} />,
+    cell: ({ row }) => (
+      <ProviderRowActions
+        provider={row.original}
+        canView={canView}
+        canEdit={canEdit}
+      />
+    ),
   },
 ];
+
+export const providerColumns = getProviderColumns();

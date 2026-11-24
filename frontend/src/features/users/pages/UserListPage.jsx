@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { FileSpreadsheet, UserPlus, Filter, RotateCcw } from "lucide-react";
 import { DataTable, Button } from "@/shared";
-import { UserColumns } from "../table/UserColumns";
+import { getUserColumns } from "../table/UserColumns";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
 import { getUsers } from "../services/userServices";
 import { hasPermission } from "@/features/permissions/services/permissionServices";
@@ -14,6 +14,8 @@ export default function UserListPage() {
   const [loading, setLoading] = useState(true);
   const [canCreate, setCanCreate] = useState(false);
   const [canReport, setCanReport] = useState(false);
+  const [canView, setCanView] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
 
   // Filtros requeridos por RFADMIN05 / RFADMIN06
   const [roleFilter, setRoleFilter] = useState("ALL");
@@ -22,14 +24,19 @@ export default function UserListPage() {
   useEffect(() => {
     const fetchUsersAndPerms = async () => {
       try {
-        const [data, createPerm, reportPerm] = await Promise.all([
-          getUsers(),
-          hasPermission("create_users"),
-          hasPermission("report_users"),
-        ]);
+        const [data, createPerm, reportPerm, viewPerm, editPerm] =
+          await Promise.all([
+            getUsers(),
+            hasPermission("create_users"),
+            hasPermission("report_users"),
+            hasPermission("view_users"),
+            hasPermission("update_users"),
+          ]);
         setUsers(Array.isArray(data) ? data : []);
         setCanCreate(createPerm);
         setCanReport(reportPerm);
+        setCanView(viewPerm);
+        setCanEdit(editPerm);
       } catch (error) {
         console.error("Error al obtener los usuarios:", error);
       } finally {
@@ -39,6 +46,11 @@ export default function UserListPage() {
 
     fetchUsersAndPerms();
   }, []);
+
+  const columns = useMemo(
+    () => getUserColumns({ canView, canEdit }),
+    [canView, canEdit]
+  );
 
   // Sincroniza en tiempo real cuando se cambia el switch de un usuario en la tabla
   useEffect(() => {
@@ -202,7 +214,7 @@ export default function UserListPage() {
             Cargando usuarios de la base de datos...
           </p>
         ) : (
-          <DataTable data={filteredAndSortedUsers} columns={UserColumns} />
+          <DataTable data={filteredAndSortedUsers} columns={columns} />
         )}
       </div>
 

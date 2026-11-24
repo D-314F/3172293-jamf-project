@@ -4,7 +4,7 @@ import OrderRowActions from "../components/OrderRowActions";
 import { ESTADOS_ORDEN } from "../data/ordersData";
 import { updateOrder } from "../services/orderServices";
 
-function OrderStatusCell({ order }) {
+function OrderStatusCell({ order, canEdit = true }) {
   const [status, setStatus] = useState(order.estado || "En preparación");
 
   useEffect(() => {
@@ -22,6 +22,7 @@ function OrderStatusCell({ order }) {
       <Select
         value={status}
         options={ESTADOS_ORDEN}
+        disabled={!canEdit}
         onChange={handleStatusChange}
         confirmChange={true}
         hidePlaceholder={true}
@@ -32,7 +33,7 @@ function OrderStatusCell({ order }) {
   );
 }
 
-export const OrderColumns = [
+export const getOrderColumns = ({ canView = true, canEdit = true } = {}) => [
   {
     accessorKey: "id",
     header: "ID",
@@ -69,12 +70,21 @@ export const OrderColumns = [
       <OrderStatusCell
         key={`order-status-${row.original.id}`}
         order={row.original}
+        canEdit={canEdit}
       />
     ),
   },
   {
     id: "actions",
     header: "Acciones",
-    cell: ({ row }) => <OrderRowActions order={row.original} />,
+    cell: ({ row }) => (
+      <OrderRowActions
+        order={row.original}
+        canView={canView}
+        canEdit={canEdit}
+      />
+    ),
   },
 ];
+
+export const OrderColumns = getOrderColumns();

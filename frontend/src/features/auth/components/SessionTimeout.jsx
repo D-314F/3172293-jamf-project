@@ -1,43 +1,35 @@
 import { useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import Swal from "sweetalert2";
 import { logout } from "../services/logoutService";
+import { showUserErrorAlert } from "@/shared/services/alertService";
 
 // RNF09: 10 minutos de inactividad (10 * 60 * 1000 = 600,000 ms)
 // TIP PARA SUSTENTACIÓN: Si el instructor pide verlo en vivo rápido, puedes cambiar el 10 por 0.25 (15 segundos)
 const INACTIVITY_LIMIT_MS = 10 * 60 * 1000;
 
 export default function SessionTimeout() {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const timerRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const timerRef = useRef(null);
 
-    useEffect(() => {
-        const handleInactivityLogout = async () => {
-        const token = sessionStorage.getItem("token");
-        if (!token) return;
+  useEffect(() => {
+    const handleInactivityLogout = async () => {
+      const token = sessionStorage.getItem("token");
+      if (!token) return;
 
-        // 1. Eliminamos el token de la sesión
-        logout();
+      // 1. Eliminamos el token de la sesión
+      logout();
 
-        // 2. Redirigimos al login reemplazando el historial para impedir volver atrás
-        navigate("/login", { replace: true });
+      // 2. Redirigimos al login reemplazando el historial para impedir volver atrás
+      navigate("/login", { replace: true });
 
-        // 3. Mostramos el aviso correspondiente de cierre por inactividad
-        await Swal.fire({
-            icon: "warning",
-            title: "Sesión cerrada por inactividad",
-            text: "Por tu seguridad, la sesión se cerró automáticamente tras 10 minutos sin actividad.",
-            confirmButtonText: "Iniciar sesión nuevamente",
-            customClass: {
-            popup: "rounded-2xl",
-            title: "!text-amber-600 font-bold",
-            confirmButton:
-                "!bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-lg font-medium",
-            },
-            buttonsStyling: false,
-        });
-        };
+      // 3. Mostramos el aviso correspondiente de cierre por inactividad con el tema del proyecto
+      await showUserErrorAlert({
+        title: "Sesión cerrada por inactividad",
+        text: "Por tu seguridad, la sesión se cerró automáticamente tras 10 minutos sin actividad.",
+        buttonText: "Iniciar sesión nuevamente",
+      });
+    };
 
         const resetTimer = () => {
         if (timerRef.current) {

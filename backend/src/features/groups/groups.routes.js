@@ -1,10 +1,11 @@
 import express from "express";
 import groupsController from "./groups.controller.js";
+import authenticateToken from "../../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-router.get("/", groupsController.getAllGroups);
-router.get("/:groupId/permissions", groupsController.getGroupPermissions);
-router.put("/:groupId/permissions", groupsController.updateGroupPermissions);
+router.get("/", authenticateToken, groupsController.getAllGroups);
+router.get("/:groupId/permissions", authenticateToken, groupsController.getGroupPermissions);
+router.put("/:groupId/permissions", authenticateToken, groupsController.updateGroupPermissions);
 
 export default router;

@@ -11,6 +11,7 @@ import {
 } from "@/shared/services/alertService";
 import {
   getAllPermissions,
+  getMyEffectivePermissions,
   getGroups,
   getGroupPermissions,
   updateGroupPermissions,
@@ -30,24 +31,39 @@ export default function PermissionForm() {
   const [groups, setGroups] = useState([]);
   const [users, setUsers] = useState([]);
   const [allPermissions, setAllPermissions] = useState([]);
+  const [actorPermissionIds, setActorPermissionIds] = useState(new Set());
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // 1. Cargar grupos, usuarios y catálogo de permisos desde PostgreSQL
+  // 1. Cargar grupos, usuarios, catálogo de permisos y permisos propios del administrador actual
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
         setLoading(true);
-        const [permsData, groupsData, usersData] = await Promise.all([
-          getAllPermissions(),
-          getGroups(),
-          getUsers(),
-        ]);
+        const [permsData, groupsData, usersData, myPermsData] =
+          await Promise.all([
+            getAllPermissions(),
+            getGroups(),
+            getUsers(),
+            getMyEffectivePermissions(),
+          ]);
 
-        setAllPermissions(Array.isArray(permsData) ? permsData : []);
+        const catalog = Array.isArray(permsData) ? permsData : [];
+        setAllPermissions(catalog);
         setGroups(Array.isArray(groupsData) ? groupsData : []);
         setUsers(Array.isArray(usersData) ? usersData : []);
+
+        // Regla 1.16: Permisos que posee actualmente el usuario que administra
+        if (Array.isArray(myPermsData) && myPermsData.length > 0) {
+          setActorPermissionIds(
+            new Set(myPermsData.map((p) => Number(p.permission_id)))
+          );
+        } else {
+          setActorPermissionIds(
+            new Set(catalog.map((p) => Number(p.permission_id)))
+          );
+        }
 
         // Seleccionar el primer grupo por defecto (ej. Administrador)
         if (Array.isArray(groupsData) && groupsData.length > 0) {
@@ -72,10 +88,10 @@ export default function PermissionForm() {
       try {
         if (formData.userGroup) {
           const groupPerms = await getGroupPermissions(formData.userGroup);
-          setSelectedIds(new Set(groupPerms.map((p) => p.permission_id)));
+          setSelectedIds(new Set(groupPerms.map((p) => Number(p.permission_id))));
         } else if (formData.individualUser) {
           const userPerms = await getUserPermissions(formData.individualUser);
-          setSelectedIds(new Set(userPerms.map((p) => p.permission_id)));
+          setSelectedIds(new Set(userPerms.map((p) => Number(p.permission_id))));
         } else {
           setSelectedIds(new Set());
         }
@@ -108,12 +124,18 @@ export default function PermissionForm() {
   };
 
   const handleCheckboxChange = (permissionId) => {
+    const numericId = Number(permissionId);
+    // Regla 1.16: No permitir asignar o modificar permisos que el administrador actual no posee
+    if (!actorPermissionIds.has(numericId)) {
+      return;
+    }
+
     setSelectedIds((prev) => {
       const updated = new Set(prev);
-      if (updated.has(permissionId)) {
-        updated.delete(permissionId);
+      if (updated.has(numericId)) {
+        updated.delete(numericId);
       } else {
-        updated.add(permissionId);
+        updated.add(numericId);
       }
       return updated;
     });
@@ -130,14 +152,23 @@ export default function PermissionForm() {
   ).map(([title, permissions]) => ({
     title,
     permissions,
-  }));  const allSelected =
-    allPermissions.length > 0 && selectedIds.size === allPermissions.length;
+  }));
+
+  const assignablePermissions = allPermissions.filter((p) =>
+    actorPermissionIds.has(Number(p.permission_id))
+  );
+
+  const allSelected =
+    assignablePermissions.length > 0 &&
+    assignablePermissions.every((p) =>
+      selectedIds.has(Number(p.permission_id))
+    );
 
   const handleToggleAllPermissions = async () => {
     const result = await showConfirmDeleteAlert({
       title: allSelected
         ? "¿Desmarcar todos los permisos?"
-        : "¿Activar todos los permisos?",
+        : "¿Activar todos los permisos disponibles?",
       text: "Recuerda que para aplicar estos cambios debes darle al botón 'Guardar permisos'.",
       confirmButtonText: allSelected ? "Sí, desmarcar" : "Sí, activar todos",
       cancelButtonText: "Cancelar",
@@ -145,13 +176,24 @@ export default function PermissionForm() {
 
     if (result.isConfirmed) {
       if (allSelected) {
-        setSelectedIds(new Set());
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          assignablePermissions.forEach((p) =>
+            next.delete(Number(p.permission_id))
+          );
+          return next;
+        });
       } else {
-        setSelectedIds(new Set(allPermissions.map((p) => p.permission_id)));
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          assignablePermissions.forEach((p) =>
+            next.add(Number(p.permission_id))
+          );
+          return next;
+        });
       }
     }
   };
-  
 
   const handleCancel = async () => {
     const result = await showCancelAlert({
@@ -175,6 +217,22 @@ export default function PermissionForm() {
       return;
     }
 
+    const targetLabel = formData.userGroup
+      ? `el grupo "${groups.find((g) => String(g.group_id) === String(formData.userGroup))?.group_name || "seleccionado"}"`
+      : `el usuario "${users.find((u) => String(u.id) === String(formData.individualUser))?.userName || "seleccionado"}"`;
+
+    // Confirmación obligatoria antes de guardar cambios de permisos (Obs 1.11 y 2.5)
+    const confirmSave = await showConfirmDeleteAlert({
+      title: "¿Guardar cambios de permisos?",
+      text: `Se actualizarán los permisos asignados para ${targetLabel}.`,
+      confirmButtonText: "Sí, guardar permisos",
+      cancelButtonText: "No, revisar",
+    });
+
+    if (!confirmSave.isConfirmed) {
+      return;
+    }
+
     try {
       setSaving(true);
       const permissionIds = Array.from(selectedIds);
@@ -195,7 +253,9 @@ export default function PermissionForm() {
       console.error("Error guardando permisos:", error);
       await showUserErrorAlert({
         title: "Error al guardar",
-        text: "No se pudieron guardar los permisos. Intenta nuevamente.",
+        text:
+          error.message ||
+          "No se pudieron guardar los permisos. Intenta nuevamente.",
       });
     } finally {
       setSaving(false);
@@ -259,6 +319,7 @@ export default function PermissionForm() {
                 title={group.title}
                 permissions={group.permissions}
                 selectedIds={selectedIds}
+                actorPermissionIds={actorPermissionIds}
                 onToggle={handleCheckboxChange}
               />
               {index < groupedPermissions.length - 1 && (
@@ -304,23 +365,38 @@ export default function PermissionForm() {
   );
 }
 
-function PermissionGroup({ title, permissions, selectedIds, onToggle }) {
+function PermissionGroup({
+  title,
+  permissions,
+  selectedIds,
+  actorPermissionIds,
+  onToggle,
+}) {
   return (
     <div>
       <h3 className="text-[var(--color-brand)] text-lg font-semibold font-[var(--font-heading)] mb-4">
         {title}
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {permissions.map((perm) => (
-          <Checkbox
-            key={perm.permission_id}
-            id={perm.permission_codename}
-            name={perm.permission_codename}
-            label={perm.permission_name}
-            checked={selectedIds.has(perm.permission_id)}
-            onChange={() => onToggle(perm.permission_id)}
-          />
-        ))}
+        {permissions.map((perm) => {
+          const permId = Number(perm.permission_id);
+          const canAssign = actorPermissionIds.has(permId);
+          return (
+            <Checkbox
+              key={perm.permission_id}
+              id={perm.permission_codename}
+              name={perm.permission_codename}
+              label={
+                canAssign
+                  ? perm.permission_name
+                  : `${perm.permission_name} (No disponible en tu rol)`
+              }
+              checked={selectedIds.has(permId)}
+              disabled={!canAssign}
+              onChange={() => onToggle(permId)}
+            />
+          );
+        })}
       </div>
     </div>
   );

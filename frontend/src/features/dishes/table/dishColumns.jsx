@@ -7,7 +7,7 @@ import {
   formatCopPrice,
 } from "../utils/dishImages";
 
-export const dishColumns = [
+export const getDishColumns = ({ canView = true, canEdit = true } = {}) => [
   {
     accessorKey: "thumbnail",
     header: "Imagen",
@@ -54,7 +54,10 @@ export const dishColumns = [
     header: "Stock",
     cell: ({ row }) => {
       const stock = Number(
-        row.original.effectiveStock ?? row.original.stock ?? row.original.dishStock ?? 0
+        row.original.effectiveStock ??
+          row.original.stock ??
+          row.original.dishStock ??
+          0
       );
       const isOut = stock <= 0;
       return (
@@ -84,6 +87,7 @@ export const dishColumns = [
       return (
         <StatusSwitch
           checked={Boolean(dish.isActive ?? dish.status === "Habilitado")}
+          disabled={!canEdit}
           onChange={handleChange}
           itemName={`el platillo "${dish.dishName}"`}
         />
@@ -93,6 +97,14 @@ export const dishColumns = [
   {
     id: "actions",
     header: "Acciones",
-    cell: ({ row }) => <DishRowActions dish={row.original} />,
+    cell: ({ row }) => (
+      <DishRowActions
+        dish={row.original}
+        canView={canView}
+        canEdit={canEdit}
+      />
+    ),
   },
 ];
+
+export const dishColumns = getDishColumns();

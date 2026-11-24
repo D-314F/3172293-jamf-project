@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { FileSpreadsheet, Plus } from "lucide-react";
 import { DataTable, Button } from "@/shared";
-import { dishColumns } from "../table/dishColumns";
+import { getDishColumns } from "../table/dishColumns";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
 import { getDishes } from "../services/dishServices";
 import { hasPermission } from "@/features/permissions/services/permissionServices";
@@ -13,18 +13,25 @@ export default function DishListPage() {
   const [loading, setLoading] = useState(true);
   const [canCreate, setCanCreate] = useState(false);
   const [canReport, setCanReport] = useState(false);
+  const [canView, setCanView] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
 
   useEffect(() => {
     const fetchDishes = async () => {
       try {
-        const [data, createPerm, reportPerm] = await Promise.all([
-          getDishes(),
-          hasPermission("create_dishes"),
-          hasPermission("report_dishes"),
-        ]);
+        const [data, createPerm, reportPerm, viewPerm, editPerm] =
+          await Promise.all([
+            getDishes(),
+            hasPermission("create_dishes"),
+            hasPermission("report_dishes"),
+            hasPermission("view_dishes"),
+            hasPermission("update_dishes"),
+          ]);
         setDishes(data);
         setCanCreate(createPerm);
         setCanReport(reportPerm);
+        setCanView(viewPerm);
+        setCanEdit(editPerm);
       } catch (error) {
         console.error("Error al obtener los platillos:", error);
       } finally {
@@ -34,6 +41,11 @@ export default function DishListPage() {
 
     fetchDishes();
   }, []);
+
+  const columns = useMemo(
+    () => getDishColumns({ canView, canEdit }),
+    [canView, canEdit]
+  );
 
   return (
     <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-10 space-y-6">
@@ -75,7 +87,7 @@ export default function DishListPage() {
             Cargando platillos de la base de datos...
           </p>
         ) : (
-          <DataTable data={dishes} columns={dishColumns} />
+          <DataTable data={dishes} columns={columns} />
         )}
       </div>
 
