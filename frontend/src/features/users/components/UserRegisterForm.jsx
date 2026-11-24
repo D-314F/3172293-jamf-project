@@ -40,6 +40,7 @@ export default function UserRegisterForm() {
     userEndDate: "",
     userImage: [],
     isActive: true,
+    acceptTerms: false, // 🔒 Checkbox obligatorio de datos personales
   });
 
   const [documentTypes, setDocumentTypes] = useState([]);
@@ -63,6 +64,9 @@ export default function UserRegisterForm() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleSaveGroup = () => {
@@ -93,6 +97,21 @@ export default function UserRegisterForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // 🔒 Validación obligatoria del Checkbox de tratamiento de datos personales
+    if (!formData.acceptTerms) {
+      setErrors((prev) => ({
+        ...prev,
+        acceptTerms:
+          "Debes autorizar el tratamiento de datos personales para continuar.",
+      }));
+
+      await showUserErrorAlert({
+        title: "Autorización requerida",
+        text: "Es obligatorio autorizar el tratamiento de datos personales para registrar al usuario.",
+      });
+      return;
+    }
+
     const result = userSchema.safeParse(formData);
 
     if (!result.success) {
@@ -112,7 +131,8 @@ export default function UserRegisterForm() {
     setErrors({});
 
     try {
-        await createUser({ ...result.data, userImage: formData.userImage });
+      const { acceptTerms, ...userDataToSend } = result.data;
+      await createUser({ ...userDataToSend, userImage: formData.userImage });
 
       await showSuccessAlert({
         title: "Usuario creado",
@@ -166,16 +186,16 @@ export default function UserRegisterForm() {
         </div>
       </div>
 
-      {/* Contenedor Principal M3 */}
-      <div className="rounded-3xl border border-[var(--color-brand)]/50 bg-[var(--color-background-inverse)] p-5 sm:p-8 shadow-2xl">
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Columna 1: Identidad y Rol */}
-            <div className="flex flex-col gap-4 p-5 rounded-2xl bg-[var(--color-surface-dark)] border border-[var(--color-border)]/60">
-              <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border)]/50">
+      {/* Contenedor Principal */}
+      <div className="bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)]/50 shadow-2xl p-6 sm:p-8 md:p-10">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            {/* Columna 1: Información Personal */}
+            <div className="flex flex-col gap-4 bg-[var(--color-surface-dark)]/50 p-6 rounded-2xl border border-[var(--color-border)]/60">
+              <div className="flex items-center gap-2 border-b border-[var(--color-border)]/50 pb-3">
                 <IdCard className="w-5 h-5 text-[var(--color-brand)]" />
                 <h2 className="text-subtitle font-[var(--font-heading)] text-[var(--color-text-inverse)]">
-                  Identidad y Cargo
+                  Identificación Personal
                 </h2>
               </div>
 
@@ -187,6 +207,7 @@ export default function UserRegisterForm() {
                 onChange={handleChange}
                 error={errors.userDocumentTypes}
               />
+
               <Input
                 label="Número de documento"
                 name="userDocumentNumber"
@@ -196,15 +217,58 @@ export default function UserRegisterForm() {
                 onChange={handleChange}
                 error={errors.userDocumentNumber}
               />
+
               <Input
                 label="Nombre completo"
                 name="userName"
                 type="text"
                 value={formData.userName}
-                placeholder="Nombre y apellidos"
+                placeholder="Ej: Laura Sofía Gómez"
                 onChange={handleChange}
                 error={errors.userName}
               />
+
+              <Input
+                label="Correo personal (Acceso)"
+                name="userEmail"
+                type="email"
+                value={formData.userEmail}
+                placeholder="laura@correo.com"
+                onChange={handleChange}
+                error={errors.userEmail}
+              />
+
+              <Input
+                label="Número telefónico"
+                name="userPhone"
+                type="tel"
+                value={formData.userPhone}
+                placeholder="10 dígitos"
+                maxLength={10}
+                onChange={handleChange}
+                error={errors.userPhone}
+              />
+
+              <Input
+                label="Dirección residencial"
+                name="userAddress"
+                type="text"
+                value={formData.userAddress}
+                placeholder="Calle 20 # 15-30"
+                onChange={handleChange}
+                error={errors.userAddress}
+              />
+            </div>
+
+            {/* Columna 2: Datos Laborales y Seguridad */}
+            <div className="flex flex-col gap-4 bg-[var(--color-surface-dark)]/50 p-6 rounded-2xl border border-[var(--color-border)]/60">
+              <div className="flex items-center gap-2 border-b border-[var(--color-border)]/50 pb-3">
+                <Briefcase className="w-5 h-5 text-[var(--color-brand)]" />
+                <h2 className="text-subtitle font-[var(--font-heading)] text-[var(--color-text-inverse)]">
+                  Laboral y Credenciales
+                </h2>
+              </div>
+
               <Select
                 label="Cargo / Tipo de usuario"
                 name="userType"
@@ -213,104 +277,67 @@ export default function UserRegisterForm() {
                 onChange={handleChange}
                 error={errors.userType}
               />
-              <Input
-                label="Contraseña inicial"
-                name="userPassword"
-                type="password"
-                value={formData.userPassword}
-                placeholder="Contraseña de acceso"
-                onChange={handleChange}
-                error={errors.userPassword}
-              />
-
-              <div className="pt-1">
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="md"
-                  className="w-full"
-                  onClick={() => {
-                    setTempGroup(formData.userGroup);
-                    setModalError("");
-                    setIsGroupModalOpen(true);
-                  }}
-                >
-                  <Shield className="w-4 h-4" />
-                  {formData.userGroup
-                    ? `Grupo: ${formData.userGroup}`
-                    : "Asignar grupo de permisos"}
-                </Button>
-              </div>
-            </div>
-
-            {/* Columna 2: Contacto y Contrato */}
-            <div className="flex flex-col gap-4 p-5 rounded-2xl bg-[var(--color-surface-dark)] border border-[var(--color-border)]/60">
-              <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border)]/50">
-                <Briefcase className="w-5 h-5 text-[var(--color-brand)]" />
-                <h2 className="text-subtitle font-[var(--font-heading)] text-[var(--color-text-inverse)]">
-                  Contacto y Contrato
-                </h2>
-              </div>
 
               <Input
                 label="Correo empresarial"
                 name="userBusinessEmail"
                 type="email"
                 value={formData.userBusinessEmail}
-                placeholder="empleado@jamf.com.co"
+                placeholder="laura.gomez@jamf.com"
                 onChange={handleChange}
                 error={errors.userBusinessEmail}
               />
+
               <Input
-                label="Correo personal (Login)"
-                name="userEmail"
-                type="email"
-                value={formData.userEmail}
-                placeholder="correo@ejemplo.com"
+                label="Contraseña temporal"
+                name="userPassword"
+                type="password"
+                value={formData.userPassword}
+                placeholder="Mínimo 8 caracteres"
                 onChange={handleChange}
-                error={errors.userEmail}
+                error={errors.userPassword}
               />
+
               <Input
-                label="Número telefónico"
-                name="userPhone"
-                type="tel"
-                maxLength={10}
-                value={formData.userPhone}
-                placeholder="10 dígitos"
-                onChange={handleChange}
-                error={errors.userPhone}
-              />
-              <Input
-                label="Dirección residencial"
-                name="userAddress"
-                type="text"
-                value={formData.userAddress}
-                placeholder="Dirección completa"
-                onChange={handleChange}
-                error={errors.userAddress}
-              />
-              <Input
-                label="Fecha inicio laboral"
+                label="Fecha inicio de contrato"
                 name="userStartDate"
                 type="date"
                 value={formData.userStartDate}
                 onChange={handleChange}
                 error={errors.userStartDate}
               />
+
               <Input
-                label="Fecha fin laboral (Opcional)"
+                label="Fecha fin de contrato (Opcional)"
                 name="userEndDate"
                 type="date"
                 value={formData.userEndDate}
                 onChange={handleChange}
                 error={errors.userEndDate}
               />
+
+              <Button
+                type="button"
+                variant="primary"
+                size="md"
+                className="w-full mt-2"
+                onClick={() => {
+                  setTempGroup(formData.userGroup);
+                  setModalError("");
+                  setIsGroupModalOpen(true);
+                }}
+              >
+                <Shield className="w-4 h-4" />
+                {formData.userGroup
+                  ? `Grupo: ${formData.userGroup}`
+                  : "Asignar grupo / permisos"}
+              </Button>
             </div>
 
-            {/* Columna 3: Foto, Estado y Envío */}
-            <div className="flex flex-col justify-between gap-6 p-5 rounded-2xl bg-[var(--color-surface-dark)] border border-[var(--color-border)]/60">
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border)]/50">
+            {/* Columna 3: Archivo, Estado y Checkbox de Datos Personales */}
+            <div className="flex flex-col justify-between gap-6 bg-[var(--color-surface-dark)]/50 p-6 rounded-2xl border border-[var(--color-border)]/60 h-full">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 border-b border-[var(--color-border)]/50 pb-3">
                   <ImageIcon className="w-5 h-5 text-[var(--color-brand)]" />
                   <h2 className="text-subtitle font-[var(--font-heading)] text-[var(--color-text-inverse)]">
                     Archivo y Estado
@@ -329,12 +356,13 @@ export default function UserRegisterForm() {
                     multiple={true}
                   />
                   {errors.userImage && (
-                    <span className="text-[var(--color-error)] text-small">
+                    <span className="text-[var(--color-brand-soft)] text-small">
                       {errors.userImage}
                     </span>
                   )}
                 </div>
 
+                {/* Checkbox Estado Activo */}
                 <div className="pt-2">
                   <Checkbox
                     id="isActive"
@@ -343,6 +371,22 @@ export default function UserRegisterForm() {
                     checked={formData.isActive}
                     onChange={handleChange}
                   />
+                </div>
+
+                {/* 🔒 NUEVO: Checkbox obligatorio de Datos Personales (MD3) */}
+                <div className="pt-1">
+                  <Checkbox
+                    id="acceptTerms"
+                    name="acceptTerms"
+                    label="Autorizo el tratamiento de datos personales"
+                    checked={formData.acceptTerms}
+                    onChange={handleChange}
+                  />
+                  {errors.acceptTerms && (
+                    <p className="text-[var(--color-brand-soft)] text-small font-[var(--font-body)] mt-1">
+                      {errors.acceptTerms}
+                    </p>
+                  )}
                 </div>
 
                 <Button

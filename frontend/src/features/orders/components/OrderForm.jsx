@@ -19,7 +19,7 @@ import {
   showUserErrorAlert,
   showCancelAlert,
 } from "@/shared/services/alertService";
-import { createOrder } from "../services/orderServices";
+import { createOrder, getOrders } from "../services/orderServices";
 import { getUsers } from "@/features/users/services/userServices";
 import { getDishes } from "@/features/dishes/services/dishServices";
 import {
@@ -51,6 +51,9 @@ export default function OrderForm() {
   const [loadingCatalog, setLoadingCatalog] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
+  // Lista de mesas que tienen comanda activa no pagada
+  const [occupiedTables, setOccupiedTables] = useState([]);
+
   // Estado del Terminal POS del Mesero
   const [selectedTable, setSelectedTable] = useState(1);
   const [showTablePicker, setShowTablePicker] = useState(true);
@@ -72,12 +75,33 @@ export default function OrderForm() {
     Promise.all([
       getUsers().catch(() => []),
       getDishes().catch(() => []),
+      getOrders().catch(() => []),
     ])
-      .then(([usersList, dishesList]) => {
+      .then(([usersList, dishesList, ordersList]) => {
         if (!mounted) return;
 
+        // 1. Filtrar mesas ocupadas (activas y que no estén Pagadas ni Canceladas)
+        if (Array.isArray(ordersList)) {
+          const occupied = ordersList
+            .filter((ord) => {
+              const status = String(ord.estado || ord.orderStatus || "").trim().toLowerCase();
+              const isActive = ord.isActive ?? ord.is_active ?? true;
+              return isActive && status !== "pagada" && status !== "cancelado" && status !== "cancelada";
+            })
+            .map((ord) => Number(ord.mesa ?? ord.tableNumber))
+            .filter(Boolean);
+
+          setOccupiedTables(occupied);
+
+          // Si la mesa actual (1) está ocupada, preseleccionar la primera mesa libre
+          const firstFree = TABLES.find((t) => !occupied.includes(t));
+          if (firstFree) {
+            setSelectedTable(firstFree);
+          }
+        }
+
+        // 2. Cargar meseros
         if (Array.isArray(usersList) && usersList.length > 0) {
-          // Filtra EXCLUSIVAMENTE usuarios activos con rol "Mesero"
           const onlyWaiters = usersList.filter(
             (u) =>
               Boolean(u.isActive ?? u.is_active ?? true) &&
@@ -98,6 +122,7 @@ export default function OrderForm() {
           setWaiterId(FALLBACK_WAITERS[0].value);
         }
 
+        // 3. Cargar platillos
         if (Array.isArray(dishesList) && dishesList.length > 0) {
           const activeDishes = dishesList
             .filter((d) => d.activo ?? d.isActive ?? true)
@@ -290,30 +315,39 @@ export default function OrderForm() {
       return;
     }
 
-    const formattedDishes = cart
-      .map((item) => `${item.quantity}x ${item.name}`)
-      .join(", ");
-
-    const itemNotes = cart
-      .filter((item) => item.note && item.note.trim() !== "")
-      .map((item) => `${item.name}: ${item.note.trim()}`)
-      .join(" | ");
-
-    const metadataPrefix = `[${serviceType} | Total: $${subtotalAmount.toLocaleString(
-      "es-CO"
-    )}]`;
-
-    const combinedObservations = [
-      metadataPrefix,
-      itemNotes,
-      generalNotes.trim(),
-    ]
-      .filter(Boolean)
-      .join(" — ");
+    // 🔒 Doble verificación de mesa ocupada antes de guardar
+    if (occupiedTables.includes(Number(selectedTable))) {
+      await showUserErrorAlert({
+        title: "Mesa Ocupada",
+        text: `La Mesa #${selectedTable} ya tiene una comanda activa y no puede recibir una nueva orden hasta que esté Pagada.`,
+      });
+      return;
+    }
 
     setSubmitting(true);
 
     try {
+      const formattedDishes = cart
+        .map((item) => `${item.quantity}x ${item.name}`)
+        .join(", ");
+
+      const itemNotes = cart
+        .filter((item) => item.note && item.note.trim() !== "")
+        .map((item) => `${item.name}: ${item.note.trim()}`)
+        .join(" | ");
+
+      const metadataPrefix = `[${serviceType} | Total: $${subtotalAmount.toLocaleString(
+        "es-CO"
+      )}]`;
+
+      const combinedObservations = [
+        metadataPrefix,
+        itemNotes,
+        generalNotes.trim(),
+      ]
+        .filter(Boolean)
+        .join(" — ");
+
       // Toda orden tomada por el mesero nace en estado "En preparación" para cocina
       await createOrder({
         tableNumber: Number(selectedTable),
@@ -405,15 +439,24 @@ export default function OrderForm() {
           <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-2">
             {TABLES.map((num) => {
               const isSelected = selectedTable === num;
+              const isOccupied = occupiedTables.includes(num);
+
               return (
                 <button
                   key={num}
                   type="button"
-                  onClick={() => setSelectedTable(num)}
-                  className={`min-h-[48px] h-12 rounded-2xl font-bold text-medium flex flex-col items-center justify-center border transition cursor-pointer ${
-                    isSelected
-                      ? "bg-[var(--color-brand)] text-[var(--color-text-primary)] border-[var(--color-brand)] shadow-lg scale-105"
-                      : "bg-[var(--color-surface-dark)] text-[var(--color-text-inverse)] border-[var(--color-border)] hover:border-[var(--color-brand)]/60"
+                  disabled={isOccupied}
+                  onClick={() => {
+                    if (isOccupied) return;
+                    setSelectedTable(num);
+                  }}
+                  title={isOccupied ? `Mesa #${num} ocupada hasta ser Pagada` : `Mesa #${num} disponible`}
+                  className={`min-h-[48px] h-12 rounded-2xl font-bold text-medium flex flex-col items-center justify-center border transition ${
+                    isOccupied
+                      ? "opacity-35 cursor-not-allowed bg-[var(--color-surface-dark)] text-[var(--color-text-muted)] border-[var(--color-border)]"
+                      : isSelected
+                      ? "bg-[var(--color-brand)] text-[var(--color-text-primary)] border-[var(--color-brand)] shadow-lg scale-105 cursor-pointer"
+                      : "bg-[var(--color-surface-dark)] text-[var(--color-text-inverse)] border-[var(--color-border)] hover:border-[var(--color-brand)]/60 cursor-pointer"
                   }`}
                 >
                   <span className="text-caption opacity-75 leading-none">
@@ -589,7 +632,7 @@ export default function OrderForm() {
                 onClick={() => setShowTablePicker(true)}
                 className="min-h-[48px] inline-flex items-center text-medium text-[var(--color-brand)] hover:underline font-semibold cursor-pointer"
               >
-                Mesa #{selectedTable} (Cambiar →)
+                Mesa #{selectedTable}
               </button>
             </div>
 
