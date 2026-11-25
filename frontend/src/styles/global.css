@@ -62,4 +62,19 @@
     input[type="search"]::-webkit-search-results-decoration {
         display: none;
     }
+
+    select.appearance-none {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: none;
+    }
+
+    select.appearance-none::-ms-expand {
+        display: none;
+    }
+
+    select.appearance-none::picker-icon {
+        display: none;
+    }
 }

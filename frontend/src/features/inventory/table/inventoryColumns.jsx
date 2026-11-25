@@ -1,40 +1,5 @@
-import { useState, useEffect } from "react";
-import { Select } from "@/shared";
+import InventoryStatusCell from "../components/InventoryStatusCell";
 import InventoryRowActions from "../components/InventoryRowActions";
-import { INVENTORY_STATUS_OPTIONS } from "../data/inventory";
-import { updateInventory } from "../services/inventoryServices";
-
-function InventoryStatusCell({ item, canEdit = true }) {
-  const [currentStatus, setCurrentStatus] = useState(
-    item.status || "Disponible"
-  );
-
-  useEffect(() => {
-    setCurrentStatus(item.status || "Disponible");
-  }, [item.id, item.status]);
-
-  const handleStatusChange = async (newStatus) => {
-    setCurrentStatus(newStatus);
-    item.status = newStatus;
-    item.isActive = newStatus === "Disponible";
-    await updateInventory(item.id, { status: newStatus });
-  };
-
-  return (
-    <div className="min-w-[140px]">
-      <Select
-        value={currentStatus}
-        options={INVENTORY_STATUS_OPTIONS}
-        disabled={!canEdit}
-        onChange={handleStatusChange}
-        confirmChange={true}
-        hidePlaceholder={true}
-        itemName={`"${item.name}"`}
-        className="bg-[var(--color-background)] text-[var(--color-text-primary)] min-h-[48px] text-medium font-medium border-[var(--color-brand)] cursor-pointer"
-      />
-    </div>
-  );
-}
 
 export const getInventoryColumns = ({
   canView = true,

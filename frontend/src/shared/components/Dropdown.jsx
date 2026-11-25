@@ -1,15 +1,14 @@
-// Reemplaza todo: frontend/src/shared/components/Dropdown.jsx
+// frontend/src/shared/components/Dropdown.jsx
 import {
-  createContext,
   useContext,
   useEffect,
   useRef,
   useState,
+  useCallback,
   cloneElement,
 } from "react";
 import { X } from "lucide-react";
-
-export const DropdownContext = createContext(null);
+import { DropdownContext } from "./dropdownContext";
 
 export function Dropdown({
   children,
@@ -21,13 +20,16 @@ export function Dropdown({
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : uncontrolledOpen;
 
-  const setOpen = (value) => {
-    if (isControlled) {
-      onOpenChange?.(value);
-    } else {
-      setUncontrolledOpen(value);
-    }
-  };
+  const setOpen = useCallback(
+    (value) => {
+      if (isControlled) {
+        onOpenChange?.(value);
+      } else {
+        setUncontrolledOpen(value);
+      }
+    },
+    [isControlled, onOpenChange]
+  );
 
   const containerRef = useRef(null);
 
@@ -40,7 +42,7 @@ export function Dropdown({
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [setOpen]);
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -49,7 +51,7 @@ export function Dropdown({
 
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
-  }, []);
+  }, [setOpen]);
 
   return (
     <DropdownContext.Provider value={{ open, setOpen }}>

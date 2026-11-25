@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Shield, UserCheck, Save, CheckSquare } from "lucide-react";
 import { Button } from "@/shared";
 import Select from "@/shared/components/Select";
 import Checkbox from "@/shared/components/Checkbox";
@@ -262,20 +263,31 @@ export default function PermissionForm() {
     }
   };
 
+  const selectedGroupObj = groups.find(
+    (g) => String(g.group_id) === String(formData.userGroup)
+  );
+  const selectedUserObj = users.find(
+    (u) => String(u.id) === String(formData.individualUser)
+  );
+
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col lg:flex-row items-start gap-8 w-full"
+      className="flex flex-col lg:flex-row items-start gap-6 lg:gap-8 w-full"
     >
       {/* Columna izquierda */}
       <div className="flex flex-col gap-6 w-full lg:w-[35%]">
-        <div className="bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl p-6 flex flex-col gap-6 shadow-md">
-          <div>
-            <h2 className="text-lg font-bold text-[var(--color-text-inverse)] font-[var(--font-heading)] mb-3">
-              Grupo de usuarios
-            </h2>
+        <div className="bg-[var(--color-background-inverse)] border border-[var(--color-brand)]/50 rounded-3xl p-6 sm:p-7 flex flex-col gap-6 shadow-2xl">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-[var(--color-border)]/50 pb-3">
+              <Shield className="w-5 h-5 text-[var(--color-brand)] shrink-0" />
+              <h2 className="text-subtitle font-[var(--font-heading)] text-[var(--color-text-inverse)]">
+                Grupo de usuarios
+              </h2>
+            </div>
             <Select
               label="Grupo usuario"
+              htmlFor="perm-userGroup"
               name="userGroup"
               value={formData.userGroup}
               onChange={handleSelectChange}
@@ -287,12 +299,16 @@ export default function PermissionForm() {
             />
           </div>
 
-          <div className="border-t border-[var(--color-brand)]/30 pt-4">
-            <h2 className="text-lg font-bold text-[var(--color-text-inverse)] font-[var(--font-heading)] mb-3">
-              Usuario individual
-            </h2>
+          <div className="border-t border-[var(--color-border)]/50 pt-5 space-y-4">
+            <div className="flex items-center gap-2 border-b border-[var(--color-border)]/50 pb-3">
+              <UserCheck className="w-5 h-5 text-[var(--color-brand)] shrink-0" />
+              <h2 className="text-subtitle font-[var(--font-heading)] text-[var(--color-text-inverse)]">
+                Usuario individual
+              </h2>
+            </div>
             <Select
               label="Usuario individual"
+              htmlFor="perm-individualUser"
               name="individualUser"
               value={formData.individualUser}
               onChange={handleSelectChange}
@@ -303,13 +319,29 @@ export default function PermissionForm() {
               }))}
             />
           </div>
+
+          {!loading && (selectedGroupObj || selectedUserObj) && (
+            <div className="rounded-2xl bg-[var(--color-surface-dark)] border border-[var(--color-brand)]/30 p-4 space-y-1">
+              <p className="text-caption uppercase tracking-wider font-[var(--font-heading)] text-[var(--color-brand)]">
+                Objetivo en edición
+              </p>
+              <p className="text-medium font-semibold text-[var(--color-text-inverse)]">
+                {selectedGroupObj
+                  ? `Rol / Grupo: ${selectedGroupObj.group_name}`
+                  : `Usuario: ${selectedUserObj.userName || selectedUserObj.userEmail}`}
+              </p>
+              <p className="text-caption text-[var(--color-text-muted)]">
+                {selectedIds.size} de {allPermissions.length} permisos marcados
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Columna derecha */}
-      <div className="flex-1 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl p-6 sm:p-8 shadow-lg space-y-8 text-[var(--color-text-inverse)] w-full">
+      <div className="flex-1 bg-[var(--color-background-inverse)] border border-[var(--color-brand)]/50 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-8 text-[var(--color-text-inverse)] w-full">
         {loading ? (
-          <p className="text-center py-8 opacity-80">
+          <p className="text-center text-body text-[var(--color-text-muted)] py-8">
             Cargando catálogo de permisos...
           </p>
         ) : (
@@ -323,22 +355,23 @@ export default function PermissionForm() {
                 onToggle={handleCheckboxChange}
               />
               {index < groupedPermissions.length - 1 && (
-                <div className="border-t border-[var(--color-brand)]/40 my-6" />
+                <div className="border-t border-[var(--color-border)]/50 my-6" />
               )}
             </div>
           ))
         )}
 
-        {/* Botones de Acción */}
-        <div className="pt-6 border-t border-[var(--color-brand)]/40 flex flex-col-reverse sm:flex-row justify-end gap-4">
+        {/* Botones de Acción MD3 */}
+        <div className="pt-6 border-t border-[var(--color-border)]/50 flex flex-col-reverse sm:flex-row justify-end gap-4">
           <Button
             type="button"
-            variant="secondary"
+            variant="outline"
             size="md"
             disabled={loading || saving}
             onClick={handleToggleAllPermissions}
-            className="w-full sm:w-44"
+            className="w-full sm:w-auto sm:min-w-[168px]"
           >
+            <CheckSquare className="w-4 h-4" />
             {allSelected ? "Desmarcar todos" : "Activar todos"}
           </Button>
           <Button
@@ -346,7 +379,7 @@ export default function PermissionForm() {
             variant="secondary"
             size="md"
             onClick={handleCancel}
-            className="w-full sm:w-40"
+            className="w-full sm:w-auto sm:min-w-[140px]"
           >
             Cancelar
           </Button>
@@ -355,8 +388,9 @@ export default function PermissionForm() {
             variant="primary"
             size="md"
             disabled={saving || loading}
-            className="w-full sm:w-48"
+            className="w-full sm:w-auto sm:min-w-[180px]"
           >
+            <Save className="w-4 h-4" />
             {saving ? "Guardando..." : "Guardar permisos"}
           </Button>
         </div>
@@ -374,10 +408,10 @@ function PermissionGroup({
 }) {
   return (
     <div>
-      <h3 className="text-[var(--color-brand)] text-lg font-semibold font-[var(--font-heading)] mb-4">
+      <h3 className="text-[var(--color-brand)] text-subtitle font-[var(--font-heading)] mb-4">
         {title}
       </h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         {permissions.map((perm) => {
           const permId = Number(perm.permission_id);
           const canAssign = actorPermissionIds.has(permId);

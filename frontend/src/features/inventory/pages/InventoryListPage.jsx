@@ -42,6 +42,28 @@ export default function InventoryListPage() {
     fetchInventory();
   }, []);
 
+  useEffect(() => {
+    const handleStatusUpdated = (event) => {
+      const { id, status, isActive } = event.detail;
+      setInventoryData((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, status, isActive } : item
+        )
+      );
+    };
+
+    window.addEventListener(
+      "jamf:inventory-status-updated",
+      handleStatusUpdated
+    );
+    return () => {
+      window.removeEventListener(
+        "jamf:inventory-status-updated",
+        handleStatusUpdated
+      );
+    };
+  }, []);
+
   const columns = useMemo(
     () => getInventoryColumns({ canView, canEdit }),
     [canView, canEdit]

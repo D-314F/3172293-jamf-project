@@ -662,7 +662,12 @@ export default function OrderForm() {
               <select
                 value={waiterId}
                 onChange={(e) => setWaiterId(e.target.value)}
-                className="w-full min-h-[48px] bg-[var(--color-background-inverse)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl pl-3.5 pr-10 py-2.5 text-medium font-medium appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
+                style={{
+                  WebkitAppearance: "none",
+                  MozAppearance: "none",
+                  appearance: "none",
+                }}
+                className="w-full min-h-[48px] bg-[var(--color-background-inverse)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl pl-3.5 pr-10 py-2.5 text-medium font-medium appearance-none whitespace-nowrap truncate cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
               >
                 <option value="">Selecciona el mesero...</option>
                 {waiterOptions.map((w) => (

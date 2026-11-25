@@ -14,6 +14,7 @@ export default function DataTable({ data, columns }) {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 5 });
   const [globalFilter, setGlobalFilter] = useState("");
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -59,12 +60,17 @@ export default function DataTable({ data, columns }) {
           <select
             value={table.getState().pagination.pageSize}
             onChange={(e) => table.setPageSize(Number(e.target.value))}
+            style={{
+              WebkitAppearance: "none",
+              MozAppearance: "none",
+              appearance: "none",
+            }}
             className="
               bg-[var(--color-surface-dark)]
               border border-[var(--color-border)]
               text-[var(--color-text-inverse)]
               rounded-xl pl-4 pr-10 h-12 min-h-[48px]
-              appearance-none
+              appearance-none whitespace-nowrap
               text-medium
               font-[var(--font-label)]
               cursor-pointer

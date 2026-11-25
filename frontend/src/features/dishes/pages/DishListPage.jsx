@@ -42,6 +42,31 @@ export default function DishListPage() {
     fetchDishes();
   }, []);
 
+  useEffect(() => {
+    const handleStatusUpdated = (event) => {
+      const { id, isActive } = event.detail;
+      setDishes((prev) =>
+        prev.map((d) =>
+          d.id === id
+            ? {
+                ...d,
+                isActive,
+                status: isActive ? "Habilitado" : "Deshabilitado",
+              }
+            : d
+        )
+      );
+    };
+
+    window.addEventListener("jamf:dish-status-updated", handleStatusUpdated);
+    return () => {
+      window.removeEventListener(
+        "jamf:dish-status-updated",
+        handleStatusUpdated
+      );
+    };
+  }, []);
+
   const columns = useMemo(
     () => getDishColumns({ canView, canEdit }),
     [canView, canEdit]

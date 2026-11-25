@@ -1,7 +1,5 @@
-import { useState, useEffect } from "react";
-import StatusSwitch from "@/shared/components/StatusSwitch";
+import ProviderStatusCell from "../components/ProviderStatusCell";
 import ProviderRowActions from "../components/ProviderRowActions";
-import { updateProvider } from "../services/providerServices";
 import { getProviderProductLabel } from "../data/providersValue";
 
 export function formatProviderDocumentType(rawValue) {
@@ -37,37 +35,6 @@ export function formatProviderDocumentType(rawValue) {
     short: normalized.slice(0, 3).toUpperCase() || "NIT",
     label: rawValue || "NIT Tributario",
   };
-}
-
-function ProviderStatusCell({ provider, canEdit = true }) {
-  const realStatus = Boolean(provider.isActive ?? provider.providerStatus);
-  const [checked, setChecked] = useState(realStatus);
-
-  useEffect(() => {
-    setChecked(Boolean(provider.isActive ?? provider.providerStatus));
-  }, [provider.id, provider.isActive, provider.providerStatus]);
-
-  const handleChange = async (value) => {
-    await updateProvider(provider.id, { isActive: value });
-    provider.isActive = value;
-    provider.providerStatus = value;
-    setChecked(value);
-
-    window.dispatchEvent(
-      new CustomEvent("jamf:provider-status-updated", {
-        detail: { id: provider.id, isActive: value },
-      })
-    );
-  };
-
-  return (
-    <StatusSwitch
-      checked={checked}
-      disabled={!canEdit}
-      onChange={handleChange}
-      itemName={`al proveedor "${provider.fullName}"`}
-    />
-  );
 }
 
 export const getProviderColumns = ({
