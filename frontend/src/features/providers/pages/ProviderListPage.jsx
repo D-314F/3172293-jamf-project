@@ -141,30 +141,54 @@ export default function ProviderListPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
-            <select
-              value={docTypeFilter}
-              onChange={(e) => setDocTypeFilter(e.target.value)}
-              aria-label="Filtrar por tipo de documento"
-              className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl px-3.5 py-2 text-medium font-[var(--font-label)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
-            >
-              <option value="ALL">Documento: Todos</option>
-              <option value="NIT">Documento: NIT</option>
-              <option value="CC">Documento: Cédula (CC)</option>
-              <option value="CE">Documento: Extranjería (CE)</option>
-              <option value="PEP">Documento: PEP</option>
-              <option value="PAS">Documento: Pasaporte</option>
-            </select>
+            <div className="relative flex items-center">
+              <select
+                value={docTypeFilter}
+                onChange={(e) => setDocTypeFilter(e.target.value)}
+                aria-label="Filtrar por tipo de documento"
+                style={{
+                  WebkitAppearance: "none",
+                  MozAppearance: "none",
+                  appearance: "none",
+                }}
+                className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl pl-3.5 pr-10 py-2 text-medium font-[var(--font-label)] appearance-none whitespace-nowrap cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
+              >
+                <option value="ALL">Documento: Todos</option>
+                <option value="NIT">Documento: NIT</option>
+                <option value="CC">Documento: Cédula (CC)</option>
+                <option value="CE">Documento: Extranjería (CE)</option>
+                <option value="PEP">Documento: PEP</option>
+                <option value="PAS">Documento: Pasaporte</option>
+              </select>
+              <div className="absolute right-4 pointer-events-none text-[var(--color-text-inverse)] flex items-center justify-center opacity-70">
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 10l5 5 5-5z" />
+                </svg>
+              </div>
+            </div>
 
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              aria-label="Filtrar por estado"
-              className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl px-3.5 py-2 text-medium font-[var(--font-label)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
-            >
-              <option value="ALL">Estado: Todos</option>
-              <option value="ACTIVE">Estado: Activo</option>
-              <option value="INACTIVE">Estado: Inactivo</option>
-            </select>
+            <div className="relative flex items-center">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                aria-label="Filtrar por estado"
+                style={{
+                  WebkitAppearance: "none",
+                  MozAppearance: "none",
+                  appearance: "none",
+                }}
+                className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl pl-3.5 pr-10 py-2 text-medium font-[var(--font-label)] appearance-none whitespace-nowrap cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
+              >
+                <option value="ALL">Estado: Todos</option>
+                <option value="ACTIVE">Estado: Activo</option>
+                <option value="INACTIVE">Estado: Inactivo</option>
+              </select>
+              <div className="absolute right-4 pointer-events-none text-[var(--color-text-inverse)] flex items-center justify-center opacity-70">
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 10l5 5 5-5z" />
+                </svg>
+              </div>
+            </div>
 
             {hasActiveFilters && (
               <button

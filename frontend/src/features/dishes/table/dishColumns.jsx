@@ -1,6 +1,5 @@
-import StatusSwitch from "@/shared/components/StatusSwitch";
+import DishStatusCell from "@/features/dishes/components/DishStatusCell";
 import DishRowActions from "@/features/dishes/components/DishRowActions";
-import { updateDish } from "../services/dishServices";
 import {
   resolveDishImage,
   normalizeCategoryLabel,
@@ -76,23 +75,13 @@ export const getDishColumns = ({ canView = true, canEdit = true } = {}) => [
   {
     accessorKey: "isActive",
     header: "Estado",
-    cell: ({ row }) => {
-      const dish = row.original;
-
-      const handleChange = async (value) => {
-        await updateDish(dish.id, { isActive: value });
-        dish.isActive = value;
-      };
-
-      return (
-        <StatusSwitch
-          checked={Boolean(dish.isActive ?? dish.status === "Habilitado")}
-          disabled={!canEdit}
-          onChange={handleChange}
-          itemName={`el platillo "${dish.dishName}"`}
-        />
-      );
-    },
+    cell: ({ row }) => (
+      <DishStatusCell
+        key={`dish-status-${row.original.id}`}
+        dish={row.original}
+        canEdit={canEdit}
+      />
+    ),
   },
   {
     id: "actions",

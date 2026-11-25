@@ -53,9 +53,21 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme();
 
   const [profile, setProfile] = useState(null);
-  const [avatarError, setAvatarError] = useState(false);
+  const [failedAvatarUrl, setFailedAvatarUrl] = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
+  const [openSheetPath, setOpenSheetPath] = useState(null);
+
+  const isMobileSheetOpen = openSheetPath === location.pathname;
+  const setIsMobileSheetOpen = (valueOrUpdater) => {
+    setOpenSheetPath((prevPath) => {
+      const currentlyOpen = prevPath === location.pathname;
+      const nextOpen =
+        typeof valueOrUpdater === "function"
+          ? valueOrUpdater(currentlyOpen)
+          : valueOrUpdater;
+      return nextOpen ? location.pathname : null;
+    });
+  };
 
   const [allowedModules, setAllowedModules] = useState({
     users: false,
@@ -65,10 +77,6 @@ export default function Navbar() {
     inventory: false,
     permissions: false,
   });
-
-  useEffect(() => {
-    setIsMobileSheetOpen(false);
-  }, [location.pathname]);
 
   useEffect(() => {
     let isMounted = true;
@@ -209,11 +217,8 @@ export default function Navbar() {
     : "Perfil";
   const initials = getUserInitials(profile?.userName || "");
   const rawAvatarUrl = resolveMediaUrl(profile?.userAvatarUrl);
-  const avatarUrl = !avatarError ? rawAvatarUrl : null;
-
-  useEffect(() => {
-    setAvatarError(false);
-  }, [profile?.userAvatarUrl]);
+  const avatarUrl =
+    rawAvatarUrl && failedAvatarUrl !== rawAvatarUrl ? rawAvatarUrl : null;
 
   const adminModuleItems = [
     allowedModules.users && {
@@ -399,7 +404,7 @@ export default function Navbar() {
                           <img
                             src={avatarUrl}
                             alt={firstName}
-                            onError={() => setAvatarError(true)}
+                            onError={() => setFailedAvatarUrl(rawAvatarUrl)}
                             className="w-full h-full rounded-full object-cover"
                           />
                         ) : (
@@ -427,7 +432,7 @@ export default function Navbar() {
                               <img
                                 src={avatarUrl}
                                 alt={firstName}
-                                onError={() => setAvatarError(true)}
+                                onError={() => setFailedAvatarUrl(rawAvatarUrl)}
                                 className="w-full h-full rounded-full object-cover"
                               />
                             ) : (
@@ -460,7 +465,7 @@ export default function Navbar() {
                               <img
                                 src={avatarUrl}
                                 alt={firstName}
-                                onError={() => setAvatarError(true)}
+                                onError={() => setFailedAvatarUrl(rawAvatarUrl)}
                                 className="w-full h-full rounded-full object-cover"
                               />
                             ) : (

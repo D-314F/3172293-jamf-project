@@ -158,7 +158,12 @@ export default function UserListPage() {
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
                 aria-label="Filtrar por rol"
-                className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl pl-3.5 pr-10 py-2 text-medium font-[var(--font-label)] appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
+                style={{
+                  WebkitAppearance: "none",
+                  MozAppearance: "none",
+                  appearance: "none",
+                }}
+                className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl pl-3.5 pr-10 py-2 text-medium font-[var(--font-label)] appearance-none whitespace-nowrap cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
               >
                 <option value="ALL">Rol: Todos</option>
                 {availableRoles.map((role) => (
@@ -180,7 +185,12 @@ export default function UserListPage() {
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 aria-label="Filtrar por estado"
-                className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl pl-3.5 pr-10 py-2 text-medium font-[var(--font-label)] appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
+                style={{
+                  WebkitAppearance: "none",
+                  MozAppearance: "none",
+                  appearance: "none",
+                }}
+                className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl pl-3.5 pr-10 py-2 text-medium font-[var(--font-label)] appearance-none whitespace-nowrap cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
               >
                 <option value="ALL">Estado: Todos</option>
                 <option value="ACTIVE">Estado: Activo</option>

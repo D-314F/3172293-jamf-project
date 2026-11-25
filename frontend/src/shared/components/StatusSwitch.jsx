@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Check, X } from "lucide-react";
 import Swal from "sweetalert2";
 import {
@@ -15,11 +15,14 @@ export default function StatusSwitch({
   size = "md",
   itemName = "este registro",
 }) {
-  const [isActive, setIsActive] = useState(checked);
+  const propChecked = Boolean(checked);
+  const [optimistic, setOptimistic] = useState({
+    base: propChecked,
+    value: propChecked,
+  });
 
-  useEffect(() => {
-    setIsActive(checked);
-  }, [checked]);
+  const isActive =
+    optimistic.base === propChecked ? optimistic.value : propChecked;
 
   const handleToggle = async () => {
     if (disabled) return;
@@ -42,7 +45,7 @@ export default function StatusSwitch({
         if (onChange) {
           await onChange(newValue);
         }
-        setIsActive(newValue);
+        setOptimistic({ base: propChecked, value: newValue });
 
         await showSuccessAlert({
           title: actionTitle,
@@ -50,7 +53,7 @@ export default function StatusSwitch({
           timer: 1800,
         });
       } catch (err) {
-        setIsActive(previousValue);
+        setOptimistic({ base: propChecked, value: previousValue });
         await showUserErrorAlert({
           title: "No se pudo cambiar el estado",
           text: err?.message || "Ocurrió un error al actualizar el registro.",

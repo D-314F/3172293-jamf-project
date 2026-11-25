@@ -19,25 +19,32 @@ export default function PermissionPage() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-8 md:pt-10 pb-12 flex flex-col gap-6">
-      <div className="flex justify-start">
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={handleBack}
-          className="!w-auto flex items-center gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Atrás
-        </Button>
+    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-10 space-y-6">
+      {/* Cabecera MD3 */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="secondary"
+            size="sm"
+            type="button"
+            onClick={handleBack}
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Atrás
+          </Button>
+          <div>
+            <h1 className="text-main font-[var(--font-heading)] text-[var(--color-text-inverse)]">
+              Gestión de Permisos
+            </h1>
+            <p className="text-medium text-[var(--color-text-muted)]">
+              Configuración granular de acceso por rol o usuario individual
+            </p>
+          </div>
+        </div>
       </div>
-
-      <h1 className="text-xl sm:text-2xl font-bold text-[var(--color-text-inverse)] font-[var(--font-heading)]">
-        Gestión de permisos
-      </h1>
 
       {/* Formulario principal */}
       <PermissionForm />
-    </div>
+    </section>
   );
 }

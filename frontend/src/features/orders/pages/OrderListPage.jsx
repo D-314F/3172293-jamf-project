@@ -62,6 +62,23 @@ export default function OrderListPage() {
     fetchOrders();
   }, []);
 
+  useEffect(() => {
+    const handleStatusUpdated = (event) => {
+      const { id, estado } = event.detail;
+      setOrders((prev) =>
+        prev.map((o) => (o.id === id ? { ...o, estado } : o))
+      );
+    };
+
+    window.addEventListener("jamf:order-status-updated", handleStatusUpdated);
+    return () => {
+      window.removeEventListener(
+        "jamf:order-status-updated",
+        handleStatusUpdated
+      );
+    };
+  }, []);
+
   const columns = useMemo(
     () => getOrderColumns({ canView, canEdit }),
     [canView, canEdit]

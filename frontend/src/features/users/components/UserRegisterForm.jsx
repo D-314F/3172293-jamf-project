@@ -131,8 +131,7 @@ export default function UserRegisterForm() {
     setErrors({});
 
     try {
-      const { acceptTerms, ...userDataToSend } = result.data;
-      await createUser({ ...userDataToSend, userImage: formData.userImage });
+      await createUser({ ...result.data, userImage: formData.userImage });
 
       await showSuccessAlert({
         title: "Usuario creado",

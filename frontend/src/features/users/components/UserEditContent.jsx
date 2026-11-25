@@ -400,26 +400,38 @@ export default function UserEditContent({
             <p className="text-small text-[var(--color-text-muted)]">
               El Rol define los permisos del sistema; el Área / Turno organiza al personal por estación de trabajo:
             </p>
-            <select
-              value={tempGroup}
-              onChange={(e) => setTempGroup(e.target.value)}
-              className="w-full rounded-xl bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] px-4 py-3 text-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
-            >
-              <option value="">Sin área asignada</option>
-              <option value="Grupo Administración POS">
-                Grupo Administración POS
-              </option>
-              <option value="Grupo Caja y Facturación">
-                Grupo Caja y Facturación
-              </option>
-              <option value="Grupo Cocina y Menú">Grupo Cocina y Menú</option>
-              <option value="Grupo Servicio de Mesas">
-                Grupo Servicio de Mesas
-              </option>
-              <option value="Grupo Bodega e Inventario">
-                Grupo Bodega e Inventario
-              </option>
-            </select>
+            <div className="relative flex items-center">
+              <select
+                value={tempGroup}
+                onChange={(e) => setTempGroup(e.target.value)}
+                style={{
+                  WebkitAppearance: "none",
+                  MozAppearance: "none",
+                  appearance: "none",
+                }}
+                className="w-full min-h-[48px] rounded-xl bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] pl-4 pr-10 py-3 text-medium appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
+              >
+                <option value="">Sin área asignada</option>
+                <option value="Grupo Administración POS">
+                  Grupo Administración POS
+                </option>
+                <option value="Grupo Caja y Facturación">
+                  Grupo Caja y Facturación
+                </option>
+                <option value="Grupo Cocina y Menú">Grupo Cocina y Menú</option>
+                <option value="Grupo Servicio de Mesas">
+                  Grupo Servicio de Mesas
+                </option>
+                <option value="Grupo Bodega e Inventario">
+                  Grupo Bodega e Inventario
+                </option>
+              </select>
+              <div className="absolute right-4 pointer-events-none text-[var(--color-text-inverse)] flex items-center justify-center opacity-70">
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 10l5 5 5-5z" />
+                </svg>
+              </div>
+            </div>
             <div className="flex justify-end gap-3 pt-2">
               <Button
                 type="button"
