@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FileSpreadsheet, Plus, Filter, RotateCcw } from "lucide-react";
 import { DataTable, Button } from "@/shared";
 import {
-  providerColumns,
+  getProviderColumns,
   formatProviderDocumentType,
 } from "../table/providerColumns";
 import { getProviders } from "../services/providerServices";
@@ -16,6 +16,8 @@ export default function ProviderListPage() {
   const [loading, setLoading] = useState(true);
   const [canCreate, setCanCreate] = useState(false);
   const [canReport, setCanReport] = useState(false);
+  const [canView, setCanView] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
 
   const [docTypeFilter, setDocTypeFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -23,14 +25,19 @@ export default function ProviderListPage() {
   useEffect(() => {
     const fetchProviders = async () => {
       try {
-        const [data, createPerm, reportPerm] = await Promise.all([
-          getProviders(),
-          hasPermission("create_providers"),
-          hasPermission("report_providers"),
-        ]);
+        const [data, createPerm, reportPerm, viewPerm, editPerm] =
+          await Promise.all([
+            getProviders(),
+            hasPermission("create_providers"),
+            hasPermission("report_providers"),
+            hasPermission("view_providers"),
+            hasPermission("update_providers"),
+          ]);
         setProviders(Array.isArray(data) ? data : []);
         setCanCreate(createPerm);
         setCanReport(reportPerm);
+        setCanView(viewPerm);
+        setCanEdit(editPerm);
       } catch (error) {
         console.error("Error al obtener proveedores:", error);
       } finally {
@@ -40,6 +47,11 @@ export default function ProviderListPage() {
 
     fetchProviders();
   }, []);
+
+  const columns = useMemo(
+    () => getProviderColumns({ canView, canEdit }),
+    [canView, canEdit]
+  );
 
   useEffect(() => {
     const handleStatusUpdated = (event) => {
@@ -129,30 +141,54 @@ export default function ProviderListPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
-            <select
-              value={docTypeFilter}
-              onChange={(e) => setDocTypeFilter(e.target.value)}
-              aria-label="Filtrar por tipo de documento"
-              className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl px-3.5 py-2 text-medium font-[var(--font-label)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
-            >
-              <option value="ALL">Documento: Todos</option>
-              <option value="NIT">Documento: NIT</option>
-              <option value="CC">Documento: Cédula (CC)</option>
-              <option value="CE">Documento: Extranjería (CE)</option>
-              <option value="PEP">Documento: PEP</option>
-              <option value="PAS">Documento: Pasaporte</option>
-            </select>
+            <div className="relative flex items-center">
+              <select
+                value={docTypeFilter}
+                onChange={(e) => setDocTypeFilter(e.target.value)}
+                aria-label="Filtrar por tipo de documento"
+                style={{
+                  WebkitAppearance: "none",
+                  MozAppearance: "none",
+                  appearance: "none",
+                }}
+                className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl pl-3.5 pr-10 py-2 text-medium font-[var(--font-label)] appearance-none whitespace-nowrap cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
+              >
+                <option value="ALL">Documento: Todos</option>
+                <option value="NIT">Documento: NIT</option>
+                <option value="CC">Documento: Cédula (CC)</option>
+                <option value="CE">Documento: Extranjería (CE)</option>
+                <option value="PEP">Documento: PEP</option>
+                <option value="PAS">Documento: Pasaporte</option>
+              </select>
+              <div className="absolute right-4 pointer-events-none text-[var(--color-text-inverse)] flex items-center justify-center opacity-70">
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 10l5 5 5-5z" />
+                </svg>
+              </div>
+            </div>
 
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              aria-label="Filtrar por estado"
-              className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl px-3.5 py-2 text-medium font-[var(--font-label)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
-            >
-              <option value="ALL">Estado: Todos</option>
-              <option value="ACTIVE">Estado: Activo</option>
-              <option value="INACTIVE">Estado: Inactivo</option>
-            </select>
+            <div className="relative flex items-center">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                aria-label="Filtrar por estado"
+                style={{
+                  WebkitAppearance: "none",
+                  MozAppearance: "none",
+                  appearance: "none",
+                }}
+                className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl pl-3.5 pr-10 py-2 text-medium font-[var(--font-label)] appearance-none whitespace-nowrap cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
+              >
+                <option value="ALL">Estado: Todos</option>
+                <option value="ACTIVE">Estado: Activo</option>
+                <option value="INACTIVE">Estado: Inactivo</option>
+              </select>
+              <div className="absolute right-4 pointer-events-none text-[var(--color-text-inverse)] flex items-center justify-center opacity-70">
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 10l5 5 5-5z" />
+                </svg>
+              </div>
+            </div>
 
             {hasActiveFilters && (
               <button
@@ -177,7 +213,7 @@ export default function ProviderListPage() {
         ) : (
           <DataTable
             data={filteredAndSortedProviders}
-            columns={providerColumns}
+            columns={columns}
           />
         )}
       </div>

@@ -1,7 +1,5 @@
-import { useState, useEffect } from "react";
-import StatusSwitch from "@/shared/components/StatusSwitch";
+import UserStatusCell from "@/features/users/components/UserStatusCell";
 import UserRowActions from "@/features/users/components/UserRowActions";
-import { updateUser } from "../services/userServices";
 
 const normalizeDocBadge = (rawValue) => {
   const val = String(rawValue || "cc")
@@ -19,39 +17,7 @@ const normalizeDocBadge = (rawValue) => {
   return val.toUpperCase();
 };
 
-function UserStatusCell({ user }) {
-  const realStatus = Boolean(user.isActive ?? user.is_active);
-  const [checked, setChecked] = useState(realStatus);
-
-  // Sincroniza el switch cada vez que cambia de fila o se filtra la tabla
-  useEffect(() => {
-    setChecked(Boolean(user.isActive ?? user.is_active));
-  }, [user.id, user.isActive, user.is_active]);
-
-  const handleChange = async (value) => {
-    await updateUser(user.id, { isActive: value });
-    user.isActive = value;
-    user.is_active = value;
-    setChecked(value);
-
-    // Notifica a UserListPage para que los filtros de Activo/Inactivo se actualicen al instante
-    window.dispatchEvent(
-      new CustomEvent("jamf:user-status-updated", {
-        detail: { id: user.id, isActive: value },
-      })
-    );
-  };
-
-  return (
-    <StatusSwitch
-      checked={checked}
-      onChange={handleChange}
-      itemName={`al usuario "${user.userName}"`}
-    />
-  );
-}
-
-export const UserColumns = [
+export const getUserColumns = ({ canView = true, canEdit = true } = {}) => [
   {
     accessorKey: "userName",
     header: "Nombre completo",
@@ -102,12 +68,21 @@ export const UserColumns = [
       <UserStatusCell
         key={`status-${row.original.id}`}
         user={row.original}
+        canEdit={canEdit}
       />
     ),
   },
   {
     id: "actions",
     header: "Acciones",
-    cell: ({ row }) => <UserRowActions user={row.original} />,
+    cell: ({ row }) => (
+      <UserRowActions
+        user={row.original}
+        canView={canView}
+        canEdit={canEdit}
+      />
+    ),
   },
 ];
+
+export const UserColumns = getUserColumns();

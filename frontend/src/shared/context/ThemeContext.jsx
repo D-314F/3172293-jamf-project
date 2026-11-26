@@ -1,8 +1,8 @@
 // Ruta: frontend/src/shared/context/ThemeContext.jsx
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { ThemeContext } from "./useTheme";
 
 const THEME_STORAGE_KEY = "jamf-theme";
-const ThemeContext = createContext(null);
 
 function getInitialTheme() {
   try {
@@ -45,12 +45,4 @@ export function ThemeProvider({ children }) {
       {children}
     </ThemeContext.Provider>
   );
-}
-
-export function useTheme() {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) {
-    throw new Error("useTheme debe usarse dentro de ThemeProvider");
-  }
-  return ctx;
 }

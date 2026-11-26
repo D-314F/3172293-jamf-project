@@ -1,1 +1,1 @@
-export { API_URL } from "./api";
+export { API_URL, SUPPORT_EMAIL } from "./api";

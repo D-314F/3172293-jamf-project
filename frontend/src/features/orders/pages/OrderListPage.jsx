@@ -51,13 +51,12 @@ export default function OrderListPage() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const [data, createPerm, reportPerm] =
-          await Promise.all([
-            getOrders(),
-            hasPermission("create_orders"),
-            hasPermission("report_orders"),
-          ]);
-        setOrders(data);
+        const [data, createPerm, reportPerm] = await Promise.all([
+          getOrders(),
+          hasPermission("create_orders"),
+          hasPermission("report_orders"),
+        ]);
+        setOrders(Array.isArray(data) ? data : []);
         setCanCreate(createPerm);
         setCanReport(reportPerm);
       } catch (error) {
@@ -148,7 +147,6 @@ export default function OrderListPage() {
 
       {/* Tabla Principal */}
       <div className="bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)]/50 shadow-2xl p-4 sm:p-6 md:p-8 overflow-hidden space-y-5">
-
         {/* Barra de filtro por fecha */}
         <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[var(--color-border)]/60">
           <div className="flex items-center gap-2 text-small font-[var(--font-label)] text-[var(--color-brand)]">

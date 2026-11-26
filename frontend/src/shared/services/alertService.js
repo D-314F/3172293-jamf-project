@@ -53,6 +53,7 @@ export function showCancelAlert({
   if (isFormExitQuestion) {
     return Swal.fire({
       icon: "warning",
+      iconColor: "var(--color-brand)",
       title,
       text,
       showCancelButton: true,
@@ -76,6 +77,7 @@ export function showCancelAlert({
 
   return Swal.fire({
     icon: "error",
+    iconColor: "var(--color-brand-soft)",
     title,
     text,
     confirmButtonText: confirmButtonText || "Aceptar",
@@ -106,6 +108,7 @@ export function showConfirmDeleteAlert({
     title,
     text,
     icon: "warning",
+    iconColor: "var(--color-brand)",
     showCancelButton: true,
     confirmButtonText,
     cancelButtonText,
@@ -133,6 +136,7 @@ export function showOpsAlert({
 } = {}) {
   return Swal.fire({
     icon: "error",
+    iconColor: "var(--color-brand-soft)",
     title,
     text,
     footer,
@@ -152,14 +156,16 @@ export function showOpsAlert({
 }
 
 export function showUserErrorAlert({
-  title = "Error al crear usuario",
-  text = "No se pudo registrar el usuario. Por favor, verifica que los campos estén correctos.",
+  title = "Error de validación",
+  text = "No se pudo completar la operación. Por favor verifica la información ingresada.",
+  confirmButtonText = "Intentar de nuevo",
 }) {
   return Swal.fire({
     icon: "error",
+    iconColor: "var(--color-brand-soft)",
     title,
     text,
-    confirmButtonText: "Intentar de nuevo",
+    confirmButtonText,
     ...getThemeConfig(),
     customClass: {
       popup:
@@ -168,6 +174,31 @@ export function showUserErrorAlert({
       htmlContainer: "!text-[var(--color-text-muted)]",
       confirmButton:
         "!bg-[var(--color-brand-soft)] !text-white px-4 py-2 rounded-lg font-medium transition",
+    },
+    buttonsStyling: false,
+  });
+}
+
+
+export function showInfoAlert({
+  title = "Información",
+  text = "",
+  confirmButtonText = "Entendido",
+} = {}) {
+  return Swal.fire({
+    icon: "info",
+    iconColor: "var(--color-brand)",
+    title,
+    text,
+    confirmButtonText,
+    ...getThemeConfig(),
+    customClass: {
+      popup:
+        "!bg-[var(--color-background-inverse)] !text-[var(--color-text-inverse)] rounded-2xl",
+      title: "!text-[var(--color-brand)] font-bold",
+      htmlContainer: "!text-[var(--color-text-muted)]",
+      confirmButton:
+        "!bg-[var(--color-brand)] !text-[var(--color-text-on-solid)] px-4 py-2 rounded-lg font-medium",
     },
     buttonsStyling: false,
   });

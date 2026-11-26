@@ -1,5 +1,5 @@
 // src/shared/components/Select.jsx
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Swal from "sweetalert2";
 import {
   showConfirmDeleteAlert,
@@ -21,11 +21,17 @@ export default function Select({
   itemName = "este registro",
   disabled = false,
 }) {
-  const [internalValue, setInternalValue] = useState(value ?? "");
+  const normalizedProp = value ?? "";
+  const [optimistic, setOptimistic] = useState({
+    base: normalizedProp,
+    value: normalizedProp,
+  });
 
-  useEffect(() => {
-    setInternalValue(value ?? "");
-  }, [value]);
+  const displayValue = confirmChange
+    ? optimistic.base === normalizedProp
+      ? optimistic.value
+      : normalizedProp
+    : normalizedProp;
 
   const handleSelectChange = async (e) => {
     if (!confirmChange) {
@@ -34,7 +40,7 @@ export default function Select({
     }
 
     const newValue = e.target.value;
-    if (newValue === internalValue) return;
+    if (newValue === displayValue) return;
 
     const result = await showConfirmDeleteAlert({
       title: "¿Estás seguro?",
@@ -44,7 +50,7 @@ export default function Select({
     });
 
     if (result.isConfirmed) {
-      setInternalValue(newValue);
+      setOptimistic({ base: normalizedProp, value: newValue });
       if (onChange) await onChange(newValue);
       await showSuccessAlert({
         title: "¡Estado actualizado!",
@@ -69,7 +75,7 @@ export default function Select({
         <label
           htmlFor={htmlFor}
           className={`
-            block text-medium mb-1
+            block text-caption mb-1
             font-[var(--font-label)]
             ${error ? "text-[var(--color-brand-soft)]" : "text-[var(--color-text-inverse)]"}
           `}
@@ -78,39 +84,58 @@ export default function Select({
         </label>
       )}
 
-      <select
-        name={name}
-        id={htmlFor}
-        disabled={disabled}
-        onChange={handleSelectChange}
-        value={confirmChange ? internalValue : value}
-        className={`
-          w-full min-h-[48px] h-12 rounded-xl border px-4
-          text-body
-          font-[var(--font-body)]
-          bg-[var(--color-background)]
-          text-[var(--color-text-primary)]
-          focus:outline-none focus:ring-2
-          focus:ring-[var(--color-focus-ring)]
-          focus:border-[var(--color-focus-border)]
-          disabled:opacity-60 disabled:cursor-not-allowed
-          cursor-pointer transition-all
-          ${error ? "border-[var(--color-brand-soft)]" : "border-[var(--color-border)]"}
-          ${className}
-        `}
-      >
-        {!hidePlaceholder && (
-          <option value="">Seleccione una opción</option>
-        )}
-        {options.map((opt, index) => {
-          const optValue = opt.value ?? opt.id ?? opt.label;
-          return (
-            <option key={`${optValue}-${index}`} value={optValue}>
-              {opt.label}
-            </option>
-          );
-        })}
-      </select>
+      <div className="relative w-full flex items-center">
+        <select
+          name={name}
+          id={htmlFor}
+          disabled={disabled}
+          onChange={handleSelectChange}
+          value={displayValue}
+          style={{
+            WebkitAppearance: "none",
+            MozAppearance: "none",
+            appearance: "none",
+          }}
+          className={`
+            w-full min-h-[48px] h-12 rounded-xl border pl-3.5 pr-9 py-2.5
+            appearance-none whitespace-nowrap truncate leading-normal
+            text-body
+            font-[var(--font-body)]
+            bg-[var(--color-background)]
+            text-[var(--color-text-primary)]
+            focus:outline-none focus:ring-2
+            focus:ring-[var(--color-focus-ring)]
+            focus:border-[var(--color-focus-border)]
+            disabled:opacity-60 disabled:cursor-not-allowed
+            cursor-pointer transition-all
+            ${error ? "border-[var(--color-brand-soft)]" : "border-[var(--color-border)]"}
+            ${className}
+          `}
+        >
+          {!hidePlaceholder && (
+            <option value="">Seleccione una opción</option>
+          )}
+          {options.map((opt, index) => {
+            const optValue = opt.value ?? opt.id ?? opt.label;
+            return (
+              <option key={`${optValue}-${index}`} value={optValue}>
+                {opt.label}
+              </option>
+            );
+          })}
+        </select>
+
+        {/* Flecha clásica estándar MD3 a 16px (right-4) del borde */}
+        <div className="absolute right-3.5 pointer-events-none text-[var(--color-text-primary)] flex items-center justify-center">
+          <svg
+            className="w-5 h-5 fill-current opacity-70"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path d="M7 10l5 5 5-5z" />
+          </svg>
+        </div>
+      </div>
 
       {error && (
         <p className="text-medium font-[var(--font-body)] text-[var(--color-brand-soft)] mt-1">

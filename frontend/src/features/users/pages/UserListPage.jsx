@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { FileSpreadsheet, UserPlus, Filter, RotateCcw } from "lucide-react";
 import { DataTable, Button } from "@/shared";
-import { UserColumns } from "../table/UserColumns";
+import { getUserColumns } from "../table/UserColumns";
 import ReportConfigModal from "../reports/components/ReportConfigModal";
 import { getUsers } from "../services/userServices";
 import { hasPermission } from "@/features/permissions/services/permissionServices";
@@ -14,6 +14,8 @@ export default function UserListPage() {
   const [loading, setLoading] = useState(true);
   const [canCreate, setCanCreate] = useState(false);
   const [canReport, setCanReport] = useState(false);
+  const [canView, setCanView] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
 
   // Filtros requeridos por RFADMIN05 / RFADMIN06
   const [roleFilter, setRoleFilter] = useState("ALL");
@@ -22,14 +24,19 @@ export default function UserListPage() {
   useEffect(() => {
     const fetchUsersAndPerms = async () => {
       try {
-        const [data, createPerm, reportPerm] = await Promise.all([
-          getUsers(),
-          hasPermission("create_users"),
-          hasPermission("report_users"),
-        ]);
+        const [data, createPerm, reportPerm, viewPerm, editPerm] =
+          await Promise.all([
+            getUsers(),
+            hasPermission("create_users"),
+            hasPermission("report_users"),
+            hasPermission("view_users"),
+            hasPermission("update_users"),
+          ]);
         setUsers(Array.isArray(data) ? data : []);
         setCanCreate(createPerm);
         setCanReport(reportPerm);
+        setCanView(viewPerm);
+        setCanEdit(editPerm);
       } catch (error) {
         console.error("Error al obtener los usuarios:", error);
       } finally {
@@ -39,6 +46,11 @@ export default function UserListPage() {
 
     fetchUsersAndPerms();
   }, []);
+
+  const columns = useMemo(
+    () => getUserColumns({ canView, canEdit }),
+    [canView, canEdit]
+  );
 
   // Sincroniza en tiempo real cuando se cambia el switch de un usuario en la tabla
   useEffect(() => {
@@ -140,32 +152,56 @@ export default function UserListPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {/* Filtro por Rol / Tipo de usuario */}
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              aria-label="Filtrar por rol"
-              className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl px-3.5 py-2 text-medium font-[var(--font-label)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
-            >
-              <option value="ALL">Rol: Todos</option>
-              {availableRoles.map((role) => (
-                <option key={role} value={role}>
-                  Rol: {role}
-                </option>
-              ))}
-            </select>
+            {/* Filtro por Rol con flecha a 16px */}
+            <div className="relative flex items-center">
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                aria-label="Filtrar por rol"
+                style={{
+                  WebkitAppearance: "none",
+                  MozAppearance: "none",
+                  appearance: "none",
+                }}
+                className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl pl-3.5 pr-10 py-2 text-medium font-[var(--font-label)] appearance-none whitespace-nowrap cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
+              >
+                <option value="ALL">Rol: Todos</option>
+                {availableRoles.map((role) => (
+                  <option key={role} value={role}>
+                    Rol: {role}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-4 pointer-events-none text-[var(--color-text-inverse)] flex items-center justify-center opacity-70">
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 10l5 5 5-5z" />
+                </svg>
+              </div>
+            </div>
 
-            {/* Filtro por Estado */}
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              aria-label="Filtrar por estado"
-              className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl px-3.5 py-2 text-medium font-[var(--font-label)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
-            >
-              <option value="ALL">Estado: Todos</option>
-              <option value="ACTIVE">Estado: Activo</option>
-              <option value="INACTIVE">Estado: Inactivo</option>
-            </select>
+            {/* Filtro por Estado con flecha a 16px */}
+            <div className="relative flex items-center">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                aria-label="Filtrar por estado"
+                style={{
+                  WebkitAppearance: "none",
+                  MozAppearance: "none",
+                  appearance: "none",
+                }}
+                className="min-h-[48px] bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl pl-3.5 pr-10 py-2 text-medium font-[var(--font-label)] appearance-none whitespace-nowrap cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
+              >
+                <option value="ALL">Estado: Todos</option>
+                <option value="ACTIVE">Estado: Activo</option>
+                <option value="INACTIVE">Estado: Inactivo</option>
+              </select>
+              <div className="absolute right-4 pointer-events-none text-[var(--color-text-inverse)] flex items-center justify-center opacity-70">
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 10l5 5 5-5z" />
+                </svg>
+              </div>
+            </div>
 
             {hasActiveFilters && (
               <button
@@ -188,7 +224,7 @@ export default function UserListPage() {
             Cargando usuarios de la base de datos...
           </p>
         ) : (
-          <DataTable data={filteredAndSortedUsers} columns={UserColumns} />
+          <DataTable data={filteredAndSortedUsers} columns={columns} />
         )}
       </div>
 
