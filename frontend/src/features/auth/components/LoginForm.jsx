@@ -6,7 +6,7 @@ import { Input, Button } from "@/shared";
 import { loginSchema } from "../schemas/loginSchema";
 import {
   showSuccessAlert,
-  //,
+  //showUserErrorAlert,
   showInfoAlert,
 } from "@/shared/services/alertService";
 import { SUPPORT_EMAIL } from "@/features/config";
@@ -271,6 +271,7 @@ export default function LoginForm() {
             type="email"
             size="lg"
             labelClassName="text-xs"
+            errorClassName="text-xs"
             value={formData.userEmail}
             placeholder="ejemplo@correo.com"
             onChange={handleChange}
@@ -285,6 +286,7 @@ export default function LoginForm() {
             type="password"
             size="lg"
             labelClassName="text-xs"
+            errorClassName="text-xs"
             value={formData.userPassword}
             placeholder="••••••••••"
             onChange={handleChange}

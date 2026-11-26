@@ -13,6 +13,7 @@ export default function Card({
   highlighted = false,
   surface = "inverse",
   imageHeightClass = "h-44",
+  compact = false,
   className = "",
   children,
 }) {
@@ -56,14 +57,24 @@ export default function Card({
           )}
 
           {categoryBadge && (
-            <span className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full text-small font-semibold bg-[var(--color-background-inverse)]/90 text-[var(--color-brand)] border border-[var(--color-brand)]/30 backdrop-blur-sm">
+            <span
+              className={`absolute ${
+                compact
+                  ? "top-1.5 left-1.5 px-2 py-0.5 text-caption"
+                  : "top-2.5 left-2.5 px-2.5 py-1 text-small"
+              } rounded-full font-semibold bg-[var(--color-background-inverse)]/90 text-[var(--color-brand)] border border-[var(--color-brand)]/30 backdrop-blur-sm`}
+            >
               {categoryBadge}
             </span>
           )}
 
           {statusBadge && (
             <span
-              className={`absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full text-small font-bold shadow ${
+              className={`absolute ${
+                compact
+                  ? "top-1.5 right-1.5 px-2 py-0.5 text-caption"
+                  : "top-2.5 right-2.5 px-2.5 py-1 text-small"
+              } rounded-full font-bold shadow ${
                 statusBadge.tone === "error"
                   ? "bg-[var(--color-error)] text-[var(--color-text-on-solid)]"
                   : statusBadge.tone === "brand"
@@ -77,12 +88,16 @@ export default function Card({
         </div>
 
         {/* Contenido */}
-        <div className="p-4 flex flex-col gap-2">
-          <h2 className="text-base font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)] line-clamp-1">
+        <div className={compact ? "p-2.5 flex flex-col gap-1" : "p-4 flex flex-col gap-2"}>
+          <h2
+            className={`${
+              compact ? "text-small sm:text-medium" : "text-base"
+            } font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)] line-clamp-1`}
+          >
             {resolvedTitle}
           </h2>
 
-          {resolvedDescription && (
+          {resolvedDescription && !compact && (
             <p className="text-medium font-[var(--font-body)] text-[var(--color-text-muted)] leading-relaxed line-clamp-2">
               {resolvedDescription}
             </p>
@@ -91,21 +106,29 @@ export default function Card({
       </div>
 
       {/* Pie de tarjeta / Acciones */}
-      <div className="px-4 pb-4 pt-3 border-t border-[var(--color-border)]/15 flex flex-col">
-        <div className="flex items-center justify-between gap-2">
+      <div
+        className={`${
+          compact ? "px-2.5 pb-2.5 pt-1.5" : "px-4 pb-4 pt-3"
+        } border-t border-[var(--color-border)]/15 flex flex-col`}
+      >
+        <div className="flex items-center justify-between gap-1.5">
           <div className="flex flex-col">
-            {!metaRight && (
+            {!metaRight && !compact && (
               <span className="text-medium text-[var(--color-text-muted)] font-[var(--font-label)]">
                 Precio
               </span>
             )}
-            <span className="text-base font-extrabold text-[var(--color-brand)]">
+            <span
+              className={`${
+                compact ? "text-medium sm:text-base" : "text-base"
+              } font-extrabold text-[var(--color-brand)]`}
+            >
               {resolvedPrice}
             </span>
           </div>
 
           {metaRight ? (
-            <span className="text-medium text-[var(--color-text-muted)]">
+            <span className={compact ? "text-caption text-[var(--color-text-muted)]" : "text-medium text-[var(--color-text-muted)]"}>
               {metaRight}
             </span>
           ) : (
@@ -117,7 +140,7 @@ export default function Card({
           )}
         </div>
 
-        {children && <div className="mt-6">{children}</div>}
+        {children && <div className={compact ? "mt-2" : "mt-6"}>{children}</div>}
       </div>
     </article>
   );

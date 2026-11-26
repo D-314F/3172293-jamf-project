@@ -131,8 +131,7 @@ export default function UserRegisterForm() {
     setErrors({});
 
     try {
-      const { acceptTerms, ...userDataToSend } = result.data;
-      await createUser({ ...userDataToSend, userImage: formData.userImage });
+      await createUser({ ...result.data, userImage: formData.userImage });
 
       await showSuccessAlert({
         title: "Usuario creado",
@@ -373,14 +372,27 @@ export default function UserRegisterForm() {
                   />
                 </div>
 
-                {/* 🔒 NUEVO: Checkbox obligatorio de Datos Personales (MD3) */}
+                {/* 🔒 Checkbox obligatorio de Datos Personales con enlace al Acuerdo SENA 0013 de 2019 */}
                 <div className="pt-1">
                   <Checkbox
                     id="acceptTerms"
                     name="acceptTerms"
-                    label="Autorizo el tratamiento de datos personales"
                     checked={formData.acceptTerms}
                     onChange={handleChange}
+                    label={
+                      <>
+                        Autorizo el{" "}
+                        <a
+                          href="https://normograma.sena.edu.co/compilacion/docs/acuerdo_sena_0013_2019.htm"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-[var(--color-brand)] font-semibold underline hover:opacity-85"
+                        >
+                          tratamiento de datos personales (Acuerdo SENA 0013 de 2019)
+                        </a>
+                      </>
+                    }
                   />
                   {errors.acceptTerms && (
                     <p className="text-[var(--color-brand-soft)] text-small font-[var(--font-body)] mt-1">

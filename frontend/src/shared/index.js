@@ -25,7 +25,8 @@ export { default as Modal } from "./components/Modal";
 export { default as ReportModal } from "./components/ReportModal";
 
 // Contextos y servicios compartidos
-export { ThemeProvider, useTheme } from "./context/ThemeContext";
+export { ThemeProvider } from "./context/ThemeContext";
+export { useTheme } from "./context/useTheme";
 export {
   BACKEND_ORIGIN,
   resolveMediaUrl,

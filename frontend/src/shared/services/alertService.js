@@ -157,7 +157,8 @@ export function showOpsAlert({
         "text-medium font-[var(--font-body)] text-[var(--color-text-muted)] mt-2",
       confirmButton:
         "bg-[var(--color-brand-soft)] text-[var(--color-text-on-solid)] hover:opacity-90 font-bold px-6 py-2.5 rounded-xl shadow transition cursor-pointer",
-      footer: "text-small text-[var(--color-text-muted)] border-t border-[var(--color-border)] pt-3",
+      footer:
+        "text-small text-[var(--color-text-muted)] border-t border-[var(--color-border)] pt-3",
     },
   });
 }
@@ -187,7 +188,8 @@ export function showUserErrorAlert({
     },
   });
 }
-  // 6. Alerta Informativa
+
+// 6. Alerta Informativa
 export function showInfoAlert({
   title = "Información",
   text = "",

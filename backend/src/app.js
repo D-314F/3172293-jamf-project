@@ -15,6 +15,7 @@ import permissionsRoutes from "./features/permissions/permissions.routes.js";
 import groupsRoutes from "./features/groups/groups.routes.js";
 import accessRoutes from "./features/access/access.routes.js";
 import uploadRoutes from "./features/uploads/upload.routes.js";
+import tablesRoutes from "./features/tables/tables.routes.js";
 
 // Instancia principal de Express
 const app = express();
@@ -60,6 +61,7 @@ app.use("/api/permissions", permissionsRoutes);
 app.use("/api/groups", groupsRoutes);
 app.use("/api/access", accessRoutes);
 app.use("/api/uploads", uploadRoutes);
+app.use("/api/tables", tablesRoutes);
 
 // Exportamos la app configurada
 export default app;

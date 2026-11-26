@@ -1,13 +1,12 @@
-import StatusSwitch from "@/shared/components/StatusSwitch";
+import DishStatusCell from "@/features/dishes/components/DishStatusCell";
 import DishRowActions from "@/features/dishes/components/DishRowActions";
-import { updateDish } from "../services/dishServices";
 import {
   resolveDishImage,
   normalizeCategoryLabel,
   formatCopPrice,
 } from "../utils/dishImages";
 
-export const dishColumns = [
+export const getDishColumns = ({ canView = true, canEdit = true } = {}) => [
   {
     accessorKey: "thumbnail",
     header: "Imagen",
@@ -54,7 +53,10 @@ export const dishColumns = [
     header: "Stock",
     cell: ({ row }) => {
       const stock = Number(
-        row.original.effectiveStock ?? row.original.stock ?? row.original.dishStock ?? 0
+        row.original.effectiveStock ??
+          row.original.stock ??
+          row.original.dishStock ??
+          0
       );
       const isOut = stock <= 0;
       return (
@@ -73,26 +75,25 @@ export const dishColumns = [
   {
     accessorKey: "isActive",
     header: "Estado",
-    cell: ({ row }) => {
-      const dish = row.original;
-
-      const handleChange = async (value) => {
-        await updateDish(dish.id, { isActive: value });
-        dish.isActive = value;
-      };
-
-      return (
-        <StatusSwitch
-          checked={Boolean(dish.isActive ?? dish.status === "Habilitado")}
-          onChange={handleChange}
-          itemName={`el platillo "${dish.dishName}"`}
-        />
-      );
-    },
+    cell: ({ row }) => (
+      <DishStatusCell
+        key={`dish-status-${row.original.id}`}
+        dish={row.original}
+        canEdit={canEdit}
+      />
+    ),
   },
   {
     id: "actions",
     header: "Acciones",
-    cell: ({ row }) => <DishRowActions dish={row.original} />,
+    cell: ({ row }) => (
+      <DishRowActions
+        dish={row.original}
+        canView={canView}
+        canEdit={canEdit}
+      />
+    ),
   },
 ];
+
+export const dishColumns = getDishColumns();
