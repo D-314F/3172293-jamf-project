@@ -23,6 +23,8 @@ import {
   showConfirmDeleteAlert,
 } from "@/shared/services/alertService";
 import { createOrder, getOrders } from "../services/orderServices";
+import { getFloorsAndTables } from "../services/tableServices";
+import TableFloorMap from "./TableFloorMap";
 import { getUsers } from "@/features/users/services/userServices";
 import { getProfile } from "@/features/auth/services/authService";
 import { getDishes } from "@/features/dishes/services/dishServices";
@@ -32,7 +34,25 @@ import {
   normalizeCategoryLabel,
 } from "@/features/dishes/utils/dishImages";
 
-const TABLES = Array.from({ length: 12 }, (_, idx) => idx + 1);
+const FALLBACK_FLOORS = [
+  { id: 1, floorNumber: 1, floorName: "Piso 1 - Salón Principal", prefix: "A" },
+  { id: 2, floorNumber: 2, floorName: "Piso 2 - Terraza Lounge", prefix: "B" },
+];
+
+const FALLBACK_TABLES = [
+  { id: 1, tableNumber: 1, tableCode: "A1", displayName: "A1", floorId: 1, capacity: 4, shape: "square", posX: 14, posY: 24 },
+  { id: 2, tableNumber: 2, tableCode: "A2", displayName: "A2", floorId: 1, capacity: 4, shape: "square", posX: 38, posY: 24 },
+  { id: 3, tableNumber: 3, tableCode: "A3", displayName: "A3", floorId: 1, capacity: 6, shape: "rect", posX: 62, posY: 24 },
+  { id: 4, tableNumber: 4, tableCode: "A4", displayName: "A4", floorId: 1, capacity: 2, shape: "round", posX: 86, posY: 24 },
+  { id: 5, tableNumber: 5, tableCode: "A5", displayName: "A5", floorId: 1, capacity: 4, shape: "square", posX: 14, posY: 72 },
+  { id: 6, tableNumber: 6, tableCode: "A6", displayName: "A6", floorId: 1, capacity: 4, shape: "square", posX: 38, posY: 72 },
+  { id: 7, tableNumber: 7, tableCode: "A7", displayName: "A7", floorId: 1, capacity: 6, shape: "rect", posX: 62, posY: 72 },
+  { id: 8, tableNumber: 8, tableCode: "A8", displayName: "A8", floorId: 1, capacity: 4, shape: "round", posX: 86, posY: 72 },
+  { id: 9, tableNumber: 9, tableCode: "B1", displayName: "B1", floorId: 2, capacity: 4, shape: "square", posX: 18, posY: 32 },
+  { id: 10, tableNumber: 10, tableCode: "B2", displayName: "B2", floorId: 2, capacity: 4, shape: "square", posX: 44, posY: 32 },
+  { id: 11, tableNumber: 11, tableCode: "B3", displayName: "B3", floorId: 2, capacity: 6, shape: "rect", posX: 72, posY: 32 },
+  { id: 12, tableNumber: 12, tableCode: "B4", displayName: "B4", floorId: 2, capacity: 2, shape: "round", posX: 44, posY: 74 },
+];
 
 export default function OrderForm() {
   const navigate = useNavigate();
@@ -43,8 +63,13 @@ export default function OrderForm() {
   const [loadingCatalog, setLoadingCatalog] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // Lista de mesas que tienen comanda activa no pagada
+  // Pisos y mesas dinámicas desde PostgreSQL (/api/tables)
+  const [floors, setFloors] = useState(FALLBACK_FLOORS);
+  const [restaurantTables, setRestaurantTables] = useState(FALLBACK_TABLES);
+
+  // Lista y mapa de mesas que tienen comanda activa no pagada
   const [occupiedTables, setOccupiedTables] = useState([]);
+  const [occupiedTablesMap, setOccupiedTablesMap] = useState({});
 
   // Estado del Terminal POS del Mesero
   const [selectedTable, setSelectedTable] = useState(1);
@@ -62,6 +87,22 @@ export default function OrderForm() {
   const [cart, setCart] = useState([]);
   const [editingNoteId, setEditingNoteId] = useState(null);
 
+  const selectedTableObj = useMemo(
+    () =>
+      restaurantTables.find(
+        (t) => Number(t.tableNumber) === Number(selectedTable)
+      ) || null,
+    [restaurantTables, selectedTable]
+  );
+
+  const selectedTableLabel = useMemo(
+    () =>
+      selectedTableObj
+        ? `${selectedTableObj.displayName || selectedTableObj.tableCode}`
+        : `#${selectedTable}`,
+    [selectedTableObj, selectedTable]
+  );
+
   useEffect(() => {
     let mounted = true;
 
@@ -71,8 +112,9 @@ export default function OrderForm() {
       getOrders().catch(() => []),
       getProfile().catch(() => null),
       getDishCategories().catch(() => []),
+      getFloorsAndTables().catch(() => null),
     ])
-      .then(([usersList, dishesList, ordersList, profileData, dishCategoriesList]) => {
+      .then(([usersList, dishesList, ordersList, profileData, dishCategoriesList, floorsAndTablesData]) => {
         if (!mounted) return;
 
         // 0. Cargar categorías desde el catálogo JSON centralizado
@@ -83,23 +125,57 @@ export default function OrderForm() {
           ]);
         }
 
+        // 0.5. Cargar pisos y mesas desde PostgreSQL
+        const activeFloors =
+          Array.isArray(floorsAndTablesData?.floors) &&
+          floorsAndTablesData.floors.length > 0
+            ? floorsAndTablesData.floors
+            : FALLBACK_FLOORS;
+        const activeTables =
+          Array.isArray(floorsAndTablesData?.tables) &&
+          floorsAndTablesData.tables.length > 0
+            ? floorsAndTablesData.tables
+            : FALLBACK_TABLES;
+
+        setFloors(activeFloors);
+        setRestaurantTables(activeTables);
+
         // 1. Filtrar mesas ocupadas (activas y que no estén Pagadas ni Canceladas)
         if (Array.isArray(ordersList)) {
-          const occupied = ordersList
-            .filter((ord) => {
-              const status = String(ord.estado || ord.orderStatus || "").trim().toLowerCase();
-              const isActive = ord.isActive ?? ord.is_active ?? true;
-              return isActive && status !== "pagada" && status !== "cancelado" && status !== "cancelada";
-            })
-            .map((ord) => Number(ord.mesa ?? ord.tableNumber))
-            .filter(Boolean);
+          const occMap = {};
+          const occupied = [];
+
+          ordersList.forEach((ord) => {
+            const status = String(ord.estado || ord.orderStatus || "")
+              .trim()
+              .toLowerCase();
+            const isActive = ord.isActive ?? ord.is_active ?? true;
+            if (
+              isActive &&
+              status !== "pagada" &&
+              status !== "cancelado" &&
+              status !== "cancelada"
+            ) {
+              const tNum = Number(ord.mesa ?? ord.tableNumber);
+              if (tNum) {
+                occupied.push(tNum);
+                occMap[tNum] = {
+                  id: ord.id,
+                  estado: ord.estado || ord.orderStatus || "En preparación",
+                };
+              }
+            }
+          });
 
           setOccupiedTables(occupied);
+          setOccupiedTablesMap(occMap);
 
           // Si la mesa actual (1) está ocupada, preseleccionar la primera mesa libre
-          const firstFree = TABLES.find((t) => !occupied.includes(t));
+          const firstFree = activeTables.find(
+            (t) => !occupied.includes(Number(t.tableNumber))
+          );
           if (firstFree) {
-            setSelectedTable(firstFree);
+            setSelectedTable(Number(firstFree.tableNumber));
           }
         }
 
@@ -359,7 +435,7 @@ export default function OrderForm() {
     if (occupiedTables.includes(Number(selectedTable))) {
       await showUserErrorAlert({
         title: "Mesa Ocupada",
-        text: `La Mesa #${selectedTable} ya tiene una comanda activa y no puede recibir una nueva orden hasta que esté Pagada.`,
+        text: `La Mesa ${selectedTableLabel} ya tiene una comanda activa y no puede recibir una nueva orden hasta que esté Pagada.`,
       });
       return;
     }
@@ -376,7 +452,7 @@ export default function OrderForm() {
         .map((item) => `${item.name}: ${item.note.trim()}`)
         .join(" | ");
 
-      const metadataPrefix = `[${serviceType} | Total: $${subtotalAmount.toLocaleString(
+      const metadataPrefix = `[${serviceType} | Mesa ${selectedTableLabel} | Total: $${subtotalAmount.toLocaleString(
         "es-CO"
       )}]`;
 
@@ -401,7 +477,7 @@ export default function OrderForm() {
 
       await showSuccessAlert({
         title: "¡Comanda en preparación!",
-        text: `Mesa #${selectedTable} enviada a cocina (${totalUnits} platillos). El cajero podrá cobrarla al finalizar el servicio.`,
+        text: `Mesa ${selectedTableLabel} enviada a cocina (${totalUnits} platillos). El cajero podrá cobrarla al finalizar el servicio.`,
         timer: 2200,
       });
 
@@ -459,54 +535,43 @@ export default function OrderForm() {
           className="inline-flex items-center gap-2 min-h-[48px] px-4 py-2.5 rounded-2xl bg-[var(--color-background-inverse)] border border-[var(--color-brand)] text-[var(--color-brand)] font-semibold text-medium shadow-lg hover:bg-[var(--color-brand)] hover:text-[var(--color-background-inverse)] transition cursor-pointer"
         >
           <LayoutGrid className="w-4 h-4" />
-          Mesa actual: #{selectedTable} (
-          {showTablePicker ? "Ocultar mesas" : "Cambiar mesa"})
+          Mesa actual: {selectedTableLabel} (
+          {showTablePicker ? "Ocultar mapa" : "Ver mapa de mesas"})
         </button>
       </div>
 
-      {/* Selector Visual de Mesas */}
+      {/* Mapa 2D Interactivo de Pisos y Mesas */}
       {showTablePicker && (
-        <div className="bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)]/60 p-4 sm:p-5 shadow-xl space-y-3">
-          <div className="flex items-center justify-between gap-4">
+        <div className="bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)]/60 p-3.5 sm:p-4 shadow-xl space-y-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-caption uppercase tracking-wider font-bold text-[var(--color-brand)] font-[var(--font-heading)]">
-              1. Selecciona la Mesa del Cliente
+              1. Mapa del Salón — Selecciona la Mesa ({selectedTableLabel})
             </span>
-            <span className="text-medium text-[var(--color-text-muted)]">
-              Toca el número de mesa para asignarla a la comanda
+            <span className="text-caption text-[var(--color-text-muted)]">
+              Toca una mesa libre para asignarla o usa el lápiz para editar el plano
             </span>
           </div>
 
-          <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-2">
-            {TABLES.map((num) => {
-              const isSelected = selectedTable === num;
-              const isOccupied = occupiedTables.includes(num);
-
-              return (
-                <button
-                  key={num}
-                  type="button"
-                  disabled={isOccupied}
-                  onClick={() => {
-                    if (isOccupied) return;
-                    setSelectedTable(num);
-                  }}
-                  title={isOccupied ? `Mesa #${num} ocupada hasta ser Pagada` : `Mesa #${num} disponible`}
-                  className={`min-h-[48px] h-12 rounded-2xl font-bold text-medium flex flex-col items-center justify-center border transition ${
-                    isOccupied
-                      ? "opacity-35 cursor-not-allowed bg-[var(--color-surface-dark)] text-[var(--color-text-muted)] border-[var(--color-border)]"
-                      : isSelected
-                      ? "bg-[var(--color-brand)] text-[var(--color-text-primary)] border-[var(--color-brand)] shadow-lg scale-105 cursor-pointer"
-                      : "bg-[var(--color-surface-dark)] text-[var(--color-text-inverse)] border-[var(--color-border)] hover:border-[var(--color-brand)]/60 cursor-pointer"
-                  }`}
-                >
-                  <span className="text-caption opacity-75 leading-none">
-                    Mesa
-                  </span>
-                  <span className="text-base leading-tight">{num}</span>
-                </button>
-              );
-            })}
-          </div>
+          <TableFloorMap
+            floors={floors}
+            tables={restaurantTables}
+            selectedTableNumber={selectedTable}
+            occupiedTables={occupiedTablesMap}
+            onSelectTable={(tbl, occInfo) => {
+              if (occInfo) {
+                showUserErrorAlert({
+                  title: `Mesa ${tbl.displayName || tbl.tableCode} Ocupada`,
+                  text: `Esta mesa ya tiene la orden activa #${occInfo.id} (${occInfo.estado}). Debe cobrarse en caja antes de asignarle un nuevo pedido.`,
+                });
+                return;
+              }
+              setSelectedTable(Number(tbl.tableNumber));
+            }}
+            onFloorsAndTablesChange={(nextFloors, nextTables) => {
+              setFloors(nextFloors);
+              setRestaurantTables(nextTables);
+            }}
+          />
         </div>
       )}
 
@@ -718,7 +783,7 @@ export default function OrderForm() {
                 onClick={() => setShowTablePicker((prev) => !prev)}
                 className="px-2.5 py-1 rounded-full text-caption font-bold bg-[var(--color-brand)]/15 text-[var(--color-brand)] border border-[var(--color-brand)]/40 hover:bg-[var(--color-brand)]/25 transition cursor-pointer shrink-0"
               >
-                Mesa #{selectedTable}
+                Mesa {selectedTableLabel}
               </button>
             </div>
 
@@ -775,7 +840,7 @@ export default function OrderForm() {
                   Aún no hay platillos en la comanda
                 </p>
                 <p className="text-medium text-[var(--color-text-muted)]">
-                  Toca cualquier platillo del catálogo izquierdo para agregarlo a la Mesa #{selectedTable}.
+                  Toca cualquier platillo del catálogo izquierdo para agregarlo a la Mesa {selectedTableLabel}.
                 </p>
               </div>
             ) : (
@@ -897,7 +962,7 @@ export default function OrderForm() {
             </div>
             <div className="pt-2 border-t border-[var(--color-border)] flex items-baseline justify-between">
               <span className="text-sm font-bold text-[var(--color-text-inverse)]">
-                {`Total Cuenta Mesa #${selectedTable}`}
+                {`Total Cuenta Mesa ${selectedTableLabel}`}
               </span>
               <span className="text-2xl font-extrabold font-[var(--font-heading)] text-[var(--color-brand)]">
                 {`$${subtotalAmount.toLocaleString("es-CO")}`}
