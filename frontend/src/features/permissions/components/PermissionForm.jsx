@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Shield, UserCheck, Save, CheckSquare } from "lucide-react";
 import { Button } from "@/shared";
@@ -55,7 +55,6 @@ export default function PermissionForm() {
         setGroups(Array.isArray(groupsData) ? groupsData : []);
         setUsers(Array.isArray(usersData) ? usersData : []);
 
-        // Regla 1.16: Permisos que posee actualmente el usuario que administra
         if (Array.isArray(myPermsData) && myPermsData.length > 0) {
           setActorPermissionIds(
             new Set(myPermsData.map((p) => Number(p.permission_id)))
@@ -66,7 +65,6 @@ export default function PermissionForm() {
           );
         }
 
-        // Seleccionar el primer grupo por defecto (ej. Administrador)
         if (Array.isArray(groupsData) && groupsData.length > 0) {
           setFormData((prev) => ({
             ...prev,
@@ -110,54 +108,81 @@ export default function PermissionForm() {
     if (name === "userGroup") {
       setFormData({
         userGroup: value,
-        individualUser: "", // Limpiar usuario individual al elegir un grupo
+        individualUser: "",
       });
       return;
     }
 
     if (name === "individualUser") {
       setFormData({
-        userGroup: "", // Limpiar grupo al elegir un usuario individual
+        userGroup: "",
         individualUser: value,
       });
       return;
     }
   };
 
+  const getListPermissionId = (codename) => {
+    const parts = codename.split("_");
+    if (parts.length < 2) return null;
+
+    const action = parts[0];
+    const module = parts.slice(1).join("_");
+
+    if (action === "list") return null;
+
+    const listPerm = allPermissions.find(
+      (p) => p.permission_codename === `list_${module}`
+    );
+    return listPerm ? Number(listPerm.permission_id) : null;
+  };
+
   const handleCheckboxChange = (permissionId) => {
     const numericId = Number(permissionId);
-    // Regla 1.16: No permitir asignar o modificar permisos que el administrador actual no posee
     if (!actorPermissionIds.has(numericId)) {
       return;
     }
 
     setSelectedIds((prev) => {
       const updated = new Set(prev);
+
       if (updated.has(numericId)) {
         updated.delete(numericId);
       } else {
         updated.add(numericId);
+
+        const perm = allPermissions.find((p) => Number(p.permission_id) === numericId);
+        if (perm) {
+          const listId = getListPermissionId(perm.permission_codename);
+          if (listId && actorPermissionIds.has(listId)) {
+            updated.add(listId);
+          }
+        }
       }
+
       return updated;
     });
   };
 
-  // Agrupar permisos dinámicamente por módulo (display_name de content_type)
-  const groupedPermissions = Object.entries(
-    allPermissions.reduce((acc, perm) => {
-      const moduleTitle = perm.display_name || `${perm.app_label}`;
-      if (!acc[moduleTitle]) acc[moduleTitle] = [];
-      acc[moduleTitle].push(perm);
-      return acc;
-    }, {})
-  ).map(([title, permissions]) => ({
-    title,
-    permissions,
-  }));
+  const groupedPermissions = useMemo(() => {
+    return Object.entries(
+      allPermissions.reduce((acc, perm) => {
+        const moduleTitle = perm.display_name || `${perm.app_label}`;
+        if (!acc[moduleTitle]) acc[moduleTitle] = [];
+        acc[moduleTitle].push(perm);
+        return acc;
+      }, {})
+    ).map(([title, permissions]) => ({
+      title,
+      permissions,
+    }));
+  }, [allPermissions]);
 
-  const assignablePermissions = allPermissions.filter((p) =>
-    actorPermissionIds.has(Number(p.permission_id))
-  );
+  const assignablePermissions = useMemo(() => {
+    return allPermissions.filter((p) =>
+      actorPermissionIds.has(Number(p.permission_id))
+    );
+  }, [allPermissions, actorPermissionIds]);
 
   const allSelected =
     assignablePermissions.length > 0 &&
@@ -222,7 +247,6 @@ export default function PermissionForm() {
       ? `el grupo "${groups.find((g) => String(g.group_id) === String(formData.userGroup))?.group_name || "seleccionado"}"`
       : `el usuario "${users.find((u) => String(u.id) === String(formData.individualUser))?.userName || "seleccionado"}"`;
 
-    // Confirmación obligatoria antes de guardar cambios de permisos (Obs 1.11 y 2.5)
     const confirmSave = await showConfirmDeleteAlert({
       title: "¿Guardar cambios de permisos?",
       text: `Se actualizarán los permisos asignados para ${targetLabel}.`,
