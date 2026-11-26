@@ -93,28 +93,59 @@ export default function PermissionForm() {
     if (name === "userGroup") {
       setFormData({
         userGroup: value,
-        individualUser: "", // Limpiar usuario individual al elegir un grupo
+        individualUser: "",
       });
       return;
     }
 
     if (name === "individualUser") {
       setFormData({
-        userGroup: "", // Limpiar grupo al elegir un usuario individual
+        userGroup: "",
         individualUser: value,
       });
       return;
     }
   };
 
+  // Dado un codename como "create_orders", extrae el módulo "orders"
+  // y retorna el permission_id del permiso "list_orders" si existe
+  const getListPermissionId = (codename) => {
+    const parts = codename.split("_");
+    if (parts.length < 2) return null;
+
+    const action = parts[0];
+    const module = parts.slice(1).join("_");
+
+    // Si ya es el permiso de listar, no hace falta buscar nada
+    if (action === "list") return null;
+
+    const listPerm = allPermissions.find(
+      (p) => p.permission_codename === `list_${module}`
+    );
+    return listPerm ? listPerm.permission_id : null;
+  };
+
   const handleCheckboxChange = (permissionId) => {
     setSelectedIds((prev) => {
       const updated = new Set(prev);
+
       if (updated.has(permissionId)) {
+        // Desmarcar normalmente
         updated.delete(permissionId);
       } else {
+        // Marcar el permiso seleccionado
         updated.add(permissionId);
+
+        // Activar automáticamente el permiso de LISTAR del mismo módulo (ej. list_orders)
+        const perm = allPermissions.find((p) => p.permission_id === permissionId);
+        if (perm) {
+          const listId = getListPermissionId(perm.permission_codename);
+          if (listId) {
+            updated.add(listId);
+          }
+        }
       }
+
       return updated;
     });
   };
@@ -130,7 +161,9 @@ export default function PermissionForm() {
   ).map(([title, permissions]) => ({
     title,
     permissions,
-  }));  const allSelected =
+  }));
+
+  const allSelected =
     allPermissions.length > 0 && selectedIds.size === allPermissions.length;
 
   const handleToggleAllPermissions = async () => {
@@ -151,7 +184,6 @@ export default function PermissionForm() {
       }
     }
   };
-  
 
   const handleCancel = async () => {
     const result = await showCancelAlert({
@@ -177,6 +209,7 @@ export default function PermissionForm() {
 
     try {
       setSaving(true);
+      // selectedIds ya incluye los list_X auto-activados → se envían y persisten en la BD
       const permissionIds = Array.from(selectedIds);
 
       if (formData.userGroup) {
