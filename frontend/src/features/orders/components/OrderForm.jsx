@@ -8,6 +8,8 @@ import {
   Trash2,
   Pencil,
   Utensils,
+  ShoppingBag,
+  Bike,
   UserCheck,
   ChefHat,
   LayoutGrid,
@@ -18,6 +20,7 @@ import {
   showSuccessAlert,
   showUserErrorAlert,
   showCancelAlert,
+  showConfirmDeleteAlert,
 } from "@/shared/services/alertService";
 import { createOrder, getOrders } from "../services/orderServices";
 import { getUsers } from "@/features/users/services/userServices";
@@ -50,9 +53,10 @@ export default function OrderForm() {
   const [waiterId, setWaiterId] = useState("");
   const [generalNotes, setGeneralNotes] = useState("");
 
-  // Filtros del catálogo visual
+  // Filtros del catálogo visual y densidad de tarjetas en Tablet (3 o 4 por fila)
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todo el Menú");
+  const [tabletCols, setTabletCols] = useState(3);
 
   // Carrito de comanda multi-platillo
   const [cart, setCart] = useState([]);
@@ -260,10 +264,28 @@ export default function OrderForm() {
     });
   };
 
-  const handleUpdateQty = (dishName, delta) => {
+  const handleRemoveItem = async (dishName) => {
+    const result = await showConfirmDeleteAlert({
+      title: "¿Quitar platillo de la comanda?",
+      text: `¿Estás seguro de eliminar "${dishName}" de la orden actual?`,
+      confirmButtonText: "Sí, quitar",
+      cancelButtonText: "No, conservar",
+    });
+
+    if (!result.isConfirmed) return;
+    setCart((prev) => prev.filter((item) => item.name !== dishName));
+  };
+
+  const handleUpdateQty = async (dishName, delta) => {
+    const currentQty = getCartQty(dishName);
+
+    if (delta < 0 && currentQty + delta <= 0) {
+      await handleRemoveItem(dishName);
+      return;
+    }
+
     if (delta > 0) {
       const catalogItem = catalogDishes.find((d) => d.name === dishName);
-      const currentQty = getCartQty(dishName);
       const maxStock = Number(catalogItem?.stock ?? 0);
       if (catalogItem && currentQty + delta > maxStock) {
         showUserErrorAlert({
@@ -283,10 +305,6 @@ export default function OrderForm() {
         )
         .filter((item) => item.quantity > 0)
     );
-  };
-
-  const handleRemoveItem = (dishName) => {
-    setCart((prev) => prev.filter((item) => item.name !== dishName));
   };
 
   const handleItemNoteChange = (dishName, note) => {
@@ -495,20 +513,50 @@ export default function OrderForm() {
       {/* Grid Principal POS */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* ==================== IZQUIERDA: CATÁLOGO DE PLATILLOS ==================== */}
-        <div className="lg:col-span-8 bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)]/50 p-4 sm:p-6 shadow-2xl space-y-5">
-          <div className="space-y-4">
-            <div className="relative w-full min-h-[60px] flex items-center">
-              <Search className="w-5 h-5 text-[var(--color-brand)] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar platillo, entrada, bebida o postre..."
-                className="w-full h-12 bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] placeholder:text-[var(--color-text-muted)] rounded-2xl pl-12 pr-4 text-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
-              />
+        <div className="lg:col-span-8 bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)]/50 p-3.5 sm:p-5 shadow-2xl space-y-4">
+          <div className="space-y-3">
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+              <div className="relative flex-1 min-w-[200px] min-h-[48px] flex items-center">
+                <Search className="w-5 h-5 text-[var(--color-brand)] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Buscar platillo, entrada, bebida o postre..."
+                  className="w-full h-12 bg-[var(--color-surface-dark)] border border-[var(--color-border)] text-[var(--color-text-inverse)] placeholder:text-[var(--color-text-muted)] rounded-2xl pl-11 pr-4 text-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
+                />
+              </div>
+
+              {/* Selector de densidad de Cards en Tablet (3 o 4 por fila) */}
+              <div
+                className="inline-flex items-center bg-[var(--color-surface-dark)] p-1 rounded-2xl border border-[var(--color-border)] shrink-0"
+                title="Elegir cantidad de tarjetas por fila en tablet"
+              >
+                <span className="px-2.5 text-caption text-[var(--color-text-muted)] hidden sm:inline-flex items-center gap-1">
+                  <LayoutGrid className="w-3.5 h-3.5 text-[var(--color-brand)]" />
+                  Vista:
+                </span>
+                {[3, 4].map((cols) => {
+                  const active = tabletCols === cols;
+                  return (
+                    <button
+                      key={cols}
+                      type="button"
+                      onClick={() => setTabletCols(cols)}
+                      className={`min-h-[40px] px-3 py-1.5 rounded-xl text-caption font-bold transition cursor-pointer ${
+                        active
+                          ? "bg-[var(--color-brand)] text-[var(--color-text-primary)] shadow"
+                          : "text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)]"
+                      }`}
+                    >
+                      {cols} cards
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            <div className="flex items-center gap-4 overflow-x-auto pb-1">
+            <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
               {categories.map((category) => {
                 const active = selectedCategory === category;
                 return (
@@ -516,7 +564,7 @@ export default function OrderForm() {
                     key={category}
                     type="button"
                     onClick={() => setSelectedCategory(category)}
-                    className={`min-h-[48px] px-4 py-2 rounded-full text-medium font-semibold whitespace-nowrap border transition cursor-pointer ${
+                    className={`min-h-[44px] px-3.5 py-1.5 rounded-full text-small sm:text-medium font-semibold whitespace-nowrap border transition cursor-pointer ${
                       active
                         ? "bg-[var(--color-brand)] text-[var(--color-text-primary)] border-[var(--color-brand)] shadow-md"
                         : "bg-[var(--color-surface-dark)] text-[var(--color-text-inverse)] border-[var(--color-border)] hover:border-[var(--color-brand)]/50"
@@ -538,21 +586,30 @@ export default function OrderForm() {
               No se encontraron platillos con ese filtro.
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2 max-h-[680px] overflow-y-auto pr-1">
+            <div
+              className={`grid grid-cols-2 ${
+                tabletCols === 4
+                  ? "sm:grid-cols-3 md:grid-cols-4"
+                  : "sm:grid-cols-3 md:grid-cols-3"
+              } gap-2.5 max-h-[680px] overflow-y-auto pr-1`}
+            >
               {filteredDishes.map((dish) => {
                 const qtyInCart = getCartQty(dish.name);
                 const statusBadge =
                   dish.stock <= 0
                     ? { label: "Agotado (0)", tone: "error" }
                     : qtyInCart > 0
-                    ? { label: `${qtyInCart}x en orden`, tone: "brand" }
+                    ? { label: `${qtyInCart}x`, tone: "brand" }
                     : { label: `Stock: ${dish.stock}`, tone: "neutral" };
 
                 return (
                   <Card
                     key={dish.id}
                     surface="dark"
-                    imageHeightClass="h-36"
+                    compact={true}
+                    imageHeightClass={
+                      tabletCols === 4 ? "h-20 sm:h-24" : "h-24 sm:h-28"
+                    }
                     highlighted={qtyInCart > 0}
                     title={dish.name}
                     imageUrl={dish.image}
@@ -565,33 +622,35 @@ export default function OrderForm() {
                       <button
                         type="button"
                         onClick={() => handleAddDish(dish)}
-                        className={`w-full min-h-[48px] rounded-xl border font-bold text-medium flex items-center justify-center gap-2 transition cursor-pointer ${
+                        className={`w-full min-h-[44px] px-2 rounded-xl border font-bold text-caption sm:text-small flex items-center justify-center gap-1.5 transition cursor-pointer ${
                           dish.stock <= 0
                             ? "bg-[var(--color-error)]/10 text-[var(--color-error)] border-[var(--color-error)]/40 hover:bg-[var(--color-error)]/20"
                             : "bg-[var(--color-brand)]/15 hover:bg-[var(--color-brand)] text-[var(--color-brand)] hover:text-[var(--color-text-primary)] border-[var(--color-brand)]/40"
                         }`}
                       >
-                        <Plus className="w-4 h-4" />
-                        {dish.stock <= 0 ? "Sin stock disponible" : "Agregar a la orden"}
+                        <Plus className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">
+                          {dish.stock <= 0 ? "Agotado" : "Agregar"}
+                        </span>
                       </button>
                     ) : (
-                      <div className="flex items-center justify-between gap-4 bg-[var(--color-background-inverse)] rounded-xl p-1 border border-[var(--color-brand)]/50">
+                      <div className="flex items-center justify-between gap-1 bg-[var(--color-background-inverse)] rounded-xl p-1 border border-[var(--color-brand)]/50">
                         <button
                           type="button"
                           onClick={() => handleUpdateQty(dish.name, -1)}
-                          className="min-w-[48px] min-h-[48px] rounded-lg bg-[var(--color-surface-dark)] hover:bg-[var(--color-error)]/20 text-[var(--color-text-inverse)] flex items-center justify-center transition cursor-pointer"
+                          className="min-w-[40px] min-h-[40px] rounded-lg bg-[var(--color-surface-dark)] hover:bg-[var(--color-error)]/20 text-[var(--color-text-inverse)] flex items-center justify-center transition cursor-pointer"
                         >
-                          <Minus className="w-4 h-4" />
+                          <Minus className="w-3.5 h-3.5" />
                         </button>
-                        <span className="font-bold text-body text-[var(--color-brand)]">
+                        <span className="font-bold text-medium text-[var(--color-brand)]">
                           {qtyInCart}
                         </span>
                         <button
                           type="button"
                           onClick={() => handleUpdateQty(dish.name, 1)}
-                          className="min-w-[48px] min-h-[48px] rounded-lg bg-[var(--color-brand)] text-[var(--color-text-primary)] flex items-center justify-center transition cursor-pointer"
+                          className="min-w-[40px] min-h-[40px] rounded-lg bg-[var(--color-brand)] text-[var(--color-text-primary)] flex items-center justify-center transition cursor-pointer"
                         >
-                          <Plus className="w-4 h-4" />
+                          <Plus className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     )}
@@ -605,91 +664,104 @@ export default function OrderForm() {
         {/* ==================== DERECHA: COMANDA ACTUAL (MESERO ➔ COCINA) ==================== */}
         <form
           onSubmit={handleConfirmOrder}
-          className="lg:col-span-4 bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)] p-5 sm:p-6 shadow-2xl flex flex-col gap-4 lg:sticky lg:top-6"
+          className="lg:col-span-4 bg-[var(--color-background-inverse)] rounded-3xl border border-[var(--color-brand)] p-4 sm:p-5 shadow-2xl flex flex-col gap-3 lg:sticky lg:top-6"
         >
-          <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
-            <div>
-              <h2 className="text-lg font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)]">
-                Comanda Actual
-              </h2>
-              <p className="text-medium text-[var(--color-text-muted)]">
-                Estado inicial: <strong className="text-[var(--color-brand)]">En preparación</strong>
-              </p>
-            </div>
-            <span className="px-3 py-1 rounded-full text-caption font-bold bg-[var(--color-brand)]/15 text-[var(--color-brand)] border border-[var(--color-brand)]/40">
-              Mesa #{selectedTable}
-            </span>
-          </div>
+          {/* Cabecera compacta unificada: Título + Iconos de Servicio en la mitad + Mesa # */}
+          <div className="bg-[var(--color-surface-dark)] rounded-2xl p-3 border border-[var(--color-border)]/80 space-y-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="min-w-0">
+                <h2 className="text-base font-bold font-[var(--font-heading)] text-[var(--color-text-inverse)] leading-tight">
+                  Comanda Actual
+                </h2>
+                <p className="text-caption text-[var(--color-text-muted)]">
+                  Estado: <strong className="text-[var(--color-brand)]">En preparación</strong>
+                </p>
+              </div>
 
-          {/* Tipo de servicio */}
-          <div className="grid grid-cols-3 gap-2 bg-[var(--color-surface-dark)] p-1.5 rounded-2xl border border-[var(--color-border)]">
-            {TIPOS_SERVICIO.map((tipo) => {
-              const active = serviceType === tipo.value;
-              return (
-                <button
-                  key={tipo.value}
-                  type="button"
-                  onClick={() => setServiceType(tipo.value)}
-                  className={`min-h-[48px] py-2 rounded-xl text-caption sm:text-small font-bold transition cursor-pointer ${
-                    active
-                      ? "bg-[var(--color-brand)] text-[var(--color-text-primary)] shadow"
-                      : "text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)]"
-                  }`}
-                >
-                  {tipo.label}
-                </button>
-              );
-            })}
-          </div>
+              {/* Iconos de modalidad (En Sala / Para Llevar / Domicilio) en la mitad */}
+              <div className="inline-flex items-center gap-1 bg-[var(--color-background-inverse)] p-1 rounded-xl border border-[var(--color-border)]">
+                {TIPOS_SERVICIO.map((tipo) => {
+                  const active = serviceType === tipo.value;
+                  const ServiceIcon =
+                    tipo.value === "Para Llevar"
+                      ? ShoppingBag
+                      : tipo.value === "Domicilio"
+                      ? Bike
+                      : Utensils;
+                  const shortLabel =
+                    tipo.value === "En Sala"
+                      ? "Sala"
+                      : tipo.value === "Para Llevar"
+                      ? "Llevar"
+                      : "Domic.";
+                  return (
+                    <button
+                      key={tipo.value}
+                      type="button"
+                      onClick={() => setServiceType(tipo.value)}
+                      title={tipo.label}
+                      className={`min-h-[38px] px-2.5 py-1 rounded-lg text-caption font-bold inline-flex items-center gap-1 transition cursor-pointer ${
+                        active
+                          ? "bg-[var(--color-brand)] text-[var(--color-text-primary)] shadow"
+                          : "text-[var(--color-text-muted)] hover:text-[var(--color-text-inverse)]"
+                      }`}
+                    >
+                      <ServiceIcon className="w-3.5 h-3.5 shrink-0" />
+                      <span>{shortLabel}</span>
+                    </button>
+                  );
+                })}
+              </div>
 
-          {/* Mesero Responsable (Autoselecciona sesión actual + Flecha MD3) */}
-          <div className="bg-[var(--color-surface-dark)] rounded-2xl p-3.5 border border-[var(--color-border)]/70 space-y-2.5">
-            <div className="flex items-center justify-between text-medium gap-2">
-              <span className="text-[var(--color-text-muted)] flex items-center gap-1.5 font-medium">
-                <UserCheck className="w-4 h-4 text-[var(--color-brand)]" />
-                Mesero / Encargado:
-              </span>
               <button
                 type="button"
-                onClick={() => setShowTablePicker(true)}
-                className="min-h-[48px] inline-flex items-center text-medium text-[var(--color-brand)] hover:underline font-semibold cursor-pointer"
+                onClick={() => setShowTablePicker((prev) => !prev)}
+                className="px-2.5 py-1 rounded-full text-caption font-bold bg-[var(--color-brand)]/15 text-[var(--color-brand)] border border-[var(--color-brand)]/40 hover:bg-[var(--color-brand)]/25 transition cursor-pointer shrink-0"
               >
                 Mesa #{selectedTable}
               </button>
             </div>
 
-            <div className="relative flex items-center">
-              <select
-                value={waiterId}
-                onChange={(e) => setWaiterId(e.target.value)}
-                style={{
-                  WebkitAppearance: "none",
-                  MozAppearance: "none",
-                  appearance: "none",
-                }}
-                className="w-full min-h-[48px] bg-[var(--color-background-inverse)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl pl-3.5 pr-10 py-2.5 text-medium font-medium appearance-none whitespace-nowrap truncate cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
-              >
-                <option value="">Selecciona el mesero...</option>
-                {waiterOptions.map((w) => (
-                  <option key={w.value} value={w.value}>
-                    {w.label}
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute right-3.5 flex items-center justify-center text-[var(--color-brand)]">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+            {/* Mesero encargado unificado en una sola fila compacta */}
+            <div className="flex items-center gap-2 pt-2 border-t border-[var(--color-border)]/50">
+              <span className="text-caption text-[var(--color-text-muted)] inline-flex items-center gap-1 font-medium shrink-0">
+                <UserCheck className="w-3.5 h-3.5 text-[var(--color-brand)]" />
+                Mesero:
+              </span>
+
+              <div className="relative flex-1 flex items-center min-w-0">
+                <select
+                  value={waiterId}
+                  onChange={(e) => setWaiterId(e.target.value)}
+                  style={{
+                    WebkitAppearance: "none",
+                    MozAppearance: "none",
+                    appearance: "none",
+                  }}
+                  className="w-full min-h-[40px] bg-[var(--color-background-inverse)] border border-[var(--color-border)] text-[var(--color-text-inverse)] rounded-xl pl-3 pr-8 py-1.5 text-small font-medium appearance-none whitespace-nowrap truncate cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2.5}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
+                  <option value="">Selecciona el mesero...</option>
+                  {waiterOptions.map((w) => (
+                    <option key={w.value} value={w.value}>
+                      {w.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute right-2.5 flex items-center justify-center text-[var(--color-brand)]">
+                  <svg
+                    className="w-3.5 h-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2.5}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
