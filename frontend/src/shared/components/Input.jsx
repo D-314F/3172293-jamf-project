@@ -9,6 +9,7 @@ export default function Input({
   type = "text",
   size = "md",
   className = "",
+  labelClassName = "text-medium",
   disabled = false,
   ...props
 }) {
@@ -29,8 +30,9 @@ export default function Input({
         <label
           htmlFor={htmlFor}
           className={`
-            block text-medium mb-1
+            block mb-1
             font-[var(--font-label)]
+            ${labelClassName}
             ${error ? "text-[var(--color-brand-soft)]" : "text-[var(--color-text-inverse)]"}
           `}
         >
@@ -79,7 +81,7 @@ export default function Input({
       </div>
 
       {error && (
-        <p className="text-medium font-[var(--font-body)] text-[var(--color-brand-soft)] mt-1">
+        <p className="text-xs font-[var(--font-body)] text-[var(--color-brand-soft)] mt-1">
           {error}
         </p>
       )}

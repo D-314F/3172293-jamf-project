@@ -187,6 +187,32 @@ export function showUserErrorAlert({
     },
   });
 }
+  // 6. Alerta Informativa
+export function showInfoAlert({
+  title = "Información",
+  text = "",
+  html = "",
+  confirmButtonText = "Entendido",
+} = {}) {
+  return Swal.fire({
+    ...baseAlertConfig,
+    icon: "info",
+    iconColor: "var(--color-brand)",
+    title,
+    ...(html ? { html } : { text }),
+    confirmButtonText,
+    customClass: {
+      popup:
+        "rounded-3xl border border-[var(--color-border)] shadow-2xl p-6 font-[var(--font-body)]",
+      title:
+        "text-title font-bold font-[var(--font-heading)] text-[var(--color-brand)]",
+      htmlContainer:
+        "text-medium font-[var(--font-body)] text-[var(--color-text-muted)] mt-2",
+      confirmButton:
+        "bg-[var(--color-brand)] text-[var(--color-text-primary)] hover:brightness-110 font-bold px-6 py-2.5 rounded-xl shadow-lg transition cursor-pointer",
+    },
+  });
+}
 
 // Alias de compatibilidad
 export const showErrorAlert = showUserErrorAlert;
