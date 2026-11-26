@@ -19,6 +19,7 @@ import {
   showSuccessAlert,
   showCancelAlert,
   showUserErrorAlert,
+  showConfirmDeleteAlert,
 } from "@/shared/services/alertService";
 
 const EXTRA_CATEGORIES = [
@@ -177,7 +178,16 @@ export default function EditOrderContent({
     }
   };
 
-  const handleRemoveDishItem = (indexToRemove) => {
+  const handleRemoveDishItem = async (indexToRemove) => {
+    const targetItem = dishItems[indexToRemove] || "este platillo";
+    const result = await showConfirmDeleteAlert({
+      title: "¿Quitar platillo de la orden?",
+      text: `¿Estás seguro de eliminar "${targetItem}" de la comanda?`,
+      confirmButtonText: "Sí, quitar",
+      cancelButtonText: "No, conservar",
+    });
+    if (!result.isConfirmed) return;
+
     const updatedList = dishItems.filter((_, idx) => idx !== indexToRemove);
     setFormData((prev) => ({
       ...prev,
