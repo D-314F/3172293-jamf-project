@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Input, Button } from "@/shared";
 import { loginSchema } from "../schemas/loginSchema";
-import { 
-  showSuccessAlert, 
-  showUserErrorAlert,
+import {
+  showSuccessAlert,
+  //showUserErrorAlert,
   showInfoAlert,
 } from "@/shared/services/alertService";
 import { SUPPORT_EMAIL } from "@/features/config";
@@ -16,19 +16,43 @@ import logo from "@/assets/images/1-logo.png";
 
 import { login } from "@/features/auth/services/authService";
 
+const AUTH_CONFIG = {
+  maxAttempts: 3,
+  lockDurationSeconds: 600,
+  successTimerMs: 2000,
+  dashboardRoute: "/dashboard/home",
+  sessionTokenKey: "token",
+};
+
+const AUTH_MESSAGES = {
+  supportTitle: "Soporte técnico",
+  supportPrefix: "Este es el correo del soporte:",
+  lockedTitle: "Cuenta bloqueada",
+  lockedDetail: `Cuenta bloqueada después de ${AUTH_CONFIG.maxAttempts} intentos de autenticación erróneos consecutivos.`,
+  invalidFieldsTitle: "Campos inválidos",
+  invalidFieldsText: "Por favor, completa correctamente todos los campos obligatorios.",
+  successTitle: "¡Bienvenido!",
+  successText: "Has ingresado correctamente a la plataforma.",
+  invalidCredentialsTitle: "Error de autenticación",
+  loginErrorTitle: "Error al iniciar sesión",
+  loginFallbackError: "No fue posible iniciar sesión. Intenta nuevamente.",
+};
+
 export default function LoginForm() {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [errors, setErrors] = useState({});
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [isLocked, setIsLocked] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState(null);
 
   const [formData, setFormData] = useState({
     userEmail: "",
     userPassword: "",
   });
 
-  // Temporizador para desbloqueo automático a los 10 minutos
+  // Temporizador para desbloqueo automático
   useEffect(() => {
     let timer = null;
     if (isLocked && countdown > 0) {
@@ -38,6 +62,7 @@ export default function LoginForm() {
             clearInterval(timer);
             setIsLocked(false);
             setFailedAttempts(0);
+            setFeedback(null);
             return 0;
           }
           return prev - 1;
@@ -49,8 +74,8 @@ export default function LoginForm() {
     };
   }, [isLocked, countdown]);
 
-  if (sessionStorage.getItem("token")) {
-    return <Navigate to="/dashboard/home" replace />;
+  if (sessionStorage.getItem(AUTH_CONFIG.sessionTokenKey)) {
+    return <Navigate to={AUTH_CONFIG.dashboardRoute} replace />;
   }
 
   // Formato mm:ss (ej: 10:00, 09:59...)
@@ -59,10 +84,11 @@ export default function LoginForm() {
     const secs = seconds % 60;
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
-    const handleSupportClick = () => {
+
+  const handleSupportClick = () => {
     showInfoAlert({
-      title: "Soporte técnico",
-      text: `Este es el correo del soporte: ${SUPPORT_EMAIL}`,
+      title: AUTH_MESSAGES.supportTitle,
+      text: `${AUTH_MESSAGES.supportPrefix} ${SUPPORT_EMAIL}`,
     });
   };
 
@@ -81,15 +107,21 @@ export default function LoginForm() {
         [name]: "",
       }));
     }
+
+    if (feedback) {
+      setFeedback(null);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (isLocked) {
-      await showUserErrorAlert({
-        title: "Cuenta bloqueada",
-        text: `La cuenta se encuentra bloqueada por seguridad. Podrás intentar de nuevo en ${formatTime(countdown)}.`,
+      const lockMessage = `La cuenta se encuentra bloqueada por seguridad. Podrás intentar de nuevo en ${formatTime(countdown)}.`;
+      setFeedback({ type: "error", message: lockMessage });
+      await ({
+        title: AUTH_MESSAGES.lockedTitle,
+        text: lockMessage,
       });
       return;
     }
@@ -102,16 +134,22 @@ export default function LoginForm() {
         fieldErrors[issue.path[0]] = issue.message;
       });
       setErrors(fieldErrors);
+      setFeedback({
+        type: "error",
+        message: AUTH_MESSAGES.invalidFieldsText,
+      });
 
-      await showUserErrorAlert({
-        title: "Campos inválidos",
-        text: "Por favor, completa correctamente todos los campos obligatorios.",
+      await ({
+        title: AUTH_MESSAGES.invalidFieldsTitle,
+        text: AUTH_MESSAGES.invalidFieldsText,
       });
 
       return;
     }
 
     setErrors({});
+    setFeedback(null);
+    setIsSubmitting(true);
 
     try {
       const data = await login(result.data);
@@ -119,44 +157,64 @@ export default function LoginForm() {
       setFailedAttempts(0);
       setIsLocked(false);
       setCountdown(0);
-      sessionStorage.setItem("token", data.token);
+      sessionStorage.setItem(AUTH_CONFIG.sessionTokenKey, data.token);
 
-      await showSuccessAlert({
-        title: "¡Bienvenido!",
-        text: "Has ingresado correctamente a la plataforma.",
-        timer: 2000,
+      setFeedback({
+        type: "success",
+        message: AUTH_MESSAGES.successText,
       });
 
-      navigate("/dashboard/home", { replace: true });
+      await showSuccessAlert({
+        title: AUTH_MESSAGES.successTitle,
+        text: AUTH_MESSAGES.successText,
+        timer: AUTH_CONFIG.successTimerMs,
+      });
+
+      navigate(AUTH_CONFIG.dashboardRoute, { replace: true });
     } catch (error) {
       console.error("Error al iniciar sesión:", error.message);
 
       if (error.code === "ACCOUNT_LOCKED") {
         setIsLocked(true);
-        const lockSeconds = error.secondsLeft || 600;
+        const lockSeconds = error.secondsLeft || AUTH_CONFIG.lockDurationSeconds;
         setCountdown(lockSeconds);
 
-        await showUserErrorAlert({
-          title: "Cuenta Bloqueada",
-          text: `Cuenta bloqueada después de 3 intentos de autenticación erróneos consecutivos. Podrás intentar de nuevo en ${formatTime(lockSeconds)}.`,
+        const lockedText = `${AUTH_MESSAGES.lockedDetail} Podrás intentar de nuevo en ${formatTime(lockSeconds)}.`;
+        setFeedback({ type: "error", message: lockedText });
+
+        await ({
+          title: AUTH_MESSAGES.lockedTitle,
+          text: lockedText,
         });
       } else if (error.code === "INVALID_CREDENTIALS") {
         const nextAttempts = error.attempts ?? failedAttempts + 1;
         setFailedAttempts(nextAttempts);
-        const remaining = error.remaining ?? Math.max(0, 3 - nextAttempts);
+        const remaining =
+          error.remaining ?? Math.max(0, AUTH_CONFIG.maxAttempts - nextAttempts);
 
-        await showUserErrorAlert({
-          title: "Error de autenticación",
-          text: `Credenciales inválidas. Te quedan ${remaining} intento(s) antes del bloqueo.`,
+        const credentialsText = `Credenciales inválidas. Te quedan ${remaining} intento(s) antes del bloqueo.`;
+        setFeedback({ type: "error", message: credentialsText });
+
+        await ({
+          title: AUTH_MESSAGES.invalidCredentialsTitle,
+          text: credentialsText,
         });
       } else {
-        await showUserErrorAlert({
-          title: "Error al iniciar sesión",
-          text: error.message || "No fue posible iniciar sesión. Intenta nuevamente.",
+        const fallbackMessage =
+          error.message || AUTH_MESSAGES.loginFallbackError;
+        setFeedback({ type: "error", message: fallbackMessage });
+
+        await ({
+          title: AUTH_MESSAGES.loginErrorTitle,
+          text: fallbackMessage,
         });
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  const isFormDisabled = isLocked || isSubmitting;
 
   return (
     <div className="h-dvh w-full flex items-center justify-center p-3 sm:p-4 relative overflow-hidden">
@@ -168,15 +226,14 @@ export default function LoginForm() {
       />
       <div className="absolute inset-0 bg-[var(--color-background-inverse)]/70 backdrop-blur-[2px] z-0" />
 
-      {/* Tarjeta de Login compacta (sin scroll en desktop/portátil) */}
+      {/* Tarjeta de Login compacta */}
       <div className="w-full max-w-md p-5 sm:p-6 bg-[var(--color-background-inverse)] border border-[var(--color-brand)] rounded-3xl relative z-10 shadow-2xl flex flex-col items-center transition-all duration-300">
-
         {/* Logo */}
         <div className="w-14 h-14 mb-2 rounded-full bg-[var(--color-brand)] p-2.5 flex items-center justify-center shadow-md">
-          <img 
-            src={logo} 
-            alt="Logo Marca" 
-            className="w-full h-full object-contain" 
+          <img
+            src={logo}
+            alt="Logo Marca"
+            className="w-full h-full object-contain"
           />
         </div>
 
@@ -190,12 +247,15 @@ export default function LoginForm() {
 
         {/* Banner de Estado Bloqueado con cuenta regresiva en vivo */}
         {isLocked && (
-          <div className="w-full mb-3 p-3 rounded-2xl bg-[var(--color-brand-soft)]/20 border border-[var(--color-brand-soft)] text-center flex flex-col items-center gap-1 shadow-lg animate-fade-in">
-            <span className="text-body font-[var(--font-heading)] text-[var(--color-brand-soft)] flex items-center justify-center gap-1">
-               Cuenta bloqueada
+          <div
+            role="alert"
+            className="w-full mb-3 p-3 rounded-2xl bg-[var(--color-brand-soft)]/20 border border-[var(--color-brand-soft)] text-center flex flex-col items-center gap-1 shadow-lg animate-fade-in"
+          >
+            <span className="text-body font-[var(--font-heading)] text-[var(--color-brand-soft)]">
+              {AUTH_MESSAGES.lockedTitle}
             </span>
             <span className="text-medium font-[var(--font-body)] text-[var(--color-text-inverse)]">
-              Cuenta bloqueada después de 3 intentos erróneos consecutivos.
+              {AUTH_MESSAGES.lockedDetail}
             </span>
             <span className="text-body font-[var(--font-heading)] text-[var(--color-brand)] mt-1">
               Disponible de nuevo en: {formatTime(countdown)}
@@ -203,32 +263,55 @@ export default function LoginForm() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="gap-4 flex flex-col w-full">
+        <form onSubmit={handleSubmit} noValidate className="gap-2 flex flex-col w-full">
           <Input
             label="Correo Electrónico"
+            htmlFor="userEmail"
             name="userEmail"
             type="email"
+            size="lg"
+            labelClassName="text-xs"
+            errorClassName="text-xs"
             value={formData.userEmail}
             placeholder="ejemplo@correo.com"
             onChange={handleChange}
             error={errors.userEmail}
-            disabled={isLocked}
+            disabled={isFormDisabled}
           />
 
           <Input
             label="Contraseña"
+            htmlFor="userPassword"
             name="userPassword"
             type="password"
+            size="lg"
+            labelClassName="text-xs"
+            errorClassName="text-xs"
             value={formData.userPassword}
             placeholder="••••••••••"
             onChange={handleChange}
             error={errors.userPassword}
-            disabled={isLocked}
+            disabled={isFormDisabled}
           />
 
+          {/* Feedback message inline del estado de autenticación */}
+          {feedback && (
+            <div
+              role="status"
+              aria-live="polite"
+              className={`w-full px-3.5 py-2.5 rounded-xl border text-center text-medium font-[var(--font-body)] transition-all ${
+                feedback.type === "success"
+                  ? "bg-[var(--color-brand)]/15 border-[var(--color-brand)] text-[var(--color-text-inverse)]"
+                  : "bg-[var(--color-brand-soft)]/15 border-[var(--color-brand-soft)] text-[var(--color-brand-soft)]"
+              }`}
+            >
+              {feedback.message}
+            </div>
+          )}
+
           <div className="text-center">
-            <Link 
-              to="/forgot-password" 
+            <Link
+              to="/forgot-password"
               className="text-[var(--color-brand)] hover:underline transition-all font-[var(--font-label)] text-medium"
             >
               ¿Olvidaste tu contraseña?
@@ -239,10 +322,14 @@ export default function LoginForm() {
             variant={isLocked ? "secondary" : "primary"}
             size="md"
             type="submit"
-            className="w-full mt-2"
-            disabled={isLocked}
+            className="w-full mt-1"
+            disabled={isFormDisabled}
           >
-            {isLocked ? ` Bloqueado (${formatTime(countdown)})` : "Iniciar sesión"}
+            {isLocked
+              ? `Bloqueado (${formatTime(countdown)})`
+              : isSubmitting
+                ? "Validando..."
+                : "Iniciar sesión"}
           </Button>
 
           {errors.submit && (
@@ -252,24 +339,27 @@ export default function LoginForm() {
           )}
 
           <div className="text-center text-medium pt-3 border-t border-[var(--color-brand)]/20">
-            <span className="text-[var(--color-text-inverse)]/80 font-[var(--font-body)]">¿No tienes cuenta? </span>
-            <Link 
-              to="/register" 
+            <span className="text-[var(--color-text-inverse)]/80 font-[var(--font-body)]">
+              ¿No tienes cuenta?{" "}
+            </span>
+            <Link
+              to="/register"
               className="text-[var(--color-brand)] font-[var(--font-heading)] hover:underline transition-all"
             >
               Regístrate Aquí
             </Link>
           </div>
         </form>
-                    <div>
-              <button
-                type="button"
-                onClick={handleSupportClick}
-                className="text-[var(--color-text-muted)] hover:text-[var(--color-brand)] hover:underline transition-all font-[var(--font-label)] text-small cursor-pointer"
-              >
-                ¿Necesitas soporte?
-              </button>
-            </div>
+
+        <div className="mt-2">
+          <button
+            type="button"
+            onClick={handleSupportClick}
+            className="text-[var(--color-text-muted)] hover:text-[var(--color-brand)] hover:underline transition-all font-[var(--font-label)] text-small cursor-pointer"
+          >
+            ¿Necesitas soporte?
+          </button>
+        </div>
       </div>
     </div>
   );
